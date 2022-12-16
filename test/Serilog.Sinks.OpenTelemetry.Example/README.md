@@ -12,7 +12,7 @@ testing. This **must** be deployed before running the program.
 ### Prerequisites
 
 You must have docker installed locally with a kind cluster running
-within it. The Kubernetes CLI `kubect` must also be available.
+within it. The Kubernetes CLI `kubectl` must also be available.
 
 ### Manifests
 
