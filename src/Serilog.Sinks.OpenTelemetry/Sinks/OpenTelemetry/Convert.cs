@@ -59,7 +59,6 @@ public static class Convert
         ProcessMessageTemplate(logRecord, logEvent);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
-        ProcessActivity(logRecord);
 
         return logRecord;
     }
@@ -105,10 +104,23 @@ public static class Convert
         var attrs = logRecord.Attributes;
         foreach (var (key, value) in properties)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(value);
-            if (v != null)
+            switch (key)
             {
-                attrs.Add(ConvertUtils.NewAttribute(key, v));
+                case TraceIdEnricher.TRACE_ID_PROPERTY_NAME:
+                    logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(ActivityTraceId.CreateFromString(value.ToString()));
+                    continue;
+
+                case TraceIdEnricher.SPAN_ID_PROPERTY_NAME:
+                    logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(ActivitySpanId.CreateFromString(value.ToString()));
+                    continue;
+
+                default:
+                    var v = ConvertUtils.ToOpenTelemetryAnyValue(value);
+                    if (v != null)
+                    {
+                        attrs.Add(ConvertUtils.NewAttribute(key, v));
+                    }
+                    continue;
             }
         }
     }
@@ -136,16 +148,6 @@ public static class Convert
             {
                 attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.StackTrace));
             }
-        }
-    }
-
-    private static void ProcessActivity(LogRecord logRecord)
-    {
-        var currentActivity = Activity.Current;
-        if (currentActivity != null)
-        {
-            logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(currentActivity.TraceId);
-            logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(currentActivity.SpanId);
         }
     }
 }
