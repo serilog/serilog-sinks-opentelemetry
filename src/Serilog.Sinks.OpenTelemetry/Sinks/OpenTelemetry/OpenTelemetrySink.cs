@@ -14,6 +14,7 @@
 
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.PeriodicBatching;
 using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Logs.V1;
@@ -22,7 +23,7 @@ using OpenTelemetry.Proto.Common.V1;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-public class OpenTelemetrySink : ILogEventSink, IDisposable
+public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 {
     private readonly IFormatProvider? _formatProvider;
 
@@ -50,26 +51,9 @@ public class OpenTelemetrySink : ILogEventSink, IDisposable
         channel.Dispose();
     }
 
-    public void Emit(LogEvent logEvent)
+    public void Export(ExportLogsServiceRequest request)
     {
-        var message = logEvent.RenderMessage(_formatProvider);
-
-        var logRecord = Convert.ToLogRecord(logEvent, message);
-
-        var request = CreateRequest(logRecord);
-
-        // FIXME: The exception should actually be thrown to Serilog.
-        try
-        {
-            var response = client.Export(request);
-            Console.WriteLine("response: " + response.ToString());
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("exception: " + e.ToString());
-        }
-
-        Console.WriteLine(DateTimeOffset.Now.ToString() + " " + message);
+        var response = client.Export(request);
     }
 
     private ResourceLogs CreateResourceLogsTemplate(String scopeName, String scopeVersion, IDictionary<String, Object>? resourceAttributes)
@@ -90,27 +74,50 @@ public class OpenTelemetrySink : ILogEventSink, IDisposable
         scopeLogs.Scope = scope;
         scopeLogs.SchemaUrl = Convert.SCHEMA_URL;
         scope.Name = "Serilog.Sinks.OpenTelemetry";
+        // FIXME: Get version from build process.
         scope.Version = "v0.0.0";
         resourceLogs.ScopeLogs.Add(scopeLogs);
 
         return resourceLogs;
     }
 
-    private ExportLogsServiceRequest CreateRequest(LogRecord logRecord)
+    private ExportLogsServiceRequest CreateEmptyRequest()
     {
         var request = new ExportLogsServiceRequest();
         var resourceLogs = new ResourceLogs();
         request.ResourceLogs.Add(resourceLogs);
-
-        // template includes one, preconfigured ScopeLog
         resourceLogs.MergeFrom(resourceLogsTemplate);
 
+        return request;
+    }
+
+    private ExportLogsServiceRequest AddLogRecordToRequest(ExportLogsServiceRequest request, LogRecord logRecord)
+    {
         try
         {
-            resourceLogs.ScopeLogs.ElementAt(0).LogRecords.Add(logRecord);
+            var resourceLog = request.ResourceLogs.ElementAt(0);
+            resourceLog?.ScopeLogs.ElementAt(0).LogRecords.Add(logRecord);
         }
         catch (Exception) { }
 
         return request;
+    }
+
+    public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
+    {
+        var request = CreateEmptyRequest();
+        foreach (var logEvent in batch)
+        {
+            var message = logEvent.RenderMessage(_formatProvider);
+            var logRecord = Convert.ToLogRecord(logEvent, message);
+            AddLogRecordToRequest(request, logRecord);
+        }
+        Export(request);
+        return Task.FromResult(0);
+    }
+
+    public Task OnEmptyBatchAsync()
+    {
+        return Task.FromResult(0);
     }
 }

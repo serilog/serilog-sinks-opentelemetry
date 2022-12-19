@@ -15,6 +15,7 @@
 using Serilog.Configuration;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog;
 
@@ -48,13 +49,25 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The minimum level for events passed through the sink. Default value is
     /// <see cref="LevelAlias.Minimum"/>.
     /// </param>
+    /// <param name="batchSizeLimit">
+    /// The maximum number of log events to include in a single batch.
+    /// </param>
+    /// <param name="batchPeriod">
+    /// The maximum delay in seconds between batches.
+    /// </param>
+    /// <param name="batchQueueLimit">
+    /// The maximum number of batches to hold in memory.
+    /// </param>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration sinkConfiguration,
         string endpoint = "http://localhost:4317/v1/logs",
         IDictionary<string, Object>? resourceAttributes = null,
         IFormatProvider? formatProvider = null,
-        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum)
+        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        int batchSizeLimit = 100,
+        int batchPeriod = 2,
+        int batchQueueLimit = 10000)
     {
         if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
 
@@ -63,6 +76,16 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             formatProvider: formatProvider,
             resourceAttributes: resourceAttributes);
 
-        return sinkConfiguration.Sink(sink, restrictedToMinimumLevel);
+        var batchingOptions = new PeriodicBatchingSinkOptions
+        {
+            BatchSizeLimit = batchSizeLimit,
+            Period = TimeSpan.FromSeconds(batchPeriod),
+            EagerlyEmitFirstEvent = true,
+            QueueLimit = batchQueueLimit
+        };
+
+        var batchingSink = new PeriodicBatchingSink(sink, batchingOptions);
+
+        return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel);
     }
 }
