@@ -107,11 +107,19 @@ public static class Convert
             switch (key)
             {
                 case TraceIdEnricher.TRACE_ID_PROPERTY_NAME:
-                    logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(ActivityTraceId.CreateFromString(value.ToString()));
+                    var traceId = ConvertUtils.ToOpenTelemetryTraceId(value.ToString());
+                    if (traceId != null)
+                    {
+                        logRecord.TraceId = traceId;
+                    }
                     continue;
 
                 case TraceIdEnricher.SPAN_ID_PROPERTY_NAME:
-                    logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(ActivitySpanId.CreateFromString(value.ToString()));
+                    var spanId = ConvertUtils.ToOpenTelemetrySpanId(value.ToString());
+                    if (spanId != null)
+                    {
+                        logRecord.SpanId = spanId;
+                    }
                     continue;
 
                 default:

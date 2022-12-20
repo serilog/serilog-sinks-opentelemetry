@@ -106,6 +106,7 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
         var request = CreateEmptyRequest();
+
         foreach (var logEvent in batch)
         {
             var message = logEvent.RenderMessage(_formatProvider);

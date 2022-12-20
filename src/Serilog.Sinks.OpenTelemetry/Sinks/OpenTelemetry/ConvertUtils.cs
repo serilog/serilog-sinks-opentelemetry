@@ -74,11 +74,40 @@ public static class ConvertUtils
         return ByteString.CopyFrom(traceIdBytes);
     }
 
+    public static ByteString? ToOpenTelemetryTraceId(String hexTraceId)
+    {
+        try
+        {
+            var span = new ReadOnlySpan<char>(hexTraceId.ToCharArray());
+            var traceId = ActivityTraceId.CreateFromString(hexTraceId);
+            return ToOpenTelemetryTraceId(traceId);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
     public static ByteString ToOpenTelemetrySpanId(ActivitySpanId spanId)
     {
         var spanIdBytes = new byte[8];
         spanId.CopyTo(new Span<byte>(spanIdBytes));
         return ByteString.CopyFrom(spanIdBytes);
+    }
+
+    public static ByteString? ToOpenTelemetrySpanId(String hexSpanId)
+    {
+        try
+        {
+            var spanIdBytes = new byte[8];
+            var span = new ReadOnlySpan<char>(hexSpanId.ToCharArray());
+            var spanId = ActivitySpanId.CreateFromString(span);
+            return ToOpenTelemetrySpanId(spanId);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public static KeyValue NewAttribute(string key, AnyValue value)

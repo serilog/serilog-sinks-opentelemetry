@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Threading;
+using System.Diagnostics;
 using Serilog;
+
 
 namespace SerilogSinksOpenTelemetryExample;
 
@@ -20,21 +24,38 @@ class Program
 {
     static void Main(string[] args)
     {
+        Random rand = new Random();
+
         var log = new LoggerConfiguration()
             .MinimumLevel.Information()
-            .WriteTo.OpenTelemetry(endpoint: "http://127.0.0.1:4317",
-            resourceAttributes: new Dictionary<String, Object>() {
+            .Enrich.WithTraceIdAndSpanId()
+            .WriteTo.OpenTelemetry(
+                endpoint: "http://127.0.0.1:4317",
+                resourceAttributes: new Dictionary<String, Object>() {
                         {"service.name", "test-logging-service"},
                         {"index", 10},
                         {"flag", true},
                         {"value", 3.14}
-                })
+                },
+                batchSizeLimit: 10,
+                batchPeriod: 5,
+                batchQueueLimit: 1000)
             .CreateLogger();
 
-        var position = new { Latitude = 25, Longitude = 134 };
-        var elapsedMs = 34;
+        for (int i = 0; i < 100; i++)
+        {
+            var activity = new Activity("loop");
+            activity.Start();
 
-        log.Information("Processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
+            var position = new { Latitude = rand.Next(-90, 91), Longitude = rand.Next(0, 361) };
+            var elapsedMs = rand.Next(0, 101);
 
+            log.Information("Processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
+            log.Error("count = {@Count}", i);
+
+            activity.Stop();
+            Console.WriteLine(i);
+            Thread.Sleep(1000);
+        }
     }
 }
