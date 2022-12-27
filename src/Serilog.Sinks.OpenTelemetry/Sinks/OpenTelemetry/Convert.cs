@@ -17,18 +17,17 @@ using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
 using Serilog.Events;
-using System.Text.RegularExpressions;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-public static class Convert
+internal static class Convert
 {
-    public static String MESSAGE_TEMPLATE = "serilog.message.template";
-    public static String MESSAGE_TEMPLATE_HASH = "serilog.message.template_hash";
+    internal static String MESSAGE_TEMPLATE = "serilog.message.template";
+    internal static String MESSAGE_TEMPLATE_HASH = "serilog.message.template_hash";
 
-    public static String SCHEMA_URL = "https://opentelemetry.io/schemas/v1.13.0";
+    internal static String SCHEMA_URL = "https://opentelemetry.io/schemas/v1.13.0";
 
-    public static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, Object>? resourceAttributes)
+    internal static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, Object>? resourceAttributes)
     {
         var attributes = new RepeatedField<KeyValue>();
         if (resourceAttributes != null)
@@ -48,7 +47,7 @@ public static class Convert
         return attributes;
     }
 
-    public static LogRecord ToLogRecord(LogEvent logEvent, String? renderedMessage)
+    internal static LogRecord ToLogRecord(LogEvent logEvent, String? renderedMessage)
     {
         var logRecord = new LogRecord();
 

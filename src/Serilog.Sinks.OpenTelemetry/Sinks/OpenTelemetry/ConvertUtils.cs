@@ -23,16 +23,16 @@ using System.Text.RegularExpressions;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-public static class ConvertUtils
+internal static class ConvertUtils
 {
     private static readonly ulong millisToNanos = 1000000;
 
-    public static ulong ToUnixNano(DateTimeOffset t)
+    internal static ulong ToUnixNano(DateTimeOffset t)
     {
         return ((ulong)t.ToUnixTimeMilliseconds()) * millisToNanos;
     }
 
-    public static string Md5Hash(string s)
+    internal static string Md5Hash(string s)
     {
         using (MD5 md5 = MD5.Create())
         {
@@ -42,7 +42,7 @@ public static class ConvertUtils
         }
     }
 
-    public static SeverityNumber ToSeverityNumber(LogEventLevel level)
+    internal static SeverityNumber ToSeverityNumber(LogEventLevel level)
     {
         switch (level)
         {
@@ -63,14 +63,14 @@ public static class ConvertUtils
         }
     }
 
-    public static ByteString ToOpenTelemetryTraceId(ActivityTraceId traceId)
+    internal static ByteString ToOpenTelemetryTraceId(ActivityTraceId traceId)
     {
         var traceIdBytes = new byte[16];
         traceId.CopyTo(new Span<byte>(traceIdBytes));
         return ByteString.CopyFrom(traceIdBytes);
     }
 
-    public static ByteString? ToOpenTelemetryTraceId(String hexTraceId)
+    internal static ByteString? ToOpenTelemetryTraceId(String hexTraceId)
     {
         try
         {
@@ -84,14 +84,14 @@ public static class ConvertUtils
         }
     }
 
-    public static ByteString ToOpenTelemetrySpanId(ActivitySpanId spanId)
+    internal static ByteString ToOpenTelemetrySpanId(ActivitySpanId spanId)
     {
         var spanIdBytes = new byte[8];
         spanId.CopyTo(new Span<byte>(spanIdBytes));
         return ByteString.CopyFrom(spanIdBytes);
     }
 
-    public static ByteString? ToOpenTelemetrySpanId(String hexSpanId)
+    internal static ByteString? ToOpenTelemetrySpanId(String hexSpanId)
     {
         try
         {
@@ -105,7 +105,7 @@ public static class ConvertUtils
         }
     }
 
-    public static KeyValue NewAttribute(string key, AnyValue value)
+    internal static KeyValue NewAttribute(string key, AnyValue value)
     {
         return new KeyValue()
         {
@@ -114,7 +114,7 @@ public static class ConvertUtils
         };
     }
 
-    public static KeyValue NewStringAttribute(string key, string value)
+    internal static KeyValue NewStringAttribute(string key, string value)
     {
         return NewAttribute(key, new AnyValue()
         {
@@ -122,7 +122,7 @@ public static class ConvertUtils
         });
     }
 
-    public static AnyValue? ToOpenTelemetryPrimitive(Object? value)
+    internal static AnyValue? ToOpenTelemetryPrimitive(Object? value)
     {
         switch (value)
         {
@@ -185,12 +185,12 @@ public static class ConvertUtils
         return null;
     }
 
-    public static AnyValue? ToOpenTelemetryScalar(Serilog.Events.ScalarValue scalar)
+    internal static AnyValue? ToOpenTelemetryScalar(Serilog.Events.ScalarValue scalar)
     {
         return ToOpenTelemetryPrimitive(scalar?.Value);
     }
 
-    public static AnyValue? ToOpenTelemetryMap(Serilog.Events.StructureValue value)
+    internal static AnyValue? ToOpenTelemetryMap(Serilog.Events.StructureValue value)
     {
         var map = new AnyValue();
         var kvList = new KeyValueList();
@@ -210,7 +210,7 @@ public static class ConvertUtils
 
     }
 
-    public static AnyValue? ToOpenTelemetryArray(Serilog.Events.SequenceValue value)
+    internal static AnyValue? ToOpenTelemetryArray(Serilog.Events.SequenceValue value)
     {
         var array = new AnyValue();
         var values = new ArrayValue();
@@ -226,7 +226,7 @@ public static class ConvertUtils
         return array;
     }
 
-    public static AnyValue? ToOpenTelemetryAnyValue(LogEventPropertyValue value)
+    internal static AnyValue? ToOpenTelemetryAnyValue(LogEventPropertyValue value)
     {
         switch (value)
         {
@@ -241,7 +241,7 @@ public static class ConvertUtils
         }
     }
 
-    public static string OnlyHexDigits(string s)
+    internal static string OnlyHexDigits(string s)
     {
         try
         {

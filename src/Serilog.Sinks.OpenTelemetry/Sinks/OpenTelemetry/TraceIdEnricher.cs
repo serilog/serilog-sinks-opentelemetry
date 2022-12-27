@@ -31,12 +31,25 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// </summary>
 public class TraceIdEnricher : ILogEventEnricher
 {
+    /// <summary>
+    /// Property name for the trace ID extracted from the current activity.
+    /// </summary>
     public const string TRACE_ID_PROPERTY_NAME = "traceId";
 
+    /// <summary>
+    /// Property name for the span ID extracted from the current activity.
+    /// </summary>
     public const string SPAN_ID_PROPERTY_NAME = "spanId";
 
+    /// <summary>
+    /// Creates a new TraceIdEnricher instance.
+    /// </summary>
     public TraceIdEnricher() { }
 
+    /// <summary>
+    /// Implements the `ILogEventEnricher` interface, adding the trace
+    /// and span IDs from the current activity to the LogEvent.
+    /// </summary>
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
         var traceId = Activity.Current?.TraceId.ToHexString();

@@ -14,15 +14,20 @@
 
 using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
+using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
-using OpenTelemetry.Proto.Common.V1;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 using System.Reflection;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
+/// <summary>
+/// Implements a Serilog sink that transforms LogEvent objects into
+/// OpenTelemetry LogRecord objects and emits those to an OTLP
+/// endpoint.
+/// </summary>
 public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 {
     private readonly IFormatProvider? _formatProvider;
@@ -32,11 +37,6 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     private readonly GrpcChannel channel;
 
     private readonly ResourceLogs resourceLogsTemplate;
-
-    public readonly String SCOPE_NAME = "Serilog.Sinks.OpenTelemetry";
-
-    // FIXME: Get scope version from the build process.
-    public readonly String SCOPE_VERSION = "v0.0.0";
 
     private static String? GetScopeName()
     {
@@ -48,10 +48,25 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         return Assembly.GetExecutingAssembly().GetName().Version?.ToString();
     }
 
+    /// <summary>
+    /// Creates a new instance of an OpenTelemetrySink.
+    /// </summary>
+    /// <param name="endpoint">
+    /// The full OTLP endpoint to which logs are sent. 
+    /// </param>
+    /// <param name="formatProvider">
+    /// A IFormatProvider that is used to format the message, which
+    /// is written to the LogRecord body.
+    /// </param>
+    /// <param name="resourceAttributes">
+    /// An IDictionary&lt;String, Object&gt; containing the key-value pairs
+    /// to be used as resource attributes. Non-scalar values are silently
+    /// ignored.
+    /// </param>
     public OpenTelemetrySink(
-        String endpoint,
-        IFormatProvider? formatProvider,
-        IDictionary<String, Object>? resourceAttributes)
+       String endpoint,
+       IFormatProvider? formatProvider,
+       IDictionary<String, Object>? resourceAttributes)
     {
         channel = GrpcChannel.ForAddress(endpoint);
         client = new LogsService.LogsServiceClient(channel);
@@ -61,12 +76,15 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         resourceLogsTemplate = CreateResourceLogsTemplate(GetScopeName(), GetScopeVersion(), resourceAttributes);
     }
 
+    /// <summary>
+    /// Frees the gRPC channel used to send logs to the OTLP endpoint.
+    /// </summary>
     public void Dispose()
     {
         channel.Dispose();
     }
 
-    public void Export(ExportLogsServiceRequest request)
+    internal void Export(ExportLogsServiceRequest request)
     {
         var response = client.Export(request);
     }
@@ -88,10 +106,12 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         var scope = new InstrumentationScope();
         scopeLogs.Scope = scope;
         scopeLogs.SchemaUrl = Convert.SCHEMA_URL;
-        if (scopeName != null) {
+        if (scopeName != null)
+        {
             scope.Name = scopeName;
         }
-        if (scopeVersion != null) {
+        if (scopeVersion != null)
+        {
             scope.Version = scopeVersion;
         }
         resourceLogs.ScopeLogs.Add(scopeLogs);
@@ -121,6 +141,10 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         return request;
     }
 
+    /// <summary>
+    /// Transforms and sends the given batch of LogEvent objects
+    /// to an OTLP endpoint.
+    /// </summary>
     public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
         var request = CreateEmptyRequest();
@@ -135,6 +159,9 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         return Task.FromResult(0);
     }
 
+    /// <summary>
+    /// A no-op for an empty batch.
+    /// </summary>
     public Task OnEmptyBatchAsync()
     {
         return Task.FromResult(0);
