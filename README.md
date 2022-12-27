@@ -105,15 +105,27 @@ Activity, if it exists.
 ## Trace Context Enrichment
 
 OpenTelemetry allows a TraceID and SpanID to be added to log records to 
-associate a log with a particular request. Within .NET, these are normally
-found in the current activity. If the logging call takes place within an 
-activity, the trace ID and span ID will be extracted from the activity 
-and added to the OpenTelemetry log record.
+associate a log with a particular request. Within .NET, these are
+found in the current activity.
 
-Activity.Current | OpenTelemetry (LogRecord) | Comment |
---- | --- | --- |
-TraceId | Field[`traceID`] | Direct binary conversion maintains fidelity |
-SpanId | Field[`spanID`] | Direct binary conversion maintains fidelity | 
+If the `WithTraceIdAndSpanId` enricher is enabled and if the logging 
+call takes place within an activity, the trace ID and span ID will 
+be extracted from the activity and added to the OpenTelemetry log record.
+
+```csharp
+var log = new LoggerConfiguration()
+    .Enrich.WithTraceIdAndSpanId()
+    .WriteTo.OpenTelemetry()
+    .CreateLogger();
+```
+
+Activity.Current | LogEvent Property | OpenTelemetry (LogRecord) | Comment |
+--- | --- | --- | --- |
+TraceId | traceId | Field[`traceID`] | Direct binary conversion maintains fidelity |
+SpanId | spanId | Field[`spanID`] | Direct binary conversion maintains fidelity | 
+
+Although designed to be used with the OpenTelemetry sink, the enricher
+may be also useful when using other sinks.
 
 ## Example
 

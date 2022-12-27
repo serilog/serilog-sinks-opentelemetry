@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Diagnostics;
-using Serilog.Events;
+using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
-using Google.Protobuf.Collections;
+using Serilog.Events;
+using System.Text.RegularExpressions;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -63,9 +62,9 @@ public static class Convert
         return logRecord;
     }
 
-    private static void ProcessMessage(LogRecord logRecord, String? renderedMessage)
+    internal static void ProcessMessage(LogRecord logRecord, String? renderedMessage)
     {
-        if (renderedMessage != null && renderedMessage != "")
+        if (renderedMessage != null && renderedMessage.Trim() != "")
         {
             logRecord.Body = new AnyValue()
             {
@@ -74,31 +73,25 @@ public static class Convert
         }
     }
 
-    private static void ProcessMessageTemplate(LogRecord logRecord, LogEvent logEvent)
+    internal static void ProcessMessageTemplate(LogRecord logRecord, LogEvent logEvent)
     {
         var attrs = logRecord.Attributes;
 
-        var template = logEvent.MessageTemplate;
-        if (template != null)
-        {
-            attrs.Add(ConvertUtils.NewStringAttribute(MESSAGE_TEMPLATE, template.ToString()));
+        var template = logEvent.MessageTemplate.ToString();
+        var hash = ConvertUtils.Md5Hash(template);
 
-            var hash = ConvertUtils.Md5Hash(template.ToString());
-            if (hash != null)
-            {
-                attrs.Add(ConvertUtils.NewStringAttribute(MESSAGE_TEMPLATE_HASH, hash));
-            }
-        }
+        attrs.Add(ConvertUtils.NewStringAttribute(MESSAGE_TEMPLATE, template));
+        attrs.Add(ConvertUtils.NewStringAttribute(MESSAGE_TEMPLATE_HASH, hash));
     }
 
-    private static void ProcessLevel(LogRecord logRecord, LogEvent logEvent)
+    internal static void ProcessLevel(LogRecord logRecord, LogEvent logEvent)
     {
         var level = logEvent.Level;
         logRecord.SeverityText = level.ToString();
         logRecord.SeverityNumber = ConvertUtils.ToSeverityNumber(level);
     }
 
-    private static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
+    internal static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
     {
         var properties = logEvent.Properties;
         var attrs = logRecord.Attributes;
@@ -112,7 +105,7 @@ public static class Convert
                     {
                         logRecord.TraceId = traceId;
                     }
-                    continue;
+                    break;
 
                 case TraceIdEnricher.SPAN_ID_PROPERTY_NAME:
                     var spanId = ConvertUtils.ToOpenTelemetrySpanId(value.ToString());
@@ -120,7 +113,7 @@ public static class Convert
                     {
                         logRecord.SpanId = spanId;
                     }
-                    continue;
+                    break;
 
                 default:
                     var v = ConvertUtils.ToOpenTelemetryAnyValue(value);
@@ -128,17 +121,17 @@ public static class Convert
                     {
                         attrs.Add(ConvertUtils.NewAttribute(key, v));
                     }
-                    continue;
+                    break;
             }
         }
     }
 
-    private static void ProcessTimestamp(LogRecord logRecord, LogEvent logEvent)
+    internal static void ProcessTimestamp(LogRecord logRecord, LogEvent logEvent)
     {
         logRecord.TimeUnixNano = ConvertUtils.ToUnixNano(logEvent.Timestamp);
     }
 
-    private static void ProcessException(LogRecord logRecord, LogEvent logEvent)
+    internal static void ProcessException(LogRecord logRecord, LogEvent logEvent)
     {
         var ex = logEvent.Exception;
         if (ex != null)

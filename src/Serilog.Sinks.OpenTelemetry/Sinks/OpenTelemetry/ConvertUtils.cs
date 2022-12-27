@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics;
-using Serilog.Events;
-using System.Security.Cryptography;
-using System.Text;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
+using Serilog.Events;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -31,18 +32,13 @@ public static class ConvertUtils
         return ((ulong)t.ToUnixTimeMilliseconds()) * millisToNanos;
     }
 
-    public static string? Md5Hash(string s)
+    public static string Md5Hash(string s)
     {
         using (MD5 md5 = MD5.Create())
         {
             md5.Initialize();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
-            if (hash != null)
-            {
-                return String.Join(String.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
-            }
-            // null return should never be reached
-            return null;
+            return String.Join(String.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
         }
     }
 
@@ -78,8 +74,8 @@ public static class ConvertUtils
     {
         try
         {
-            var span = new ReadOnlySpan<char>(hexTraceId.ToCharArray());
-            var traceId = ActivityTraceId.CreateFromString(hexTraceId);
+            var span = new ReadOnlySpan<char>(OnlyHexDigits(hexTraceId).ToCharArray());
+            var traceId = ActivityTraceId.CreateFromString(span);
             return ToOpenTelemetryTraceId(traceId);
         }
         catch (Exception)
@@ -99,8 +95,7 @@ public static class ConvertUtils
     {
         try
         {
-            var spanIdBytes = new byte[8];
-            var span = new ReadOnlySpan<char>(hexSpanId.ToCharArray());
+            var span = new ReadOnlySpan<char>(OnlyHexDigits(hexSpanId).ToCharArray());
             var spanId = ActivitySpanId.CreateFromString(span);
             return ToOpenTelemetrySpanId(spanId);
         }
@@ -243,6 +238,18 @@ public static class ConvertUtils
                 return ConvertUtils.ToOpenTelemetryArray(array);
             default:
                 return null;
+        }
+    }
+
+    public static string OnlyHexDigits(string s)
+    {
+        try
+        {
+            return Regex.Replace(s, @"[^0-9a-fA-F]", "", RegexOptions.None, TimeSpan.FromSeconds(1.5));
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return String.Empty;
         }
     }
 }

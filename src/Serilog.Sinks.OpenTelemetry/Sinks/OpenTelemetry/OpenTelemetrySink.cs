@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Serilog.Core;
-using Serilog.Events;
-using Serilog.Sinks.PeriodicBatching;
 using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
 using OpenTelemetry.Proto.Common.V1;
+using Serilog.Events;
+using Serilog.Sinks.PeriodicBatching;
+using System.Reflection;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -33,6 +33,21 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 
     private readonly ResourceLogs resourceLogsTemplate;
 
+    public readonly String SCOPE_NAME = "Serilog.Sinks.OpenTelemetry";
+
+    // FIXME: Get scope version from the build process.
+    public readonly String SCOPE_VERSION = "v0.0.0";
+
+    private static String? GetScopeName()
+    {
+        return Assembly.GetExecutingAssembly().GetName().Name;
+    }
+
+    private static String? GetScopeVersion()
+    {
+        return Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+    }
+
     public OpenTelemetrySink(
         String endpoint,
         IFormatProvider? formatProvider,
@@ -43,7 +58,7 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 
         _formatProvider = formatProvider;
 
-        resourceLogsTemplate = CreateResourceLogsTemplate("Serilog.Sinks.OpenTelemetry", "v0.0.0", resourceAttributes);
+        resourceLogsTemplate = CreateResourceLogsTemplate(GetScopeName(), GetScopeVersion(), resourceAttributes);
     }
 
     public void Dispose()
@@ -56,7 +71,7 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         var response = client.Export(request);
     }
 
-    private ResourceLogs CreateResourceLogsTemplate(String scopeName, String scopeVersion, IDictionary<String, Object>? resourceAttributes)
+    private ResourceLogs CreateResourceLogsTemplate(String? scopeName, String? scopeVersion, IDictionary<String, Object>? resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -73,9 +88,12 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         var scope = new InstrumentationScope();
         scopeLogs.Scope = scope;
         scopeLogs.SchemaUrl = Convert.SCHEMA_URL;
-        scope.Name = "Serilog.Sinks.OpenTelemetry";
-        // FIXME: Get version from build process.
-        scope.Version = "v0.0.0";
+        if (scopeName != null) {
+            scope.Name = scopeName;
+        }
+        if (scopeVersion != null) {
+            scope.Version = scopeVersion;
+        }
         resourceLogs.ScopeLogs.Add(scopeLogs);
 
         return resourceLogs;

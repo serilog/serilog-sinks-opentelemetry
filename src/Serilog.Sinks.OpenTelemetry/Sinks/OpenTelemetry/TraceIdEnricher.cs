@@ -35,28 +35,22 @@ public class TraceIdEnricher : ILogEventEnricher
 
     public const string SPAN_ID_PROPERTY_NAME = "spanId";
 
-    public TraceIdEnricher()
-    { }
+    public TraceIdEnricher() { }
 
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
-        var currentActivity = Activity.Current;
-        if (currentActivity != null)
-        {
-            var traceId = currentActivity.TraceId.ToHexString();
-            AddProperty(logEvent, propertyFactory, TRACE_ID_PROPERTY_NAME, traceId);
+        var traceId = Activity.Current?.TraceId.ToHexString();
+        AddProperty(logEvent, propertyFactory, TRACE_ID_PROPERTY_NAME, traceId);
 
-            var spanId = currentActivity.SpanId.ToHexString();
-            AddProperty(logEvent, propertyFactory, SPAN_ID_PROPERTY_NAME, spanId);
-        }
+        var spanId = Activity.Current?.SpanId.ToHexString();
+        AddProperty(logEvent, propertyFactory, SPAN_ID_PROPERTY_NAME, spanId);
     }
 
     private void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {
-            var property = propertyFactory.CreateProperty(propertyName, value);
-            logEvent.AddOrUpdateProperty(property);
+            logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty(propertyName, value));
         }
     }
 }
