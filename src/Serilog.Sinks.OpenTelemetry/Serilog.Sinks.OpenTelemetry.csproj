@@ -10,18 +10,20 @@
 		<SignAssembly>true</SignAssembly>
 		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
 		<PackageTags>serilog;sink;opentelemetry</PackageTags>
+		<PackageIcon>serilog-sink-nuget.png</PackageIcon>
 		<PackageIconUrl>http://serilog.net/images/serilog-sink-nuget.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/serilog/serilog-sinks-opentelemetry</PackageProjectUrl>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/serilog/serilog-sinks-opentelemetry</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors> <!-- FIXME: should be true -->
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<RootNamespace>Serilog</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
+		<None Include="..\..\assets\serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="" />
 		<PackageReference Include="Google.Protobuf" Version="3.21.11" />
 		<PackageReference Include="Grpc" Version="2.46.5" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.50.0" />
