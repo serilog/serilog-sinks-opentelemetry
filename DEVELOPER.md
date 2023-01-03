@@ -41,7 +41,7 @@ With the necessary prerequisites available, you can then:
 
 - Run `make gen-csharp` from the root of the cloned repository.
 
-- Copy the files in `gen/csharp` to the `src/OpenTelemetryProto` 
+- Copy the files in `gen/csharp` to the `src/Serilog.Sinks.OpenTelemetry/Sinks/OpenTelemetry/Proto` 
   directory in this repository.
 
 - The files for metrics and traces are not necessary and can be
