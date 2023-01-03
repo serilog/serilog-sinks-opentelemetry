@@ -15,7 +15,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-[assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 
 [assembly: InternalsVisibleTo("Serilog.Sinks.OpenTelemetry.Tests, PublicKey=" +
                               "0024000004800000940000000602000000240000525341310004000001000100fb8d13fd344a1c" +

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collector
+  labels:
+    application: collector
+spec:
+  selector:
+    matchLabels:
+      application: collector
+  minReadySeconds: 5
+  progressDeadlineSeconds: 120
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        application: collector
+    spec:
+      containers:
+        - image: otel/opentelemetry-collector-contrib:0.67.0
+          args: ["--config", "file:/etc/otel/config.yaml"]
+          imagePullPolicy: IfNotPresent
+          name: collector
+          resources:
+            limits:
+              cpu: 100M
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 100Mi
+          ports:
+            - containerPort: 4317 
+            - containerPort: 4318
+          volumeMounts:
+            - name: collector-config-volume
+              mountPath: /etc/otel
+              readOnly: true
+      volumes:
+        - name: collector-config-volume
+          configMap:
+            name: collector-config
