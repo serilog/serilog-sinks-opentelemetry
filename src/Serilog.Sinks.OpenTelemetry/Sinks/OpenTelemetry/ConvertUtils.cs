@@ -25,11 +25,11 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 internal static class ConvertUtils
 {
-    private static readonly ulong millisToNanos = 1000000;
+    static readonly ulong _millisToNanos = 1000000;
 
     internal static ulong ToUnixNano(DateTimeOffset t)
     {
-        return ((ulong)t.ToUnixTimeMilliseconds()) * millisToNanos;
+        return ((ulong)t.ToUnixTimeMilliseconds()) * _millisToNanos;
     }
 
     internal static string Md5Hash(string s)
@@ -38,7 +38,7 @@ internal static class ConvertUtils
         {
             md5.Initialize();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
-            return String.Join(String.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
+            return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
         }
     }
 
@@ -70,7 +70,7 @@ internal static class ConvertUtils
         return ByteString.CopyFrom(traceIdBytes);
     }
 
-    internal static ByteString? ToOpenTelemetryTraceId(String hexTraceId)
+    internal static ByteString? ToOpenTelemetryTraceId(string hexTraceId)
     {
         try
         {
@@ -91,7 +91,7 @@ internal static class ConvertUtils
         return ByteString.CopyFrom(spanIdBytes);
     }
 
-    internal static ByteString? ToOpenTelemetrySpanId(String hexSpanId)
+    internal static ByteString? ToOpenTelemetrySpanId(string hexSpanId)
     {
         try
         {
@@ -249,7 +249,7 @@ internal static class ConvertUtils
         }
         catch (RegexMatchTimeoutException)
         {
-            return String.Empty;
+            return string.Empty;
         }
     }
 }
