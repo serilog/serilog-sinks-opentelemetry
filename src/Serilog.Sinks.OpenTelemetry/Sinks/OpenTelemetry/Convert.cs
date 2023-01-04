@@ -22,10 +22,10 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 internal static class Convert
 {
-    internal static String MESSAGE_TEMPLATE = "serilog.message.template";
-    internal static String MESSAGE_TEMPLATE_HASH = "serilog.message.template_hash";
+    internal static string MESSAGE_TEMPLATE = "serilog.message.template";
+    internal static string MESSAGE_TEMPLATE_HASH = "serilog.message.template_hash";
 
-    internal static String SCHEMA_URL = "https://opentelemetry.io/schemas/v1.13.0";
+    internal static string SCHEMA_URL = "https://opentelemetry.io/schemas/v1.13.0";
 
     internal static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, Object>? resourceAttributes)
     {
@@ -47,7 +47,7 @@ internal static class Convert
         return attributes;
     }
 
-    internal static LogRecord ToLogRecord(LogEvent logEvent, String? renderedMessage)
+    internal static LogRecord ToLogRecord(LogEvent logEvent, string? renderedMessage)
     {
         var logRecord = new LogRecord();
 
@@ -61,7 +61,7 @@ internal static class Convert
         return logRecord;
     }
 
-    internal static void ProcessMessage(LogRecord logRecord, String? renderedMessage)
+    internal static void ProcessMessage(LogRecord logRecord, string? renderedMessage)
     {
         if (renderedMessage != null && renderedMessage.Trim() != "")
         {

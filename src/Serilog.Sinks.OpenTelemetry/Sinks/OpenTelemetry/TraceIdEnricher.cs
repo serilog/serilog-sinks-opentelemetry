@@ -59,7 +59,7 @@ public class TraceIdEnricher : ILogEventEnricher
         AddProperty(logEvent, propertyFactory, SPAN_ID_PROPERTY_NAME, spanId);
     }
 
-    private void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {

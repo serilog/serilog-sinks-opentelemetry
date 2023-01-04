@@ -30,20 +30,20 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// </summary>
 public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 {
-    private readonly IFormatProvider? _formatProvider;
+    readonly IFormatProvider? _formatProvider;
 
-    private readonly LogsService.LogsServiceClient client;
+    readonly LogsService.LogsServiceClient _client;
 
-    private readonly GrpcChannel channel;
+    readonly GrpcChannel _channel;
 
-    private readonly ResourceLogs resourceLogsTemplate;
+    readonly ResourceLogs _resourceLogsTemplate;
 
-    private static String? GetScopeName()
+    static string? GetScopeName()
     {
         return Assembly.GetExecutingAssembly().GetName().Name;
     }
 
-    private static String? GetScopeVersion()
+    static string? GetScopeVersion()
     {
         return Assembly.GetExecutingAssembly().GetName().Version?.ToString();
     }
@@ -59,21 +59,21 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// is written to the LogRecord body.
     /// </param>
     /// <param name="resourceAttributes">
-    /// An IDictionary&lt;String, Object&gt; containing the key-value pairs
+    /// An IDictionary&lt;string, Object&gt; containing the key-value pairs
     /// to be used as resource attributes. Non-scalar values are silently
     /// ignored.
     /// </param>
     public OpenTelemetrySink(
-       String endpoint,
+       string endpoint,
        IFormatProvider? formatProvider,
-       IDictionary<String, Object>? resourceAttributes)
+       IDictionary<string, Object>? resourceAttributes)
     {
-        channel = GrpcChannel.ForAddress(endpoint);
-        client = new LogsService.LogsServiceClient(channel);
+        _channel = GrpcChannel.ForAddress(endpoint);
+        _client = new LogsService.LogsServiceClient(_channel);
 
         _formatProvider = formatProvider;
 
-        resourceLogsTemplate = CreateResourceLogsTemplate(GetScopeName(), GetScopeVersion(), resourceAttributes);
+        _resourceLogsTemplate = CreateResourceLogsTemplate(GetScopeName(), GetScopeVersion(), resourceAttributes);
     }
 
     /// <summary>
@@ -81,15 +81,15 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// </summary>
     public void Dispose()
     {
-        channel.Dispose();
+        _channel.Dispose();
     }
 
     internal void Export(ExportLogsServiceRequest request)
     {
-        var response = client.Export(request);
+        var response = _client.Export(request);
     }
 
-    private ResourceLogs CreateResourceLogsTemplate(String? scopeName, String? scopeVersion, IDictionary<String, Object>? resourceAttributes)
+    ResourceLogs CreateResourceLogsTemplate(string? scopeName, string? scopeVersion, IDictionary<string, Object>? resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -119,17 +119,17 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         return resourceLogs;
     }
 
-    private ExportLogsServiceRequest CreateEmptyRequest()
+    ExportLogsServiceRequest CreateEmptyRequest()
     {
         var request = new ExportLogsServiceRequest();
         var resourceLogs = new ResourceLogs();
         request.ResourceLogs.Add(resourceLogs);
-        resourceLogs.MergeFrom(resourceLogsTemplate);
+        resourceLogs.MergeFrom(_resourceLogsTemplate);
 
         return request;
     }
 
-    private ExportLogsServiceRequest AddLogRecordToRequest(ExportLogsServiceRequest request, LogRecord logRecord)
+    ExportLogsServiceRequest AddLogRecordToRequest(ExportLogsServiceRequest request, LogRecord logRecord)
     {
         try
         {
