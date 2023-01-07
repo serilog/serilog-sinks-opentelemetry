@@ -43,5 +43,4 @@ public class OpenTelemetryUtilsTests
 
         Assert.Equal(0, n);
     }
-
 }

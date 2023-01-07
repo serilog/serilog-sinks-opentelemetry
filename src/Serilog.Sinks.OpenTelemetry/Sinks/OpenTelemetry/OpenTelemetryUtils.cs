@@ -97,5 +97,4 @@ internal static class OpenTelemetryUtils
         }
         catch (Exception) { }
     }
-
 }
