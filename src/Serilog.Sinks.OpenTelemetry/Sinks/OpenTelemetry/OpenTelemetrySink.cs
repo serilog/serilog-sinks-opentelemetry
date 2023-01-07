@@ -12,14 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
-using OpenTelemetry.Proto.Common.V1;
-using OpenTelemetry.Proto.Logs.V1;
-using OpenTelemetry.Proto.Resource.V1;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
-using System.Reflection;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -32,21 +27,9 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 {
     readonly IFormatProvider? _formatProvider;
 
-    readonly LogsService.LogsServiceClient _client;
+    readonly ExportLogsServiceRequest _requestTemplate;
 
-    readonly GrpcChannel _channel;
-
-    readonly ResourceLogs _resourceLogsTemplate;
-
-    static string? GetScopeName()
-    {
-        return Assembly.GetExecutingAssembly().GetName().Name;
-    }
-
-    static string? GetScopeVersion()
-    {
-        return Assembly.GetExecutingAssembly().GetName().Version?.ToString();
-    }
+    readonly IExporter _exporter;
 
     /// <summary>
     /// Creates a new instance of an OpenTelemetrySink.
@@ -68,77 +51,24 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
        IFormatProvider? formatProvider,
        IDictionary<string, Object>? resourceAttributes)
     {
-        _channel = GrpcChannel.ForAddress(endpoint);
-        _client = new LogsService.LogsServiceClient(_channel);
+        _exporter = new GrpcExporter(endpoint);
 
         _formatProvider = formatProvider;
 
-        _resourceLogsTemplate = CreateResourceLogsTemplate(GetScopeName(), GetScopeVersion(), resourceAttributes);
+        _requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(resourceAttributes);
     }
 
     /// <summary>
-    /// Frees the gRPC channel used to send logs to the OTLP endpoint.
+    /// Frees any resources allocated by the IExporter.
     /// </summary>
     public void Dispose()
     {
-        _channel.Dispose();
+        _exporter.Dispose();
     }
 
-    internal void Export(ExportLogsServiceRequest request)
+    void Export(ExportLogsServiceRequest request)
     {
-        var response = _client.Export(request);
-    }
-
-    ResourceLogs CreateResourceLogsTemplate(string? scopeName, string? scopeVersion, IDictionary<string, Object>? resourceAttributes)
-    {
-        var resourceLogs = new ResourceLogs();
-
-        var attrs = Convert.ToResourceAttributes(resourceAttributes);
-        if (attrs != null)
-        {
-            var resource = new Resource();
-            resource.Attributes.AddRange(attrs);
-            resourceLogs.Resource = resource;
-            resourceLogs.SchemaUrl = Convert.SCHEMA_URL;
-        }
-
-        var scopeLogs = new ScopeLogs();
-        var scope = new InstrumentationScope();
-        scopeLogs.Scope = scope;
-        scopeLogs.SchemaUrl = Convert.SCHEMA_URL;
-        if (scopeName != null)
-        {
-            scope.Name = scopeName;
-        }
-        if (scopeVersion != null)
-        {
-            scope.Version = scopeVersion;
-        }
-        resourceLogs.ScopeLogs.Add(scopeLogs);
-
-        return resourceLogs;
-    }
-
-    ExportLogsServiceRequest CreateEmptyRequest()
-    {
-        var request = new ExportLogsServiceRequest();
-        var resourceLogs = new ResourceLogs();
-        request.ResourceLogs.Add(resourceLogs);
-        resourceLogs.MergeFrom(_resourceLogsTemplate);
-
-        return request;
-    }
-
-    ExportLogsServiceRequest AddLogRecordToRequest(ExportLogsServiceRequest request, LogRecord logRecord)
-    {
-        try
-        {
-            var resourceLog = request.ResourceLogs.ElementAt(0);
-            resourceLog?.ScopeLogs.ElementAt(0).LogRecords.Add(logRecord);
-        }
-        catch (Exception) { }
-
-        return request;
+        _exporter.Export(request);
     }
 
     /// <summary>
@@ -147,13 +77,13 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// </summary>
     public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        var request = CreateEmptyRequest();
+        var request = _requestTemplate.Clone();
 
         foreach (var logEvent in batch)
         {
             var message = logEvent.RenderMessage(_formatProvider);
             var logRecord = Convert.ToLogRecord(logEvent, message);
-            AddLogRecordToRequest(request, logRecord);
+            OpenTelemetryUtils.Add(request, logRecord);
         }
         Export(request);
         return Task.FromResult(0);
