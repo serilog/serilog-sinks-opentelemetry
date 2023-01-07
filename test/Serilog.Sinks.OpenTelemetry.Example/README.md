@@ -16,21 +16,21 @@ within it. The Kubernetes CLI `kubectl` must also be available.
 
 ### Manifests
 
-- `collector-configmap.yaml`: Contains the OpenTelemetry collector
+- `k8s/collector-configmap.yaml`: Contains the OpenTelemetry collector
   configuration. It will listen on the standard OTLP gRPC and HTTP
   ports and write all received logs to the container's stdout.
 
-- `collector-deployment.yaml`: Contains the deployment
+- `k8s/collector-deployment.yaml`: Contains the deployment
   description. This deploys the standard OpenTelemetry Contrib image,
   using the given configmap as for the configuration.
 
 ### Starting Collector
 
-From this repository, run the command `kubectl apply -f .`. You should
-see two resources created. One should be a pod with a name starting
-with "collector".
+From the `k8s` subdirectory, run the command `kubectl apply -f .`. You
+should see two resources created. One should be a pod with a name
+starting with "collector".
 
-To make the necessary port visible on your local machine, forward the
+To make the **port visible on your local machine**, forward the
 port with this command:
 
 ```sh
@@ -58,8 +58,8 @@ kubectl logs -f collector-...
 ```
 
 Replace the "collector-..." with the actual pod name on your machine.
-You can find this with `kubectl get pods`. You should see one log
-each time you run the program. It should look something like:
+You can find this with `kubectl get pods`. You should see logs sent
+every few seconds. They should look similar to the following example.
 
 ```
 2022-12-11T17:20:48.537Z	info	LogsExporter	{"kind": "exporter", "data_type": "logs", "name": "logging", "#logs": 1}

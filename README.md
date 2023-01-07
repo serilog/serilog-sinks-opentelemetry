@@ -36,7 +36,7 @@ transformed logs to a local OpenTelemetry (OTLP/gRPC) endpoint.
 A more complete configuration would specify the `endpoint` and
 `resourceAttributes` (see below). 
 
-## Endpoint
+### Endpoint
 
 The default endpoint is `http://localhost:4317/v1/logs`, which will send
 logs to an OpenTelemetry collector running on the same machine.
@@ -47,7 +47,7 @@ In most production scenarios, you will want to set an endpoint. To do so,
 add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call. This
 must be a full URL to an OTLP/gRPC endpoint. 
 
-## Resource Attributes
+### Resource Attributes
 
 OpenTelemetry logs may contain a "resource" that provides metadata concerning
 the entity associated with the logs, typically a service or library. These
@@ -92,9 +92,6 @@ MessageTemplate | Attribute[`serilog.message.template`] | |
 MessageTemplate (hash) | Attribute[`serilog.message.hash`] | | 
 Level | Field[`SeverityText`] | Direct copy of value |
 Level | Field[`SeverityNumber`] | Serilog levels mapped into corresponding OpenTelemetry levels | 
-Exception | Attribute[`exception.type`] | Value of `ex.GetType()` |
-Exception | Attribute[`exception.message`] | Value of `ex.Message`, if not empty |
-Exception | Attribute[`exception.stacktrace`] | Value of `ex.StackTrace`, if not empty |
 
 ## Trace Context Enrichment
 
@@ -128,10 +125,10 @@ This sink provides a simple enricher that will add exception information
 to the Serilog LogEvent, that conforms to the OpenTelemetry semantic 
 conventions.
 
-> :warning: As an alternative you may want to use the 
+> :warning: As an alternative, you may want to use the 
 > [Serilog.Exceptions enricher](https://github.com/RehanSaeed/Serilog.Exceptions).
 > This provides more detailed and granular information than
-> this enricher.
+> this one.
 
 If the `WithOpenTelemetryException` enricher is enabled the type, message,
 and stack trace are extracted and added as separate properties.
