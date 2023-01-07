@@ -22,17 +22,17 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 internal static class OpenTelemetryUtils
 {
-    internal static string? GetScopeName()
+    static string? GetScopeName()
     {
         return Assembly.GetExecutingAssembly().GetName().Name;
     }
 
-    internal static string? GetScopeVersion()
+    static string? GetScopeVersion()
     {
         return Assembly.GetExecutingAssembly().GetName().Version?.ToString();
     }
 
-    internal static InstrumentationScope CreateInstrumentationScope()
+    static InstrumentationScope CreateInstrumentationScope()
     {
         var scope = new InstrumentationScope();
 
@@ -51,7 +51,7 @@ internal static class OpenTelemetryUtils
         return scope;
     }
 
-    internal static ResourceLogs CreateResourceLogs(IDictionary<string, Object>? resourceAttributes)
+    static ResourceLogs CreateResourceLogs(IDictionary<string, Object>? resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -67,7 +67,7 @@ internal static class OpenTelemetryUtils
         return resourceLogs;
     }
 
-    internal static ScopeLogs CreateEmptyScopeLogs()
+    static ScopeLogs CreateEmptyScopeLogs()
     {
         var scopeLogs = new ScopeLogs();
         scopeLogs.Scope = CreateInstrumentationScope();
