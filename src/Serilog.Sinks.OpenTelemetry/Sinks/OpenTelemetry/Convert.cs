@@ -56,7 +56,6 @@ internal static class Convert
         ProcessMessage(logRecord, renderedMessage);
         ProcessMessageTemplate(logRecord, logEvent);
         ProcessLevel(logRecord, logEvent);
-        ProcessException(logRecord, logEvent);
 
         return logRecord;
     }
@@ -130,24 +129,4 @@ internal static class Convert
         logRecord.TimeUnixNano = ConvertUtils.ToUnixNano(logEvent.Timestamp);
     }
 
-    internal static void ProcessException(LogRecord logRecord, LogEvent logEvent)
-    {
-        var ex = logEvent.Exception;
-        if (ex != null)
-        {
-            var attrs = logRecord.Attributes;
-
-            attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionType, ex.GetType().ToString()));
-
-            if (ex.Message != "")
-            {
-                attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, ex.Message));
-            }
-
-            if (ex.StackTrace != null && ex.StackTrace != "")
-            {
-                attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.StackTrace));
-            }
-        }
-    }
 }
