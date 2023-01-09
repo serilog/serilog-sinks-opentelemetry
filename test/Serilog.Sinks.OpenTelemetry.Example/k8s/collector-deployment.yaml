@@ -17,7 +17,7 @@ spec:
         application: collector
     spec:
       containers:
-        - image: otel/opentelemetry-collector-contrib:0.67.0
+        - image: otel/opentelemetry-collector-contrib:0.68.0
           args: ["--config", "file:/etc/otel/config.yaml"]
           imagePullPolicy: IfNotPresent
           name: collector

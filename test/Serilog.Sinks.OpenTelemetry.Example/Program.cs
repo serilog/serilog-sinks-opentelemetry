@@ -41,11 +41,14 @@ class Program
             .Enrich.WithOpenTelemetryException()
             .WriteTo.OpenTelemetry(
                 endpoint: "http://127.0.0.1:4317/v1/logs",
-                resourceAttributes: new Dictionary<String, Object>() {
+                resourceAttributes: new Dictionary<string, Object>() {
                         {"service.name", "test-logging-service"},
                         {"index", 10},
                         {"flag", true},
                         {"value", 3.14}
+                },
+                headers: new Dictionary<string, string>() {
+                    {"Authorization", "Basic dXNlcjphYmMxMjM="},
                 },
                 batchSizeLimit: 2,
                 batchPeriod: 5,

@@ -18,7 +18,9 @@ within it. The Kubernetes CLI `kubectl` must also be available.
 
 - `k8s/collector-configmap.yaml`: Contains the OpenTelemetry collector
   configuration. It will listen on the standard OTLP gRPC and HTTP
-  ports and write all received logs to the container's stdout.
+  ports and write all received logs to the container's stdout. **The
+  collector is configured for basic authentication.** The username
+  and password are "user" and "abc123", respectively.
 
 - `k8s/collector-deployment.yaml`: Contains the deployment
   description. This deploys the standard OpenTelemetry Contrib image,
@@ -50,8 +52,10 @@ delete -f .` from the same directory where you started it.
 ## Running the Program
 
 From this subdirectory, just run the command `dotnet run`. It should
-start and then send a log to the collector. To see the log on the 
-collector, tail the collector logs:
+start and then send logs to the collector. The program adds the 
+"Authorization" header using the basic authentication scheme.
+
+To see the log on the collector, tail the collector logs:
 
 ```sh
 kubectl logs -f collector-...

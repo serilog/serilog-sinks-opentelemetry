@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Description>A Serilog sink that writes log events to an OpenTelemetry collector.</Description>
-		<VersionPrefix>0.0.3</VersionPrefix>
+		<VersionPrefix>0.0.4</VersionPrefix>
 		<Authors>Serilog Contributors</Authors>
 		<TargetFramework>net6.0</TargetFramework>
 		<AssemblyOriginatorKeyFile>../../assets/Serilog.snk</AssemblyOriginatorKeyFile>

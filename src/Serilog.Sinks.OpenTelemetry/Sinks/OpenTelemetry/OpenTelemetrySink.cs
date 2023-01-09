@@ -46,12 +46,17 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// to be used as resource attributes. Non-scalar values are silently
     /// ignored.
     /// </param>
+    /// <param name="headers">
+    /// An IDictionary&lt;string, string&gt; containing the key-value pairs
+    /// to be used as request headers.
+    /// </param>
     public OpenTelemetrySink(
        string endpoint,
        IFormatProvider? formatProvider,
-       IDictionary<string, Object>? resourceAttributes)
+       IDictionary<string, Object>? resourceAttributes,
+       IDictionary<string, string>? headers)
     {
-        _exporter = new GrpcExporter(endpoint);
+        _exporter = new GrpcExporter(endpoint, headers);
 
         _formatProvider = formatProvider;
 

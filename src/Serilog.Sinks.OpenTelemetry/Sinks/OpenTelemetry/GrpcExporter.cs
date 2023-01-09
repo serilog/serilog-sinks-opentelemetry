@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Grpc.Core;
 using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
@@ -27,6 +28,8 @@ public class GrpcExporter : IExporter
 
     readonly GrpcChannel _channel;
 
+    readonly Metadata _headers;
+
     /// <summary>
     /// Creates a new instance of a GrpcExporter that writes an 
     /// ExportLogsServiceRequest to a gRPC endpoint.
@@ -34,10 +37,19 @@ public class GrpcExporter : IExporter
     /// <param name="endpoint">
     /// The full OTLP endpoint to which logs are sent. 
     /// </param>
-    public GrpcExporter(string endpoint)
+    /// <param name="headers">
+    /// A dictionary containing the request headers. 
+    /// </param>
+    public GrpcExporter(string endpoint, IDictionary<string, string>? headers)
     {
         _channel = GrpcChannel.ForAddress(endpoint);
         _client = new LogsService.LogsServiceClient(_channel);
+        _headers = new Metadata();
+        if (headers != null) {
+            foreach (var (k, v) in headers) {
+                _headers.Add(k, v);
+            }
+        }
     }
 
     /// <summary>
@@ -47,13 +59,13 @@ public class GrpcExporter : IExporter
     {
         _channel.Dispose();
     }
- 
+
     /// <summary>
     /// Transforms and sends the given batch of LogEvent objects
     /// to an OTLP endpoint.
     /// </summary>
     void IExporter.Export(ExportLogsServiceRequest request)
     {
-        _client.Export(request); // FIXME: Ignores response.
+        _client.Export(request, _headers); // FIXME: Ignores response.
     }
 }
