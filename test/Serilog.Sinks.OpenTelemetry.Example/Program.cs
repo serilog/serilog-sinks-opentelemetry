@@ -38,6 +38,7 @@ class Program
         var log = new LoggerConfiguration()
             .MinimumLevel.Information()
             .Enrich.WithTraceIdAndSpanId()
+            .Enrich.WithOpenTelemetryException()
             .WriteTo.OpenTelemetry(
                 endpoint: "http://127.0.0.1:4317/v1/logs",
                 resourceAttributes: new Dictionary<String, Object>() {
@@ -59,7 +60,12 @@ class Program
                 var elapsedMs = rand.Next(0, 101);
 
                 log.Information("Processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
-                log.Error("count = {@Count}", i);
+
+                try {
+                    throw new Exception("iteration #" + i);
+                } catch (Exception ex) {
+                    log.Error(ex, "count = {@Count}", i);
+                }
 
                 Console.WriteLine(i);
                 Thread.Sleep(1000);

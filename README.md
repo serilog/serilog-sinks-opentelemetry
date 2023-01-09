@@ -1,22 +1,22 @@
 # Serilog.Sinks.OpenTelemetry [![Build status](https://ci.appveyor.com/api/projects/status/sqmrvw34pcuatwl5/branch/dev?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-opentelemetry/branch/dev)
 
-:warning: Prototype implementation. Do not use for production!
+> :warning: Prototype implementation. Do not use for production!
 
 This Serilog sink will transform Serilog events into OpenTelemetry
 LogRecords and send them to an OpenTelemetry gRPC endpoint.
 
-OpenTelemetry attributes allow full support for scalar values, arrays,
-and maps. Serilog does as well. Consequently, the sink does a
-one-to-one mapping between Serilog properties and OpenTelemetry
-attributes. There is no flattening, renaming, or other modifications
-done to the properies by default.
+OpenTelemetry attributes support for scalar values, arrays, and maps.
+Serilog does as well. Consequently, the sink does a one-to-one
+mapping between Serilog properties and OpenTelemetry attributes.
+There is no flattening, renaming, or other modifications done to the
+properies by default.
 
 The formatter renders the log message, which is then stored as the
 body of the OpenTelemetry LogRecord.
 
 ## Getting Started
 
-To use the console sink, first install the [NuGet package](https://nuget.org/packages/serilog.sinks.opentelemetry):
+To use the OpenTelemetry sink, first install the [NuGet package](https://nuget.org/packages/serilog.sinks.opentelemetry):
 
 ```shell
 dotnet add package Serilog.Sinks.OpenTelemetry
@@ -32,25 +32,22 @@ var log = new LoggerConfiguration()
 
 Then use the `Log.Information(...)` and similar methods to send 
 transformed logs to a local OpenTelemetry (OTLP/gRPC) endpoint.
-The default endpoint is "http://localhost:4317". 
 
 A more complete configuration would specify the `endpoint` and
-`resourceAttributes`. 
+`resourceAttributes` (see below). 
 
-where the endpoint and resource attributes (see below) are specified.
+### Endpoint
 
-## Endpoint
-
-The default endpoint is `http://localhost:4317`. This is appropriate for
-sending logs to an OpenTelemetry collector running on the same machine.
-This is appropriate for testing or using a local OpenTelemetry collector
-as a proxy for a downstream logging service.
+The default endpoint is `http://localhost:4317/v1/logs`, which will send
+logs to an OpenTelemetry collector running on the same machine.
+This is appropriate for testing or for using a local OpenTelemetry
+collector as a proxy for a downstream logging service.
 
 In most production scenarios, you will want to set an endpoint. To do so,
 add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call. This
 must be a full URL to an OTLP/gRPC endpoint. 
 
-## Resource Attributes
+### Resource Attributes
 
 OpenTelemetry logs may contain a "resource" that provides metadata concerning
 the entity associated with the logs, typically a service or library. These
@@ -59,10 +56,10 @@ the configured logger.
 
 These resource attributes may be provided as a `Dictionary<string, Object>`
 when configuring a logger. While OpenTelemetry allows resource attributes
-with rich values; however, this implementation _only_ supports resource 
+with rich values, this implementation _only_ supports resource 
 attributes with primitive values. 
 
-:warning: Resource attributes with non-primitive values will be silently
+> :warning: Resource attributes with non-primitive values will be silently
 ignored.
 
 This example shows how the resource attributes can be specified when
@@ -71,7 +68,7 @@ the logger is configured.
 ```csharp
 var log = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.OpenTelemetry(endpoint: "http://127.0.0.1:4317",
+    .WriteTo.OpenTelemetry(endpoint: "http://127.0.0.1:4317/v1/logs",
     resourceAttributes: new Dictionary<String, Object>() {
             {"service.name", "test-logging-service"},
             {"index", 10},
@@ -95,12 +92,6 @@ MessageTemplate | Attribute[`serilog.message.template`] | |
 MessageTemplate (hash) | Attribute[`serilog.message.hash`] | | 
 Level | Field[`SeverityText`] | Direct copy of value |
 Level | Field[`SeverityNumber`] | Serilog levels mapped into corresponding OpenTelemetry levels | 
-Exception | Attribute[`exception.type`] | Value of `ex.GetType()` |
-Exception | Attribute[`exception.message`] | Value of `ex.Message`, if not empty |
-Exception | Attribute[`exception.stacktrace`] | Value of `ex.StackTrace`, if not empty |
-
-In addition, this sink will also pull information out of the current
-Activity, if it exists.
 
 ## Trace Context Enrichment
 
@@ -110,7 +101,8 @@ found in the current activity.
 
 If the `WithTraceIdAndSpanId` enricher is enabled and if the logging 
 call takes place within an activity, the trace ID and span ID will 
-be extracted from the activity and added to the OpenTelemetry log record.
+be extracted from the activity and added to the Serilog LogEvent
+properties (and then into the OpenTelemetry LogRecord).
 
 ```csharp
 var log = new LoggerConfiguration()
@@ -126,6 +118,33 @@ SpanId | spanId | Field[`spanID`] | Direct binary conversion maintains fidelity 
 
 Although designed to be used with the OpenTelemetry sink, the enricher
 may be also useful when using other sinks.
+
+## Exception Enrichment
+
+This sink provides a simple enricher that will add exception information
+to the Serilog LogEvent, that conforms to the OpenTelemetry semantic 
+conventions.
+
+> :warning: As an alternative, you may want to use the 
+> [Serilog.Exceptions enricher](https://github.com/RehanSaeed/Serilog.Exceptions).
+> This provides more detailed and granular information than
+> this one.
+
+If the `WithOpenTelemetryException` enricher is enabled the type, message,
+and stack trace are extracted and added as separate properties.
+
+```csharp
+var log = new LoggerConfiguration()
+    .Enrich.WithOpenTelemetryException()
+    .WriteTo.OpenTelemetry()
+    .CreateLogger();
+```
+
+Serilog (LogEvent) | OpenTelemetry (LogRecord) | Comment |
+--- | --- | --- | 
+Exception | Attribute[`exception.type`] | Value of `ex.GetType()` |
+Exception | Attribute[`exception.message`] | Value of `ex.Message`, if not empty |
+Exception | Attribute[`exception.stacktrace`] | Value of `ex.StackTrace`, if not empty |
 
 ## Example
 
