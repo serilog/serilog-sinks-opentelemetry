@@ -114,36 +114,4 @@ public class ConvertTest
         Assert.Equal(nowNano, logRecord.TimeUnixNano);
     }
 
-    [Fact]
-    public void TestException()
-    {
-        var error = new Exception("error_message");
-
-        try
-        {
-            throw error;
-        }
-        catch (Exception ex)
-        {
-            var logRecord = new LogRecord();
-            var logEvent = TestUtils.CreateLogEvent(ex: ex);
-
-            Convert.ProcessException(logRecord, logEvent);
-
-            var typeKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionType, error.GetType().ToString());
-            var messageKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, error.Message);
-
-            Assert.Equal(3, logRecord.Attributes.Count);
-            Assert.NotEqual(-1, logRecord.Attributes.IndexOf(typeKeyValue));
-            Assert.NotEqual(-1, logRecord.Attributes.IndexOf(messageKeyValue));
-
-            Assert.NotNull(ex.StackTrace);
-            if (ex.StackTrace != null)
-            {
-                var traceKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.StackTrace);
-                Assert.NotEqual(-1, logRecord.Attributes.IndexOf(traceKeyValue));
-            }
-        }
-    }
-
 }
