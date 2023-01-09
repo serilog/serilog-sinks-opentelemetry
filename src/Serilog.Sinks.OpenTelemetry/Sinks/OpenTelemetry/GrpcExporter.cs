@@ -64,8 +64,8 @@ public class GrpcExporter : IExporter
     /// Transforms and sends the given batch of LogEvent objects
     /// to an OTLP endpoint.
     /// </summary>
-    void IExporter.Export(ExportLogsServiceRequest request)
+    Task IExporter.Export(ExportLogsServiceRequest request)
     {
-        _client.Export(request, _headers); // FIXME: Ignores response.
+        return Task.FromResult(ExportLogsServiceResponse () => _client.Export(request, _headers));
     }
 }
