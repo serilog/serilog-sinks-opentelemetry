@@ -6,11 +6,21 @@ metadata:
     application: collector
 data:
   config.yaml: |
+    extensions:
+      basicauth/server:
+        htpasswd:
+          inline: |
+            user:abc123
+
     receivers:
       otlp:
         protocols:
           grpc:
+            auth:
+              authenticator: basicauth/server
           http:
+            auth:
+              authenticator: basicauth/server
 
     exporters:
       logging:
@@ -19,9 +29,9 @@ data:
         sampling_thereafter: 1
 
     service:
+      extensions: [basicauth/server]
       telemetry:
         logs:
-          #encoding: json
           level: info
         metrics:
           level: none

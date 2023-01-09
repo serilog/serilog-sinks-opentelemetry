@@ -42,6 +42,9 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// values: integers, doubles, strings, or booleans. Other values will be 
     /// silently ignored. 
     /// </param>
+    /// <param name="headers">
+    /// A Dictionary&lt;string, string&gt; containing request headers. 
+    /// </param>
     /// <param name="formatProvider">
     /// Provider for formatting and rendering log messages.
     /// </param>
@@ -63,6 +66,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         this LoggerSinkConfiguration sinkConfiguration,
         string endpoint = "http://localhost:4317/v1/logs",
         IDictionary<string, Object>? resourceAttributes = null,
+        IDictionary<string, string>? headers = null,
         IFormatProvider? formatProvider = null,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
         int batchSizeLimit = 100,
@@ -74,7 +78,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         var sink = new OpenTelemetrySink(
             endpoint: endpoint,
             formatProvider: formatProvider,
-            resourceAttributes: resourceAttributes);
+            resourceAttributes: resourceAttributes,
+            headers: headers);
 
         var batchingOptions = new PeriodicBatchingSinkOptions
         {
