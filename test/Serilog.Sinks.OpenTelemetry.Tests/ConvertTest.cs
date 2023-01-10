@@ -140,7 +140,7 @@ public class ConvertTest
             Assert.NotNull(ex.StackTrace);
             if (ex.StackTrace != null)
             {
-                var traceKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.StackTrace);
+                var traceKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.ToString());
                 Assert.NotEqual(-1, logRecord.Attributes.IndexOf(traceKeyValue));
             }
         }
