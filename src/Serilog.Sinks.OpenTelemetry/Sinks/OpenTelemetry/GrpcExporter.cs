@@ -45,8 +45,10 @@ public class GrpcExporter : IExporter
         _channel = GrpcChannel.ForAddress(endpoint);
         _client = new LogsService.LogsServiceClient(_channel);
         _headers = new Metadata();
-        if (headers != null) {
-            foreach (var (k, v) in headers) {
+        if (headers != null)
+        {
+            foreach (var (k, v) in headers)
+            {
                 _headers.Add(k, v);
             }
         }
@@ -61,11 +63,11 @@ public class GrpcExporter : IExporter
     }
 
     /// <summary>
-    /// Transforms and sends the given batch of LogEvent objects
-    /// to an OTLP endpoint.
+    /// Sends the given protobuf request containing OpenTelemetry logs
+    /// to an gRPC/HTTP endpoint.
     /// </summary>
     Task IExporter.Export(ExportLogsServiceRequest request)
     {
-        return Task.FromResult(ExportLogsServiceResponse () => _client.Export(request, _headers));
+        return _client.ExportAsync(request, _headers).ResponseAsync;
     }
 }

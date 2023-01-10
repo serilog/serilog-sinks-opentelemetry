@@ -63,18 +63,24 @@ public class HttpExporter : IExporter
     /// </summary>
     Task IExporter.Export(ExportLogsServiceRequest request)
     {
-        return Task.Run(() =>
-        {
-            HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
+        var content = RequestToHttpContent(request);
 
-            // FIXME: Limit maximum size of buffer? 
-            var buffer = new byte[request.CalculateSize()];
-            var stream = new CodedOutputStream(buffer);
-            request.WriteTo(stream);
-            var content = new ByteArrayContent(buffer);
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/protobuf");
+        HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
+        httpRequest.Content = content;
 
-            return _client.SendAsync(httpRequest);
-        });
+        return Task.FromResult(_client.Send(httpRequest));
+    }
+
+    HttpContent RequestToHttpContent(ExportLogsServiceRequest request)
+    {
+        // FIXME: Limit maximum size of buffer?
+        var buffer = new byte[request.CalculateSize()];
+        var stream = new CodedOutputStream(buffer);
+        request.WriteTo(stream);
+
+        var content = new ByteArrayContent(buffer);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
+
+        return content;
     }
 }
