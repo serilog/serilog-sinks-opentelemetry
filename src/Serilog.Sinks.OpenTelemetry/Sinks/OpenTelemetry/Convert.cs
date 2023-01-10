@@ -144,7 +144,7 @@ internal static class Convert
                 attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, ex.Message));
             }
 
-            if (ex.StackTrace != null && ex.StackTrace != "")
+            if (ex.ToString() != "")
             {
                 attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.ToString()));
             }

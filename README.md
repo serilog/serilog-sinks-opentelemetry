@@ -95,7 +95,7 @@ Level | Field[`SeverityText`] | Direct copy of value |
 Level | Field[`SeverityNumber`] | Serilog levels mapped into corresponding OpenTelemetry levels | 
 Exception | Attribute[`exception.type`] | Value of `ex.GetType()` |
 Exception | Attribute[`exception.message`] | Value of `ex.Message`, if not empty |
-Exception | Attribute[`exception.stacktrace`] | Value of `ex.StackTrace`, if not empty |
+Exception | Attribute[`exception.stacktrace`] | Value of `ex.ToString()` |
 
 ## Trace Context Enrichment
 
