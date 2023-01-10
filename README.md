@@ -37,8 +37,6 @@ transformed logs to a local OpenTelemetry (OTLP/gRPC) endpoint.
 A more complete configuration would specify the `endpoint` and
 `resourceAttributes`. 
 
-where the endpoint and resource attributes (see below) are specified.
-
 ### Endpoint
 
 The default endpoint is `http://localhost:4317/v1/logs`, which will send
