@@ -99,9 +99,9 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         _exporter.Dispose();
     }
 
-    void Export(ExportLogsServiceRequest request)
+    Task Export(ExportLogsServiceRequest request)
     {
-        _exporter.Export(request);
+        return _exporter.Export(request);
     }
 
     /// <summary>
@@ -118,7 +118,8 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
             var logRecord = Convert.ToLogRecord(logEvent, message);
             OpenTelemetryUtils.Add(request, logRecord);
         }
-        return Task.Run(() => Export(request));
+
+        return Export(request);
     }
 
     /// <summary>

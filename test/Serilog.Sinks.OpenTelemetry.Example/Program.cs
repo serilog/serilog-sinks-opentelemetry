@@ -44,7 +44,7 @@ class Program
 
         using (var activity = source.StartActivity("grpc-loop"))
         {
-            //SendLogs(grpcLogger, "grpc/protobuf");
+            SendLogs(grpcLogger, "grpc/protobuf");
         }
 
         using (var activity = source.StartActivity("http-loop"))
@@ -98,8 +98,8 @@ class Program
                     {"Authorization", "Basic dXNlcjphYmMxMjM="}, // user:abc123
               },
               batchSizeLimit: 2,
-              batchPeriod: 1,
-              batchQueueLimit: 1000)
+              batchPeriod: 2,
+              batchQueueLimit: 10)
           .CreateLogger();
     }
 }
