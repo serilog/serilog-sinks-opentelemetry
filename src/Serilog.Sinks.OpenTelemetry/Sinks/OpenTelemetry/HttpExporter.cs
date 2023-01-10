@@ -12,27 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Grpc.Core;
-using Grpc.Net.Client;
+using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
 /// Implements an IExporter that sends OpenTelemetry Log requests
-/// over gRPC.
+/// over HTTP.
 /// </summary>
-public class GrpcExporter : IExporter
+public class HttpExporter : IExporter
 {
-    readonly LogsService.LogsServiceClient _client;
-
-    readonly GrpcChannel _channel;
-
-    readonly Metadata _headers;
+    readonly HttpClient _client;
 
     /// <summary>
-    /// Creates a new instance of a GrpcExporter that writes an 
-    /// ExportLogsServiceRequest to a gRPC endpoint.
+    /// Creates a new instance of an HttpExporter that writes an 
+    /// ExportLogsServiceRequest to a OTLP/HTTP endpoint as a 
+    /// protobuf payload.
     /// </summary>
     /// <param name="endpoint">
     /// The full OTLP endpoint to which logs are sent. 
@@ -40,34 +36,51 @@ public class GrpcExporter : IExporter
     /// <param name="headers">
     /// A dictionary containing the request headers. 
     /// </param>
-    public GrpcExporter(string endpoint, IDictionary<string, string>? headers)
+    public HttpExporter(string endpoint, IDictionary<string, string>? headers)
     {
-        _channel = GrpcChannel.ForAddress(endpoint);
-        _client = new LogsService.LogsServiceClient(_channel);
-        _headers = new Metadata();
+        _client = new HttpClient();
+        _client.BaseAddress = new Uri(endpoint);
         if (headers != null)
         {
             foreach (var (k, v) in headers)
             {
-                _headers.Add(k, v);
+                _client.DefaultRequestHeaders.Add(k, v);
             }
         }
     }
 
     /// <summary>
-    /// Frees the gRPC channel used to send logs to the OTLP endpoint.
+    /// Frees the HTTP client that sends logs to the OTLP/HTTP endpoint.
     /// </summary>
     public void Dispose()
     {
-        _channel.Dispose();
+        _client.Dispose();
     }
 
     /// <summary>
     /// Sends the given protobuf request containing OpenTelemetry logs
-    /// to an gRPC/HTTP endpoint.
+    /// to an OTLP/HTTP endpoint.
     /// </summary>
     Task IExporter.Export(ExportLogsServiceRequest request)
     {
-        return _client.ExportAsync(request, _headers).ResponseAsync;
+        var content = RequestToHttpContent(request);
+
+        HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
+        httpRequest.Content = content;
+
+        return Task.FromResult(_client.Send(httpRequest));
+    }
+
+    HttpContent RequestToHttpContent(ExportLogsServiceRequest request)
+    {
+        // FIXME: Limit maximum size of buffer?
+        var buffer = new byte[request.CalculateSize()];
+        var stream = new CodedOutputStream(buffer);
+        request.WriteTo(stream);
+
+        var content = new ByteArrayContent(buffer);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
+
+        return content;
     }
 }

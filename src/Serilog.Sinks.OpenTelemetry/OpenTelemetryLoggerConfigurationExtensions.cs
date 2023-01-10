@@ -15,6 +15,7 @@
 using Serilog.Configuration;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry;
+using static Serilog.Sinks.OpenTelemetry.OpenTelemetrySink;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog;
@@ -35,6 +36,9 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// </param>
     /// <param name="endpoint">
     /// The full URL of the OTLP/gRPC endpoint.
+    /// </param>
+    /// <param name="protocol">
+    /// The OTLP protocol to use for the logger.
     /// </param>
     /// <param name="resourceAttributes">
     /// A Dictionary&lt;string, Object&gt; containing attributes of the resource attached
@@ -65,6 +69,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration sinkConfiguration,
         string endpoint = "http://localhost:4317/v1/logs",
+        OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
         IDictionary<string, Object>? resourceAttributes = null,
         IDictionary<string, string>? headers = null,
         IFormatProvider? formatProvider = null,
@@ -77,6 +82,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
 
         var sink = new OpenTelemetrySink(
             endpoint: endpoint,
+            protocol: protocol,
             formatProvider: formatProvider,
             resourceAttributes: resourceAttributes,
             headers: headers);

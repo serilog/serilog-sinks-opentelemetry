@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using static Serilog.Sinks.OpenTelemetry.OpenTelemetrySink;
 using Serilog;
 using System;
 using System.Threading;
@@ -21,10 +22,12 @@ namespace SerilogSinksOpenTelemetryExample;
 
 class Program
 {
+    static readonly Random _rand = new Random();
+
     static void Main(string[] args)
     {
-        Random rand = new Random();
-
+        // create an ActivitySource (that is listened to) for creating an Activity
+        // to test the trace and span ID enricher
         using var listener = new ActivityListener
         {
             ShouldListenTo = _ => true,
@@ -35,44 +38,68 @@ class Program
 
         ActivitySource source = new ActivitySource("test.example", "1.0.0");
 
-        var log = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .Enrich.WithTraceIdAndSpanId()
-            .Enrich.WithOpenTelemetryException()
-            .WriteTo.OpenTelemetry(
-                endpoint: "http://127.0.0.1:4317/v1/logs",
-                resourceAttributes: new Dictionary<string, Object>() {
+        // Create the loggers to send to gRPC and to HTTP.
+        var grpcLogger = GetLogger(OtlpProtocol.GrpcProtobuf);
+        var httpLogger = GetLogger(OtlpProtocol.HttpProtobuf);
+
+        using (var activity = source.StartActivity("grpc-loop"))
+        {
+            SendLogs(grpcLogger, "grpc/protobuf");
+        }
+
+        using (var activity = source.StartActivity("http-loop"))
+        {
+            SendLogs(httpLogger, "http/protobuf");
+        }
+
+        Thread.Sleep(5000);
+    }
+
+    static void SendLogs(ILogger logger, string protocol)
+    {
+        var position = new { Latitude = _rand.Next(-90, 91), Longitude = _rand.Next(0, 361) };
+        var elapsedMs = _rand.Next(0, 101);
+        var roll = _rand.Next(0, 7);
+
+        logger
+        .ForContext("Elapsed", elapsedMs)
+        .ForContext("protocol", protocol)
+        .Information("{@Position}", position);
+
+        try
+        {
+            throw new Exception(protocol);
+        }
+        catch (Exception ex)
+        {
+            logger.ForContext("protocol", protocol).Error(ex, "{@Roll}", roll);
+        }
+    }
+
+    static ILogger GetLogger(OtlpProtocol protocol)
+    {
+        var port = (protocol == OtlpProtocol.HttpProtobuf) ? 4318 : 4317;
+        var endpoint = String.Format("http://127.0.0.1:{0}/v1/logs", port);
+
+        return new LoggerConfiguration()
+          .MinimumLevel.Information()
+          .Enrich.WithTraceIdAndSpanId()
+          .Enrich.WithOpenTelemetryException()
+          .WriteTo.OpenTelemetry(
+              endpoint: endpoint,
+              protocol: protocol,
+              resourceAttributes: new Dictionary<string, Object>() {
                         {"service.name", "test-logging-service"},
                         {"index", 10},
                         {"flag", true},
-                        {"value", 3.14}
-                },
-                headers: new Dictionary<string, string>() {
-                    {"Authorization", "Basic dXNlcjphYmMxMjM="},
-                },
-                batchSizeLimit: 2,
-                batchPeriod: 5,
-                batchQueueLimit: 1000)
-            .CreateLogger();
-
-        for (int i = 0; i < 100; i++)
-        {
-            using (var activity = source.StartActivity("loop"))
-            {
-                var position = new { Latitude = rand.Next(-90, 91), Longitude = rand.Next(0, 361) };
-                var elapsedMs = rand.Next(0, 101);
-
-                log.Information("Processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
-
-                try {
-                    throw new Exception("iteration #" + i);
-                } catch (Exception ex) {
-                    log.Error(ex, "count = {@Count}", i);
-                }
-
-                Console.WriteLine(i);
-                Thread.Sleep(1000);
-            }
-        }
+                        {"pi", 3.14}
+              },
+              headers: new Dictionary<string, string>() {
+                    {"Authorization", "Basic dXNlcjphYmMxMjM="}, // user:abc123
+              },
+              batchSizeLimit: 2,
+              batchPeriod: 2,
+              batchQueueLimit: 10)
+          .CreateLogger();
     }
 }

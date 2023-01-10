@@ -25,6 +25,21 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// </summary>
 public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 {
+    /// <summary>
+    /// Defines the OTLP protocol to use when sending OpenTelemetry data.
+    /// </summary>
+    public enum OtlpProtocol
+    {
+        /// <summary>
+        /// Sends OpenTelemetry data encoded as a protobuf message over gRPC.
+        /// </summary>
+        GrpcProtobuf,
+
+        /// <summary>
+        /// Posts OpenTelemetry data encoded as a protobuf message over HTTP.
+        /// </summary>
+        HttpProtobuf
+    }
     readonly IFormatProvider? _formatProvider;
 
     readonly ExportLogsServiceRequest _requestTemplate;
@@ -36,6 +51,9 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// </summary>
     /// <param name="endpoint">
     /// The full OTLP endpoint to which logs are sent. 
+    /// </param>
+    /// <param name="protocol">
+    /// The protocol to use when sending data. Defaults to gRPC/protobuf. 
     /// </param>
     /// <param name="formatProvider">
     /// A IFormatProvider that is used to format the message, which
@@ -52,11 +70,21 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// </param>
     public OpenTelemetrySink(
        string endpoint,
-       IFormatProvider? formatProvider,
-       IDictionary<string, Object>? resourceAttributes,
-       IDictionary<string, string>? headers)
+       OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
+       IFormatProvider? formatProvider = null,
+       IDictionary<string, Object>? resourceAttributes = null,
+       IDictionary<string, string>? headers = null)
     {
-        _exporter = new GrpcExporter(endpoint, headers);
+        switch (protocol)
+        {
+            case OtlpProtocol.HttpProtobuf:
+                _exporter = new HttpExporter(endpoint, headers);
+                break;
+
+            default:
+                _exporter = new GrpcExporter(endpoint, headers);
+                break;
+        }
 
         _formatProvider = formatProvider;
 
@@ -71,9 +99,9 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         _exporter.Dispose();
     }
 
-    void Export(ExportLogsServiceRequest request)
+    Task Export(ExportLogsServiceRequest request)
     {
-        _exporter.Export(request);
+        return _exporter.Export(request);
     }
 
     /// <summary>
@@ -90,8 +118,8 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
             var logRecord = Convert.ToLogRecord(logEvent, message);
             OpenTelemetryUtils.Add(request, logRecord);
         }
-        Export(request);
-        return Task.FromResult(0);
+
+        return Export(request);
     }
 
     /// <summary>
