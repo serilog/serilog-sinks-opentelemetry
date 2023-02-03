@@ -70,7 +70,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         this LoggerSinkConfiguration sinkConfiguration,
         string endpoint = "http://localhost:4317/v1/logs",
         OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
-        IDictionary<string, Object>? resourceAttributes = null,
+        IDictionary<string, object>? resourceAttributes = null,
         IDictionary<string, string>? headers = null,
         IFormatProvider? formatProvider = null,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
