@@ -84,7 +84,6 @@ class Program
         return new LoggerConfiguration()
           .MinimumLevel.Information()
           .Enrich.WithTraceIdAndSpanId()
-          .Enrich.WithOpenTelemetryException()
           .WriteTo.OpenTelemetry(
               endpoint: endpoint,
               protocol: protocol,
