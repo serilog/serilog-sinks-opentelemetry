@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Buffers;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
@@ -61,26 +62,25 @@ public class HttpExporter : IExporter
     /// Sends the given protobuf request containing OpenTelemetry logs
     /// to an OTLP/HTTP endpoint.
     /// </summary>
-    Task IExporter.Export(ExportLogsServiceRequest request)
+    async Task IExporter.Export(ExportLogsServiceRequest request)
     {
-        var content = RequestToHttpContent(request);
+        var dataSize = request.CalculateSize();
+        var buffer = ArrayPool<byte>.Shared.Rent(dataSize);
+        try
+        {
+            request.WriteTo(buffer.AsSpan());
 
-        HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
-        httpRequest.Content = content;
+            var content = new ByteArrayContent(buffer, 0, dataSize);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
 
-        return Task.FromResult(_client.Send(httpRequest));
-    }
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
+            httpRequest.Content = content;
 
-    HttpContent RequestToHttpContent(ExportLogsServiceRequest request)
-    {
-        // FIXME: Limit maximum size of buffer?
-        var buffer = new byte[request.CalculateSize()];
-        var stream = new CodedOutputStream(buffer);
-        request.WriteTo(stream);
-
-        var content = new ByteArrayContent(buffer);
-        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
-
-        return content;
+            await _client.SendAsync(httpRequest).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }
