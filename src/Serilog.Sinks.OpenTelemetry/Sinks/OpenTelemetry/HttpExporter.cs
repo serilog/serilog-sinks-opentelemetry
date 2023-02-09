@@ -62,25 +62,19 @@ public class HttpExporter : IExporter
     /// Sends the given protobuf request containing OpenTelemetry logs
     /// to an OTLP/HTTP endpoint.
     /// </summary>
-    async Task IExporter.Export(ExportLogsServiceRequest request)
+    Task IExporter.Export(ExportLogsServiceRequest request)
     {
         var dataSize = request.CalculateSize();
-        var buffer = ArrayPool<byte>.Shared.Rent(dataSize);
-        try
-        {
-            request.WriteTo(buffer.AsSpan());
+        var buffer = new byte[dataSize];
 
-            var content = new ByteArrayContent(buffer, 0, dataSize);
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
+        request.WriteTo(buffer.AsSpan());
 
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
-            httpRequest.Content = content;
+        var content = new ByteArrayContent(buffer, 0, dataSize);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
 
-            await _client.SendAsync(httpRequest).ConfigureAwait(false);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
+        httpRequest.Content = content;
+
+        return _client.SendAsync(httpRequest);
     }
 }

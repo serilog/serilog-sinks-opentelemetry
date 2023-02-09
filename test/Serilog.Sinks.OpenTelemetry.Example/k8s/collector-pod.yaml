@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: collector
+spec:
+  containers:
+    - image: otel/opentelemetry-collector-contrib:0.70.0
+      args: ["--config", "file:/etc/otel/config.yaml"]
+      imagePullPolicy: IfNotPresent
+      name: collector
+      resources:
+        limits:
+          cpu: 100M
+          memory: 200Mi
+        requests:
+          cpu: 10m
+          memory: 100Mi
+      ports:
+        - containerPort: 4317 
+        - containerPort: 4318
+      volumeMounts:
+        - name: collector-config-volume
+          mountPath: /etc/otel
+          readOnly: true
+  volumes:
+    - name: collector-config-volume
+      configMap:
+        name: collector-config
