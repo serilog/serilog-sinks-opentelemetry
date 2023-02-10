@@ -35,11 +35,10 @@ should see two resources created. One should be a pod with a name
 starting with "collector".
 
 To make the **ports visible on your local machine**, forward the
-ports with the commands:
+ports with the command:
 
 ```sh
-k port-forward collector-... 4317:4317 # gRPC/protobuf
-k port-forward collector-... 4318:4318 # HTTP/protobuf
+k port-forward collector-... 4317:4317 4318:4318
 ```
 
 replacing "collector-..." with your actual pod name. These will need
@@ -63,13 +62,11 @@ start and then send logs to the collector. The program adds the
 To see the logs on the collector, tail the collector logs:
 
 ```sh
-kubectl logs -f collector-...
+kubectl logs -f collector
 ```
 
-Replace the "collector-..." with the actual pod name on your machine.
-You can find this with `kubectl get pods`. There should be four logs
-sent; two on the gRPC/protobuf endpoint and two on the HTTP/protobuf
-endpoint.
+There should be four logs sent; two on the gRPC/protobuf endpoint and
+two on the HTTP/protobuf endpoint.
 
 They should be similar to the following examples and may or may not
 be batched.
