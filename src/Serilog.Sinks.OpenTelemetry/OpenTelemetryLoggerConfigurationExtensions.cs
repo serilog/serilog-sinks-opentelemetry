@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Serilog.Configuration;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry;
 using static Serilog.Sinks.OpenTelemetry.OpenTelemetrySink;
@@ -56,6 +57,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The minimum level for events passed through the sink. Default value is
     /// <see cref="LevelAlias.Minimum"/>.
     /// </param>
+    /// <param name="levelSwitch">A level switch to control the minimum level for events passed through the sink.</param>
     /// <param name="batchSizeLimit">
     /// The maximum number of log events to include in a single batch.
     /// </param>
@@ -74,6 +76,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         IDictionary<string, string>? headers = null,
         IFormatProvider? formatProvider = null,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        LoggingLevelSwitch? levelSwitch = null,
         int batchSizeLimit = 100,
         int batchPeriod = 2,
         int batchQueueLimit = 10000)
@@ -97,6 +100,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
 
         var batchingSink = new PeriodicBatchingSink(sink, batchingOptions);
 
-        return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel);
+        return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
     }
 }
