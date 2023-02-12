@@ -54,7 +54,6 @@ internal static class Convert
         ProcessProperties(logRecord, logEvent);
         ProcessTimestamp(logRecord, logEvent);
         ProcessMessage(logRecord, renderedMessage);
-        ProcessMessageTemplate(logRecord, logEvent);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
 
@@ -70,17 +69,6 @@ internal static class Convert
                 StringValue = renderedMessage
             };
         }
-    }
-
-    internal static void ProcessMessageTemplate(LogRecord logRecord, LogEvent logEvent)
-    {
-        var attrs = logRecord.Attributes;
-
-        var template = logEvent.MessageTemplate.ToString();
-        var hash = ConvertUtils.Md5Hash(template);
-
-        attrs.Add(ConvertUtils.NewStringAttribute(MESSAGE_TEMPLATE, template));
-        attrs.Add(ConvertUtils.NewStringAttribute(MESSAGE_TEMPLATE_HASH, hash));
     }
 
     internal static void ProcessLevel(LogRecord logRecord, LogEvent logEvent)

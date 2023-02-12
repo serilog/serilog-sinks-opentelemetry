@@ -16,8 +16,6 @@ using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Serilog.Sinks.OpenTelemetry;
@@ -29,16 +27,6 @@ internal static class ConvertUtils
     internal static ulong ToUnixNano(DateTimeOffset t)
     {
         return ((ulong)t.ToUnixTimeMilliseconds()) * _millisToNanos;
-    }
-
-    internal static string Md5Hash(string s)
-    {
-        using (MD5 md5 = MD5.Create())
-        {
-            md5.Initialize();
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
-            return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
-        }
     }
 
     internal static SeverityNumber ToSeverityNumber(LogEventLevel level)

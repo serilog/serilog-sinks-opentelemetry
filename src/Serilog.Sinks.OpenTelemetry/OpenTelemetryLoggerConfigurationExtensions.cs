@@ -57,7 +57,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The minimum level for events passed through the sink. Default value is
     /// <see cref="LevelAlias.Minimum"/>.
     /// </param>
-    /// <param name="levelSwitch">A level switch to control the minimum level for events passed through the sink.</param>
+    /// <param name="levelSwitch">A level switch to control the minimum level 
+    /// for events passed through the sink.</param>
     /// <param name="batchSizeLimit">
     /// The maximum number of log events to include in a single batch.
     /// </param>
