@@ -47,9 +47,9 @@ public class GrpcExporter : IExporter
         _headers = new Metadata();
         if (headers != null)
         {
-            foreach (var (k, v) in headers)
+            foreach (var header in headers)
             {
-                _headers.Add(k, v);
+                _headers.Add(header.Key, header.Value);
             }
         }
     }

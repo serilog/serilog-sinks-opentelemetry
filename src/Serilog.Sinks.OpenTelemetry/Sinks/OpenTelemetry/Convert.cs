@@ -94,8 +94,10 @@ internal static class Convert
     {
         var properties = logEvent.Properties;
         var attrs = logRecord.Attributes;
-        foreach (var (key, value) in properties)
+        foreach (var property in properties)
         {
+            var key = property.Key;
+            var value = property.Value;
             switch (key)
             {
                 case TraceIdEnricher.TRACE_ID_PROPERTY_NAME:

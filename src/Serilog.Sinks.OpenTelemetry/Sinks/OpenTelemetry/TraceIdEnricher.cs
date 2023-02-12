@@ -49,14 +49,19 @@ public class TraceIdEnricher : ILogEventEnricher
     /// <summary>
     /// Implements the `ILogEventEnricher` interface, adding the trace
     /// and span IDs from the current activity to the LogEvent.
+    ///
+    /// NOTE: This enricher is a no-op in .NET frameworks before
+    /// .NET6 core!
     /// </summary>
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
+#if NET6_0_OR_GREATER
         var traceId = Activity.Current?.TraceId.ToHexString();
         AddProperty(logEvent, propertyFactory, TRACE_ID_PROPERTY_NAME, traceId);
 
         var spanId = Activity.Current?.SpanId.ToHexString();
         AddProperty(logEvent, propertyFactory, SPAN_ID_PROPERTY_NAME, spanId);
+#endif
     }
 
     void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)

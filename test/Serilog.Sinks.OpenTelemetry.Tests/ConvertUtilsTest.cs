@@ -15,7 +15,6 @@
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Xunit;
 
@@ -23,6 +22,18 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public class ConvertUtilsTest
 {
+    public byte[] getRandomBytes(int size) {
+        var bytes = new byte[size];
+        Random rnd = new Random();
+        rnd.NextBytes(bytes);
+        return bytes;
+    }
+
+    public static string ByteArrayToString(byte[] bytes)
+    {
+        return BitConverter.ToString(bytes).Replace("-","").ToLower();
+    }
+
     [Fact]
     public void TestToUnixNano()
     {
@@ -74,20 +85,15 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetryTraceId()
     {
-        var originalTraceId = ActivityTraceId.CreateRandom();
+        var originalTraceId = getRandomBytes(16);
         var expectedBytes = new byte[16];
         originalTraceId.CopyTo(new Span<byte>(expectedBytes));
+        var originalTraceIdHexString = ByteArrayToString(originalTraceId);
 
-        var openTelemetryTraceId = ConvertUtils.ToOpenTelemetryTraceId(originalTraceId);
+        var openTelemetryTraceId = ConvertUtils.ToOpenTelemetryTraceId(originalTraceIdHexString);
 
-        Assert.Equal(16, openTelemetryTraceId.Length);
-        Assert.Equal(openTelemetryTraceId.ToByteArray(), expectedBytes);
-
-        var originalTraceIdHexString = originalTraceId.ToHexString();
-        var openTelemetryTraceIdFromString = ConvertUtils.ToOpenTelemetryTraceId(originalTraceIdHexString);
-
-        Assert.Equal(16, openTelemetryTraceIdFromString?.Length);
-        Assert.Equal(openTelemetryTraceIdFromString?.ToByteArray(), expectedBytes);
+        Assert.Equal(16, openTelemetryTraceId?.Length);
+        Assert.Equal(openTelemetryTraceId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
         var scalarHexString = (new ScalarValue(originalTraceIdHexString)).ToString();
@@ -100,20 +106,15 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetrySpanId()
     {
-        var originalSpanId = ActivitySpanId.CreateRandom();
+        var originalSpanId = getRandomBytes(8);
         var expectedBytes = new byte[8];
         originalSpanId.CopyTo(new Span<byte>(expectedBytes));
+        var originalSpanIdHexString = ByteArrayToString(originalSpanId);
 
-        var openTelemetrySpanId = ConvertUtils.ToOpenTelemetrySpanId(originalSpanId);
+        var openTelemetrySpanId = ConvertUtils.ToOpenTelemetrySpanId(originalSpanIdHexString);
 
-        Assert.Equal(8, openTelemetrySpanId.Length);
-        Assert.Equal(openTelemetrySpanId.ToByteArray(), expectedBytes);
-
-        var originalSpanIdHexString = originalSpanId.ToHexString();
-        var openTelemetrySpanIdFromString = ConvertUtils.ToOpenTelemetrySpanId(originalSpanIdHexString);
-
-        Assert.Equal(8, openTelemetrySpanIdFromString?.Length);
-        Assert.Equal(openTelemetrySpanIdFromString?.ToByteArray(), expectedBytes);
+        Assert.Equal(8, openTelemetrySpanId?.Length);
+        Assert.Equal(openTelemetrySpanId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
         var scalarHexString = (new ScalarValue(originalSpanIdHexString)).ToString();

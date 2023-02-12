@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Buffers;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
@@ -43,9 +42,9 @@ public class HttpExporter : IExporter
         _client.BaseAddress = new Uri(endpoint);
         if (headers != null)
         {
-            foreach (var (k, v) in headers)
+            foreach (var header in headers)
             {
-                _client.DefaultRequestHeaders.Add(k, v);
+                _client.DefaultRequestHeaders.Add(header.Key, header.Value);
             }
         }
     }
