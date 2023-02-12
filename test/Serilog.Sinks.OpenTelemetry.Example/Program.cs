@@ -44,11 +44,13 @@ class Program
 
         using (var activity = source.StartActivity("grpc-loop"))
         {
+            System.Console.WriteLine("GRPC");
             SendLogs(grpcLogger, "grpc/protobuf");
         }
 
         using (var activity = source.StartActivity("http-loop"))
         {
+            System.Console.WriteLine("HTTP");
             SendLogs(httpLogger, "http/protobuf");
         }
 
