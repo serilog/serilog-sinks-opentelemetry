@@ -16,7 +16,6 @@ using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -63,46 +62,16 @@ internal static class ConvertUtils
         }
     }
 
-    internal static ByteString ToOpenTelemetryTraceId(ActivityTraceId traceId)
-    {
-        var traceIdBytes = new byte[16];
-        traceId.CopyTo(new Span<byte>(traceIdBytes));
-        return ByteString.CopyFrom(traceIdBytes);
-    }
-
     internal static ByteString? ToOpenTelemetryTraceId(string hexTraceId)
     {
-        try
-        {
-            var span = new ReadOnlySpan<char>(OnlyHexDigits(hexTraceId).ToCharArray());
-            var traceId = ActivityTraceId.CreateFromString(span);
-            return ToOpenTelemetryTraceId(traceId);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        var traceIdBytes = StringToByteArray(hexTraceId);
+        return (traceIdBytes.Length == 16) ? ByteString.CopyFrom(traceIdBytes) : null;
     }
 
-    internal static ByteString ToOpenTelemetrySpanId(ActivitySpanId spanId)
+    internal static ByteString? ToOpenTelemetrySpanId(string hexTraceId)
     {
-        var spanIdBytes = new byte[8];
-        spanId.CopyTo(new Span<byte>(spanIdBytes));
-        return ByteString.CopyFrom(spanIdBytes);
-    }
-
-    internal static ByteString? ToOpenTelemetrySpanId(string hexSpanId)
-    {
-        try
-        {
-            var span = new ReadOnlySpan<char>(OnlyHexDigits(hexSpanId).ToCharArray());
-            var spanId = ActivitySpanId.CreateFromString(span);
-            return ToOpenTelemetrySpanId(spanId);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        var spanIdBytes = StringToByteArray(hexTraceId);
+        return (spanIdBytes.Length == 8) ? ByteString.CopyFrom(spanIdBytes) : null;
     }
 
     internal static KeyValue NewAttribute(string key, AnyValue value)
@@ -251,5 +220,15 @@ internal static class ConvertUtils
         {
             return string.Empty;
         }
+    }
+
+    internal static byte[] StringToByteArray(String s)
+    {
+        string hex = OnlyHexDigits(s);
+        int nChars = hex.Length;
+        byte[] bytes = new byte[nChars / 2];
+        for (int i = 0; i < nChars; i += 2)
+            bytes[i / 2] = System.Convert.ToByte(hex.Substring(i, 2), 16);
+        return bytes;
     }
 }
