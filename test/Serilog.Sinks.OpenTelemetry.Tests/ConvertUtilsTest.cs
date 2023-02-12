@@ -15,7 +15,6 @@
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
-using System.Text.RegularExpressions;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
@@ -47,21 +46,6 @@ public class ConvertUtilsTest
         Thread.Sleep(1000);
         var t1 = DateTimeOffset.UtcNow;
         Assert.True(ConvertUtils.ToUnixNano(t1) > nanos);
-    }
-
-    [Fact]
-    public void TestMd5Hash()
-    {
-        var md5Regex = new Regex(@"^[a-f\d]{32}$");
-
-        var inputs = new string[] { "", "first string", "second string" };
-        foreach (string input in inputs)
-        {
-            Assert.Matches(md5Regex, ConvertUtils.Md5Hash(input));
-        }
-
-        Assert.Equal(ConvertUtils.Md5Hash("alpha"), ConvertUtils.Md5Hash("alpha"));
-        Assert.NotEqual(ConvertUtils.Md5Hash("alpha"), ConvertUtils.Md5Hash("beta"));
     }
 
     [Fact]

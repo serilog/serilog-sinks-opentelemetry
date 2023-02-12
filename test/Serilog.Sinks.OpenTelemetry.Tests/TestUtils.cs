@@ -20,10 +20,13 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public static class TestUtils
 {
+    public const string TEST_MESSAGE_TEMPLATE = "message template {variable}";
+
     internal static LogEvent CreateLogEvent(DateTimeOffset? timestamp = null, Exception? ex = null)
     {
         var ts = (timestamp != null) ? (DateTimeOffset)timestamp : DateTimeOffset.UtcNow;
-        var template = new MessageTemplate(new List<MessageTemplateToken>());
+        var parser = new MessageTemplateParser();
+        var template = parser.Parse(TEST_MESSAGE_TEMPLATE);
         var logRecord = new LogRecord();
         var logEvent = new LogEvent(
             ts,

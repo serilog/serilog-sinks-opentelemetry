@@ -42,24 +42,6 @@ public class ConvertTest
     }
 
     [Fact]
-    public void TestProcessMessageTemplate()
-    {
-        var logRecord = new LogRecord();
-        var logEvent = TestUtils.CreateLogEvent();
-
-        Convert.ProcessMessageTemplate(logRecord, logEvent);
-
-        var templateString = logEvent.MessageTemplate.ToString();
-        var templateStringHash = ConvertUtils.Md5Hash(templateString);
-        var templateKeyValue = ConvertUtils.NewStringAttribute(Convert.MESSAGE_TEMPLATE, templateString);
-        var templateHashKeyValue = ConvertUtils.NewStringAttribute(Convert.MESSAGE_TEMPLATE_HASH, templateStringHash);
-
-        Assert.Equal(2, logRecord.Attributes.Count);
-        Assert.NotEqual(-1, logRecord.Attributes.IndexOf(templateKeyValue));
-        Assert.NotEqual(-1, logRecord.Attributes.IndexOf(templateHashKeyValue));
-    }
-
-    [Fact]
     public void TestProcessLevel()
     {
         var template = new MessageTemplate(new List<MessageTemplateToken>());
