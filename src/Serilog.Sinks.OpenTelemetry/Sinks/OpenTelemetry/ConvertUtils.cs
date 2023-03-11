@@ -157,9 +157,11 @@ internal static class ConvertUtils
             var v = ConvertUtils.ToOpenTelemetryAnyValue(prop.Value);
             if (v != null)
             {
-                var kv = new KeyValue();
-                kv.Key = prop.Name;
-                kv.Value = v;
+                var kv = new KeyValue
+                {
+                    Key = prop.Name,
+                    Value = v
+                };
                 kvList.Values.Add(kv);
             }
         }

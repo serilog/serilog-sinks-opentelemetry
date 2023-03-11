@@ -37,9 +37,11 @@ internal static class Convert
                 var v = ConvertUtils.ToOpenTelemetryPrimitive(entry.Value);
                 if (v != null)
                 {
-                    var kv = new KeyValue();
-                    kv.Value = v;
-                    kv.Key = entry.Key;
+                    var kv = new KeyValue
+                    {
+                        Value = v,
+                        Key = entry.Key
+                    };
                     attributes.Add(kv);
                 }
             }
