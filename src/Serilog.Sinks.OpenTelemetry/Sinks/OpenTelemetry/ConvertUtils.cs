@@ -79,61 +79,61 @@ internal static class ConvertUtils
         });
     }
 
-    internal static AnyValue? ToOpenTelemetryPrimitive(Object? value)
+    internal static AnyValue? ToOpenTelemetryPrimitive(object? value)
     {
         switch (value)
         {
-            case System.Int16 i:
+            case short i:
                 return new AnyValue()
                 {
                     IntValue = (long)i
                 };
-            case System.Int32 i:
+            case int i:
                 return new AnyValue()
                 {
                     IntValue = (long)i
                 };
-            case System.Int64 i:
+            case long i:
                 return new AnyValue()
                 {
                     IntValue = (long)i
                 };
-            case System.UInt16 i:
+            case ushort i:
                 return new AnyValue()
                 {
                     IntValue = (long)i
                 };
-            case System.UInt32 i:
+            case uint i:
                 return new AnyValue()
                 {
                     IntValue = (long)i
                 };
-            case System.UInt64 i:
+            case ulong i:
                 return new AnyValue()
                 {
                     IntValue = (long)i
                 };
-            case System.Single d:
+            case float d:
                 return new AnyValue()
                 {
                     DoubleValue = (double)d
                 };
-            case System.Double d:
+            case double d:
                 return new AnyValue()
                 {
                     DoubleValue = d
                 };
-            case System.Decimal d:
+            case decimal d:
                 return new AnyValue()
                 {
                     DoubleValue = (double)d
                 };
-            case System.String s:
+            case string s:
                 return new AnyValue()
                 {
                     StringValue = s
                 };
-            case System.Boolean b:
+            case bool b:
                 return new AnyValue()
                 {
                     BoolValue = b
@@ -210,7 +210,7 @@ internal static class ConvertUtils
         }
     }
 
-    internal static byte[] StringToByteArray(String s)
+    internal static byte[] StringToByteArray(string s)
     {
         string hex = OnlyHexDigits(s);
         int nChars = hex.Length;

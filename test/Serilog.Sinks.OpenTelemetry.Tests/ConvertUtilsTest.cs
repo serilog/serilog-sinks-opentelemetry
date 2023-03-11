@@ -145,41 +145,41 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetryScalar()
     {
-        var scalar = new ScalarValue((Int16)100);
+        var scalar = new ScalarValue((short)100);
         var result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((Int32)100);
+        scalar = new ScalarValue((int)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((Int64)100);
+        scalar = new ScalarValue((long)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((UInt16)100);
+        scalar = new ScalarValue((ushort)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((UInt32)100);
+        scalar = new ScalarValue((uint)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((UInt64)100);
+        scalar = new ScalarValue((ulong)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((Single)3.14);
+        scalar = new ScalarValue((float)3.14);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)(Single)3.14, result?.DoubleValue);
+        Assert.Equal((double)(float)3.14, result?.DoubleValue);
 
-        scalar = new ScalarValue((Double)3.14);
+        scalar = new ScalarValue((double)3.14);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((double)3.14, result?.DoubleValue);
 
-        scalar = new ScalarValue((Decimal)3.14);
+        scalar = new ScalarValue((decimal)3.14);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)(Decimal)3.14, result?.DoubleValue);
+        Assert.Equal((double)(decimal)3.14, result?.DoubleValue);
 
         scalar = new ScalarValue("ok");
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);

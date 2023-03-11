@@ -27,12 +27,12 @@ internal static class Convert
 
     internal static string SCHEMA_URL = "https://opentelemetry.io/schemas/v1.13.0";
 
-    internal static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, Object>? resourceAttributes)
+    internal static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, object>? resourceAttributes)
     {
         var attributes = new RepeatedField<KeyValue>();
         if (resourceAttributes != null)
         {
-            foreach (KeyValuePair<string, Object> entry in resourceAttributes)
+            foreach (KeyValuePair<string, object> entry in resourceAttributes)
             {
                 var v = ConvertUtils.ToOpenTelemetryPrimitive(entry.Value);
                 if (v != null)

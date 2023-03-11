@@ -51,7 +51,7 @@ internal static class OpenTelemetryUtils
         return scope;
     }
 
-    static ResourceLogs CreateResourceLogs(IDictionary<string, Object>? resourceAttributes)
+    static ResourceLogs CreateResourceLogs(IDictionary<string, object>? resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -76,7 +76,7 @@ internal static class OpenTelemetryUtils
         return scopeLogs;
     }
 
-    internal static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, Object>? resourceAttributes)
+    internal static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, object>? resourceAttributes)
     {
         var scopeTemplate = CreateInstrumentationScope();
 

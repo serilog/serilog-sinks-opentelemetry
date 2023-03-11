@@ -72,7 +72,7 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
        string endpoint,
        OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
        IFormatProvider? formatProvider = null,
-       IDictionary<string, Object>? resourceAttributes = null,
+       IDictionary<string, object>? resourceAttributes = null,
        IDictionary<string, string>? headers = null)
     {
         switch (protocol)
