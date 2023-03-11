@@ -26,7 +26,7 @@ internal static class ConvertUtils
 
     internal static ulong ToUnixNano(DateTimeOffset t)
     {
-        return ((ulong)t.ToUnixTimeMilliseconds()) * _millisToNanos;
+        return (ulong)t.ToUnixTimeMilliseconds() * _millisToNanos;
     }
 
     internal static SeverityNumber ToSeverityNumber(LogEventLevel level)
@@ -53,13 +53,13 @@ internal static class ConvertUtils
     internal static ByteString? ToOpenTelemetryTraceId(string hexTraceId)
     {
         var traceIdBytes = StringToByteArray(hexTraceId);
-        return (traceIdBytes.Length == 16) ? ByteString.CopyFrom(traceIdBytes) : null;
+        return traceIdBytes.Length == 16 ? ByteString.CopyFrom(traceIdBytes) : null;
     }
 
     internal static ByteString? ToOpenTelemetrySpanId(string hexTraceId)
     {
         var spanIdBytes = StringToByteArray(hexTraceId);
-        return (spanIdBytes.Length == 8) ? ByteString.CopyFrom(spanIdBytes) : null;
+        return spanIdBytes.Length == 8 ? ByteString.CopyFrom(spanIdBytes) : null;
     }
 
     internal static KeyValue NewAttribute(string key, AnyValue value)

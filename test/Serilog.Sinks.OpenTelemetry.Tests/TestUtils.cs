@@ -24,7 +24,7 @@ public static class TestUtils
 
     internal static LogEvent CreateLogEvent(DateTimeOffset? timestamp = null, Exception? ex = null)
     {
-        var ts = (timestamp != null) ? (DateTimeOffset)timestamp : DateTimeOffset.UtcNow;
+        var ts = timestamp != null ? (DateTimeOffset)timestamp : DateTimeOffset.UtcNow;
         var parser = new MessageTemplateParser();
         var template = parser.Parse(TEST_MESSAGE_TEMPLATE);
         var logRecord = new LogRecord();

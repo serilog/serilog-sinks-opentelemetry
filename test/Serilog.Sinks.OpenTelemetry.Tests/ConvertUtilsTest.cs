@@ -80,7 +80,7 @@ public class ConvertUtilsTest
         Assert.Equal(openTelemetryTraceId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
-        var scalarHexString = (new ScalarValue(originalTraceIdHexString)).ToString();
+        var scalarHexString = new ScalarValue(originalTraceIdHexString).ToString();
         var openTelemetryTraceIdFromScalar = ConvertUtils.ToOpenTelemetryTraceId(scalarHexString);
 
         Assert.Equal(16, openTelemetryTraceIdFromScalar?.Length);
@@ -101,7 +101,7 @@ public class ConvertUtilsTest
         Assert.Equal(openTelemetrySpanId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
-        var scalarHexString = (new ScalarValue(originalSpanIdHexString)).ToString();
+        var scalarHexString = new ScalarValue(originalSpanIdHexString).ToString();
         var openTelemetrySpanIdFromScalar = ConvertUtils.ToOpenTelemetrySpanId(scalarHexString);
 
         Assert.Equal(8, openTelemetrySpanIdFromScalar?.Length);
