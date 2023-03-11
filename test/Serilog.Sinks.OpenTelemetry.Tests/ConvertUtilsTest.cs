@@ -51,7 +51,8 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToSeverityNumber()
     {
-        var data = new Dictionary<LogEventLevel, SeverityNumber>() {
+        var data = new Dictionary<LogEventLevel, SeverityNumber>
+        {
             {LogEventLevel.Verbose, SeverityNumber.Trace},
             {LogEventLevel.Debug, SeverityNumber.Debug},
             {LogEventLevel.Information, SeverityNumber.Info},
@@ -121,7 +122,7 @@ public class ConvertUtilsTest
     public void TestNewAttribute()
     {
         var key = "ok";
-        var value = new AnyValue()
+        var value = new AnyValue
         {
             IntValue = (long)123
         };
@@ -254,7 +255,7 @@ public class ConvertUtilsTest
     [Fact]
     public void TestOnlyHexDigits()
     {
-        var tests = new Dictionary<string, string>()
+        var tests = new Dictionary<string, string>
         {
             ["0123456789abcdefABCDEF"] = "0123456789abcdefABCDEF",
             ["\f\t 123 \t\f"] = "123",

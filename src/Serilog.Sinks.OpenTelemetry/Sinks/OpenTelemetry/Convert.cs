@@ -66,7 +66,7 @@ internal static class Convert
     {
         if (renderedMessage != null && renderedMessage.Trim() != "")
         {
-            logRecord.Body = new AnyValue()
+            logRecord.Body = new AnyValue
             {
                 StringValue = renderedMessage
             };

@@ -64,7 +64,7 @@ internal static class ConvertUtils
 
     internal static KeyValue NewAttribute(string key, AnyValue value)
     {
-        return new KeyValue()
+        return new KeyValue
         {
             Key = key,
             Value = value
@@ -73,7 +73,7 @@ internal static class ConvertUtils
 
     internal static KeyValue NewStringAttribute(string key, string value)
     {
-        return NewAttribute(key, new AnyValue()
+        return NewAttribute(key, new AnyValue
         {
             StringValue = value
         });
@@ -84,57 +84,57 @@ internal static class ConvertUtils
         switch (value)
         {
             case short i:
-                return new AnyValue()
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
             case int i:
-                return new AnyValue()
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
             case long i:
-                return new AnyValue()
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
             case ushort i:
-                return new AnyValue()
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
             case uint i:
-                return new AnyValue()
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
             case ulong i:
-                return new AnyValue()
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
             case float d:
-                return new AnyValue()
+                return new AnyValue
                 {
                     DoubleValue = (double)d
                 };
             case double d:
-                return new AnyValue()
+                return new AnyValue
                 {
                     DoubleValue = d
                 };
             case decimal d:
-                return new AnyValue()
+                return new AnyValue
                 {
                     DoubleValue = (double)d
                 };
             case string s:
-                return new AnyValue()
+                return new AnyValue
                 {
                     StringValue = s
                 };
             case bool b:
-                return new AnyValue()
+                return new AnyValue
                 {
                     BoolValue = b
                 };
