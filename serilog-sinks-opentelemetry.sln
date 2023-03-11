@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{E9D1B5
 		LICENSE = LICENSE
 		README.md = README.md
 		assets\Serilog.snk = assets\Serilog.snk
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7D0692CD-F95D-4BF9-8C63-B4A1C078DF23}"
