@@ -32,7 +32,7 @@ public class TraceIdEnricherTests
         Activity.Current = null;
 
         enricher.Enrich(logEvent, factory);
- 
+
         Assert.Empty(logEvent.Properties);
 
         Activity.Current = current;

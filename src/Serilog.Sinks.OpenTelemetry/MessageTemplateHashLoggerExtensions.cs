@@ -19,12 +19,12 @@ namespace Serilog;
 
 /// <summary>
 /// Class containing extension methods to <see cref="LoggerConfiguration"/>, configuring an
-/// enricher that adds the MD5 hash of the message template to the payload. 
+/// enricher that adds the MD5 hash of the message template to the payload.
 /// </summary>
 public static class MessageTemplateHashLoggerConfigurationExtensions
 {
     /// <summary>
-    /// The MD5 hash of the message template is added as a property to 
+    /// The MD5 hash of the message template is added as a property to
     /// the payload.
     /// </summary>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>

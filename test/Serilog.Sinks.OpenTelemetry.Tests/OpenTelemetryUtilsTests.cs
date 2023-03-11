@@ -19,7 +19,7 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 public class OpenTelemetryUtilsTests
 {
     [Fact]
-    // Ensure that logs are not carried over from one clone of the 
+    // Ensure that logs are not carried over from one clone of the
     // request template to another.
     public void TestNoDuplicateLogs()
     {

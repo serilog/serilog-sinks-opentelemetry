@@ -20,7 +20,7 @@ using System.Text;
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// This class implements the ILogEventEnricher interface for 
+/// This class implements the ILogEventEnricher interface for
 /// Serilog enrichers. This enricher will add a property that
 /// is the MD5 hash of the message template.
 /// </summary>

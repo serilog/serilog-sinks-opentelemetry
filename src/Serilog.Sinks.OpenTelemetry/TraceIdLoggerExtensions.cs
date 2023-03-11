@@ -20,13 +20,13 @@ namespace Serilog;
 /// <summary>
 /// Class containing extension methods to <see cref="LoggerConfiguration"/>, configuring an
 /// enricher that extracts the current activity's trace and span IDs and then adds them
-/// as properties to the log event. 
+/// as properties to the log event.
 /// </summary>
 public static class TraceIdLoggerConfigurationExtensions
 {
     /// <summary>
     /// If there is an active, current activity, the Trace ID and Span ID
-    /// are extracted and added to the log event as traceId and spanId 
+    /// are extracted and added to the log event as traceId and spanId
     /// properties.
     ///
     /// This enricher is designed to work with the OpenTelemetry sink.

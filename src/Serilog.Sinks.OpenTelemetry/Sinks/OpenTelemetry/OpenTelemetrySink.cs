@@ -50,10 +50,10 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
     /// Creates a new instance of an OpenTelemetrySink.
     /// </summary>
     /// <param name="endpoint">
-    /// The full OTLP endpoint to which logs are sent. 
+    /// The full OTLP endpoint to which logs are sent.
     /// </param>
     /// <param name="protocol">
-    /// The protocol to use when sending data. Defaults to gRPC/protobuf. 
+    /// The protocol to use when sending data. Defaults to gRPC/protobuf.
     /// </param>
     /// <param name="formatProvider">
     /// A IFormatProvider that is used to format the message, which
