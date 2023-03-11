@@ -58,7 +58,7 @@ public class MessageTemplateHashEnricher : ILogEventEnricher
 
     internal static string Md5Hash(string s)
     {
-        using (MD5 md5 = MD5.Create())
+        using (var md5 = MD5.Create())
         {
             md5.Initialize();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));

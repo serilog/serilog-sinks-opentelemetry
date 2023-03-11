@@ -23,7 +23,7 @@ public class ConvertUtilsTest
 {
     public byte[] getRandomBytes(int size) {
         var bytes = new byte[size];
-        Random rnd = new Random();
+        var rnd = new Random();
         rnd.NextBytes(bytes);
         return bytes;
     }
@@ -60,7 +60,7 @@ public class ConvertUtilsTest
             {LogEventLevel.Fatal, SeverityNumber.Fatal},
         };
 
-        foreach ((LogEventLevel level, SeverityNumber severity) in data)
+        foreach ((var level, var severity) in data)
         {
             Assert.Equal(severity, ConvertUtils.ToSeverityNumber(level));
         }

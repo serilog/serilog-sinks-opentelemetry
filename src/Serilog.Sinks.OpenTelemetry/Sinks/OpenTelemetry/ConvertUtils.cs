@@ -152,7 +152,7 @@ internal static class ConvertUtils
         var map = new AnyValue();
         var kvList = new KeyValueList();
         map.KvlistValue = kvList;
-        foreach (LogEventProperty prop in value.Properties)
+        foreach (var prop in value.Properties)
         {
             var v = ConvertUtils.ToOpenTelemetryAnyValue(prop.Value);
             if (v != null)
@@ -172,7 +172,7 @@ internal static class ConvertUtils
         var array = new AnyValue();
         var values = new ArrayValue();
         array.ArrayValue = values;
-        foreach (LogEventPropertyValue element in value.Elements)
+        foreach (var element in value.Elements)
         {
             var v = ConvertUtils.ToOpenTelemetryAnyValue(element);
             if (v != null)
@@ -212,10 +212,10 @@ internal static class ConvertUtils
 
     internal static byte[] StringToByteArray(string s)
     {
-        string hex = OnlyHexDigits(s);
-        int nChars = hex.Length;
-        byte[] bytes = new byte[nChars / 2];
-        for (int i = 0; i < nChars; i += 2)
+        var hex = OnlyHexDigits(s);
+        var nChars = hex.Length;
+        var bytes = new byte[nChars / 2];
+        for (var i = 0; i < nChars; i += 2)
             bytes[i / 2] = System.Convert.ToByte(hex.Substring(i, 2), 16);
         return bytes;
     }

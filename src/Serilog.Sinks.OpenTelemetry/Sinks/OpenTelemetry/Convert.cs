@@ -32,7 +32,7 @@ internal static class Convert
         var attributes = new RepeatedField<KeyValue>();
         if (resourceAttributes != null)
         {
-            foreach (KeyValuePair<string, object> entry in resourceAttributes)
+            foreach (var entry in resourceAttributes)
             {
                 var v = ConvertUtils.ToOpenTelemetryPrimitive(entry.Value);
                 if (v != null)
