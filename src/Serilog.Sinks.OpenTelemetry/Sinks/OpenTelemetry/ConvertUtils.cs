@@ -142,19 +142,19 @@ internal static class ConvertUtils
         return null;
     }
 
-    internal static AnyValue? ToOpenTelemetryScalar(Serilog.Events.ScalarValue scalar)
+    internal static AnyValue? ToOpenTelemetryScalar(ScalarValue scalar)
     {
         return ToOpenTelemetryPrimitive(scalar?.Value);
     }
 
-    internal static AnyValue? ToOpenTelemetryMap(Serilog.Events.StructureValue value)
+    internal static AnyValue? ToOpenTelemetryMap(StructureValue value)
     {
         var map = new AnyValue();
         var kvList = new KeyValueList();
         map.KvlistValue = kvList;
         foreach (var prop in value.Properties)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(prop.Value);
+            var v = ToOpenTelemetryAnyValue(prop.Value);
             if (v != null)
             {
                 var kv = new KeyValue
@@ -169,14 +169,14 @@ internal static class ConvertUtils
 
     }
 
-    internal static AnyValue? ToOpenTelemetryArray(Serilog.Events.SequenceValue value)
+    internal static AnyValue? ToOpenTelemetryArray(SequenceValue value)
     {
         var array = new AnyValue();
         var values = new ArrayValue();
         array.ArrayValue = values;
         foreach (var element in value.Elements)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(element);
+            var v = ToOpenTelemetryAnyValue(element);
             if (v != null)
             {
                 values.Values.Add(v);
@@ -189,12 +189,12 @@ internal static class ConvertUtils
     {
         switch (value)
         {
-            case Serilog.Events.ScalarValue scalar:
-                return ConvertUtils.ToOpenTelemetryScalar(scalar);
-            case Serilog.Events.StructureValue map:
-                return ConvertUtils.ToOpenTelemetryMap(map);
-            case Serilog.Events.SequenceValue array:
-                return ConvertUtils.ToOpenTelemetryArray(array);
+            case ScalarValue scalar:
+                return ToOpenTelemetryScalar(scalar);
+            case StructureValue map:
+                return ToOpenTelemetryMap(map);
+            case SequenceValue array:
+                return ToOpenTelemetryArray(array);
             default:
                 return null;
         }

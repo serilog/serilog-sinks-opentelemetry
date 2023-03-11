@@ -36,13 +36,13 @@ internal static class OpenTelemetryUtils
     {
         var scope = new InstrumentationScope();
 
-        var scopeName = OpenTelemetryUtils.GetScopeName();
+        var scopeName = GetScopeName();
         if (scopeName != null)
         {
             scope.Name = scopeName;
         }
 
-        var scopeVersion = OpenTelemetryUtils.GetScopeVersion();
+        var scopeVersion = GetScopeVersion();
         if (scopeVersion != null)
         {
             scope.Version = scopeVersion;
