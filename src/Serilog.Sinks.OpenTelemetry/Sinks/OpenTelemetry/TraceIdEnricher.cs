@@ -64,7 +64,7 @@ public class TraceIdEnricher : ILogEventEnricher
 #endif
     }
 
-    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {

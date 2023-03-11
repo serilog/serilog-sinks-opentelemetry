@@ -21,7 +21,7 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public class ConvertUtilsTest
 {
-    public byte[] getRandomBytes(int size) {
+    public static byte[] GetRandomBytes(int size) {
         var bytes = new byte[size];
         var rnd = new Random();
         rnd.NextBytes(bytes);
@@ -70,7 +70,7 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetryTraceId()
     {
-        var originalTraceId = getRandomBytes(16);
+        var originalTraceId = GetRandomBytes(16);
         var expectedBytes = new byte[16];
         originalTraceId.CopyTo(new Span<byte>(expectedBytes));
         var originalTraceIdHexString = ByteArrayToString(originalTraceId);
@@ -91,7 +91,7 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetrySpanId()
     {
-        var originalSpanId = getRandomBytes(8);
+        var originalSpanId = GetRandomBytes(8);
         var expectedBytes = new byte[8];
         originalSpanId.CopyTo(new Span<byte>(expectedBytes));
         var originalSpanIdHexString = ByteArrayToString(originalSpanId);

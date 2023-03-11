@@ -45,7 +45,7 @@ public class MessageTemplateEnricher : ILogEventEnricher
         AddProperty(logEvent, propertyFactory, MESSAGE_TEMPLATE, template);
     }
 
-    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {

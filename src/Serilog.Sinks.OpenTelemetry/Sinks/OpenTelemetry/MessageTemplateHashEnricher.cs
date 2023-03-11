@@ -48,7 +48,7 @@ public class MessageTemplateHashEnricher : ILogEventEnricher
         AddProperty(logEvent, propertyFactory, MESSAGE_TEMPLATE_HASH, hash);
     }
 
-    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {
