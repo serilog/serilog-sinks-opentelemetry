@@ -68,6 +68,9 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// <param name="batchQueueLimit">
     /// The maximum number of batches to hold in memory.
     /// </param>
+    /// <param name="disableBatching">
+    /// The flag disabling batching in the sink.
+    /// </param>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration sinkConfiguration,
@@ -80,27 +83,32 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         LoggingLevelSwitch? levelSwitch = null,
         int batchSizeLimit = 100,
         int batchPeriod = 2,
-        int batchQueueLimit = 10000)
+        int batchQueueLimit = 10000,
+        bool disableBatching = false)
     {
         if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
 
-        var sink = new OpenTelemetrySink(
+        var openTelemetrySink = new OpenTelemetrySink(
             endpoint: endpoint,
             protocol: protocol,
             formatProvider: formatProvider,
             resourceAttributes: resourceAttributes,
             headers: headers);
 
-        var batchingOptions = new PeriodicBatchingSinkOptions
+        ILogEventSink sink = openTelemetrySink;
+        if (!disableBatching)
         {
-            BatchSizeLimit = batchSizeLimit,
-            Period = TimeSpan.FromSeconds(batchPeriod),
-            EagerlyEmitFirstEvent = true,
-            QueueLimit = batchQueueLimit
-        };
+            var batchingOptions = new PeriodicBatchingSinkOptions
+            {
+                BatchSizeLimit = batchSizeLimit,
+                Period = TimeSpan.FromSeconds(batchPeriod),
+                EagerlyEmitFirstEvent = true,
+                QueueLimit = batchQueueLimit
+            };
 
-        var batchingSink = new PeriodicBatchingSink(sink, batchingOptions);
+            sink = new PeriodicBatchingSink(openTelemetrySink, batchingOptions);
+        }
 
-        return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
+        return sinkConfiguration.Sink(sink, restrictedToMinimumLevel, levelSwitch);
     }
 }
