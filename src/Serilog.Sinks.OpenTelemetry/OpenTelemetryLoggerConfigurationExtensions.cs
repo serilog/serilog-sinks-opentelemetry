@@ -96,7 +96,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             headers: headers);
 
         ILogEventSink sink = openTelemetrySink;
-        if (disableBatching == false)
+        if (!disableBatching)
         {
             var batchingOptions = new PeriodicBatchingSinkOptions
             {
