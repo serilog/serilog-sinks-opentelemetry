@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
+using Serilog.Core;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -23,7 +25,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// OpenTelemetry LogRecord objects and emits those to an OTLP
 /// endpoint.
 /// </summary>
-public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
+public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 {
     /// <summary>
     /// Defines the OTLP protocol to use when sending OpenTelemetry data.
@@ -104,6 +106,13 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
         return _exporter.Export(request);
     }
 
+    private void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
+    {
+        var message = logEvent.RenderMessage(_formatProvider);
+        var logRecord = Convert.ToLogRecord(logEvent, message);
+        OpenTelemetryUtils.Add(request, logRecord);
+    }
+
     /// <summary>
     /// Transforms and sends the given batch of LogEvent objects
     /// to an OTLP endpoint.
@@ -114,12 +123,22 @@ public class OpenTelemetrySink : IBatchedLogEventSink, IDisposable
 
         foreach (var logEvent in batch)
         {
-            var message = logEvent.RenderMessage(_formatProvider);
-            var logRecord = Convert.ToLogRecord(logEvent, message);
-            OpenTelemetryUtils.Add(request, logRecord);
+            AddLogEventToRequest(logEvent, request);
         }
 
         return Export(request);
+    }
+
+    /// <summary>
+    /// Transforms and sends the given LogEvent
+    /// to an OTLP endpoint.
+    /// </summary>
+    public void Emit(LogEvent logEvent)
+    {
+        var request = _requestTemplate.Clone();
+        AddLogEventToRequest(logEvent, request);
+        Export(request)
+            .ContinueWith(t => SelfLog.WriteLine("Exception while emitting event from {0}: {1}", this, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
     }
 
     /// <summary>
