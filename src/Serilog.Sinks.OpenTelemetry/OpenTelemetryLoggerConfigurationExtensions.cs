@@ -71,6 +71,9 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// <param name="disableBatching">
     /// The flag disabling batching in the sink.
     /// </param>
+    /// <param name="messageFormat">
+    /// The format in which log message is sent. Defaults to PlainText.
+    /// </param>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration sinkConfiguration,
@@ -84,7 +87,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         int batchSizeLimit = 100,
         int batchPeriod = 2,
         int batchQueueLimit = 10000,
-        bool disableBatching = false)
+        bool disableBatching = false,
+        MessageFormat messageFormat = MessageFormat.PlainText)
     {
         if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
 
@@ -93,7 +97,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             protocol: protocol,
             formatProvider: formatProvider,
             resourceAttributes: resourceAttributes,
-            headers: headers);
+            headers: headers,
+            messageFormat: messageFormat);
 
         ILogEventSink sink = openTelemetrySink;
         if (!disableBatching)
