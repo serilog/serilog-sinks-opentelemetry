@@ -58,7 +58,13 @@ are:
 - `OtlpProtocol.HttpProtobuf`: Sends a protobuf representation of the
    OpenTelemetry Logs over an HTTP connection.
 
-Sending OpenTelemetry logs as a JSON payload is not supported. 
+### Message Format
+
+The default message format is plain text. You may also want to set the
+format explicitly. The supported values are:
+
+- `MessageFormat.PlainText`: Sends the message as plain text.
+- `MessageFormat.Json`     : Sends the message formatted as JSON.
 
 ### Resource Attributes
 
