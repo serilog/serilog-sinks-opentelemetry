@@ -42,11 +42,29 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
         /// </summary>
         HttpProtobuf
     }
+
+    /// <summary>
+    /// Defines the message format to use.
+    /// </summary>
+    public enum MessageFormat
+    {
+        /// <summary>
+        /// Sends the message converted to plain text.
+        /// </summary>
+        PlainText,
+        /// <summary>
+        /// Sends the message converted to JSON.
+        /// </summary>
+        Json
+    }
+
     readonly IFormatProvider? _formatProvider;
 
     readonly ExportLogsServiceRequest _requestTemplate;
 
     readonly IExporter _exporter;
+
+    readonly MessageFormat _messageFormat;
 
     /// <summary>
     /// Creates a new instance of an OpenTelemetrySink.
@@ -70,12 +88,16 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
     /// An IDictionary&lt;string, string&gt; containing the key-value pairs
     /// to be used as request headers.
     /// </param>
+    /// <param name="messageFormat">
+    /// The format in which log message is sent. Defaults to PlainText.
+    /// </param>
     public OpenTelemetrySink(
        string endpoint,
        OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
        IFormatProvider? formatProvider = null,
        IDictionary<string, Object>? resourceAttributes = null,
-       IDictionary<string, string>? headers = null)
+       IDictionary<string, string>? headers = null,
+       MessageFormat messageFormat = MessageFormat.PlainText)
     {
         switch (protocol)
         {
@@ -91,6 +113,8 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
         _formatProvider = formatProvider;
 
         _requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(resourceAttributes);
+
+        _messageFormat = messageFormat;
     }
 
     /// <summary>
@@ -108,9 +132,17 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
 
     private void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
-        var message = logEvent.RenderMessage(_formatProvider);
+        var message = _messageFormat == MessageFormat.PlainText ? logEvent.RenderMessage(_formatProvider) : LogEventToJson(logEvent);
         var logRecord = Convert.ToLogRecord(logEvent, message);
         OpenTelemetryUtils.Add(request, logRecord);
+    }
+
+    private string LogEventToJson(LogEvent logEvent)
+    {
+        var formatter = new Formatting.Json.JsonFormatter(formatProvider: _formatProvider, renderMessage: true);
+        using StringWriter sw = new();
+        formatter.Format(logEvent, sw);
+        return sw.ToString();
     }
 
     /// <summary>
