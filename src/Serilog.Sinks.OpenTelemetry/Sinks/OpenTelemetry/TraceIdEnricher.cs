@@ -19,14 +19,14 @@ using System.Diagnostics;
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// This class implements the ILogEventEnricher interface for 
-/// Serilog enrichers. If there is an active, current activity, 
-/// the Trace ID and Span ID are extracted, converted to hex 
-/// string representations, and then added to the log event as 
+/// This class implements the ILogEventEnricher interface for
+/// Serilog enrichers. If there is an active, current activity,
+/// the Trace ID and Span ID are extracted, converted to hex
+/// string representations, and then added to the log event as
 /// traceId and spanId properties.
 ///
-/// Although this enricher may be useful in other contexts, it is 
-/// designed to work with the OpenTelemetry sink, which inserts 
+/// Although this enricher may be useful in other contexts, it is
+/// designed to work with the OpenTelemetry sink, which inserts
 /// these properties into the appropriate LogRecord fields.
 /// </summary>
 public class TraceIdEnricher : ILogEventEnricher
@@ -64,7 +64,7 @@ public class TraceIdEnricher : ILogEventEnricher
 #endif
     }
 
-    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {

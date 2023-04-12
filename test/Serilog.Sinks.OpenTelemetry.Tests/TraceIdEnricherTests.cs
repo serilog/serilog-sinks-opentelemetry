@@ -32,7 +32,7 @@ public class TraceIdEnricherTests
         Activity.Current = null;
 
         enricher.Enrich(logEvent, factory);
- 
+
         Assert.Empty(logEvent.Properties);
 
         Activity.Current = current;
@@ -49,7 +49,7 @@ public class TraceIdEnricherTests
 
         ActivitySource.AddActivityListener(listener);
 
-        ActivitySource source = new ActivitySource("test.activity", "1.0.0");
+        var source = new ActivitySource("test.activity", "1.0.0");
 
         var logEvent = TestUtils.CreateLogEvent();
 
@@ -57,7 +57,7 @@ public class TraceIdEnricherTests
         var factory = new StringPropertyFactory();
 
         var current = Activity.Current;
-        using (Activity? activity = source.StartActivity("test_activity"))
+        using (var activity = source.StartActivity("test_activity"))
         {
             Assert.NotNull(Activity.Current);
             if (Activity.Current != null)

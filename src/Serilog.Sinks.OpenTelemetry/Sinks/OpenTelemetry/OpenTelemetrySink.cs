@@ -52,10 +52,10 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
     /// Creates a new instance of an OpenTelemetrySink.
     /// </summary>
     /// <param name="endpoint">
-    /// The full OTLP endpoint to which logs are sent. 
+    /// The full OTLP endpoint to which logs are sent.
     /// </param>
     /// <param name="protocol">
-    /// The protocol to use when sending data. Defaults to gRPC/protobuf. 
+    /// The protocol to use when sending data. Defaults to gRPC/protobuf.
     /// </param>
     /// <param name="formatProvider">
     /// A IFormatProvider that is used to format the message, which
@@ -74,7 +74,7 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
        string endpoint,
        OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
        IFormatProvider? formatProvider = null,
-       IDictionary<string, Object>? resourceAttributes = null,
+       IDictionary<string, object>? resourceAttributes = null,
        IDictionary<string, string>? headers = null)
     {
         switch (protocol)

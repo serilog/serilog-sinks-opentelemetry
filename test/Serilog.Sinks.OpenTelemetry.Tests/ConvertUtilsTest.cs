@@ -21,9 +21,9 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public class ConvertUtilsTest
 {
-    public byte[] getRandomBytes(int size) {
+    public static byte[] GetRandomBytes(int size) {
         var bytes = new byte[size];
-        Random rnd = new Random();
+        var rnd = new Random();
         rnd.NextBytes(bytes);
         return bytes;
     }
@@ -51,7 +51,8 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToSeverityNumber()
     {
-        var data = new Dictionary<LogEventLevel, SeverityNumber>() {
+        var data = new Dictionary<LogEventLevel, SeverityNumber>
+        {
             {LogEventLevel.Verbose, SeverityNumber.Trace},
             {LogEventLevel.Debug, SeverityNumber.Debug},
             {LogEventLevel.Information, SeverityNumber.Info},
@@ -60,7 +61,7 @@ public class ConvertUtilsTest
             {LogEventLevel.Fatal, SeverityNumber.Fatal},
         };
 
-        foreach ((LogEventLevel level, SeverityNumber severity) in data)
+        foreach ((var level, var severity) in data)
         {
             Assert.Equal(severity, ConvertUtils.ToSeverityNumber(level));
         }
@@ -69,7 +70,7 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetryTraceId()
     {
-        var originalTraceId = getRandomBytes(16);
+        var originalTraceId = GetRandomBytes(16);
         var expectedBytes = new byte[16];
         originalTraceId.CopyTo(new Span<byte>(expectedBytes));
         var originalTraceIdHexString = ByteArrayToString(originalTraceId);
@@ -80,7 +81,7 @@ public class ConvertUtilsTest
         Assert.Equal(openTelemetryTraceId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
-        var scalarHexString = (new ScalarValue(originalTraceIdHexString)).ToString();
+        var scalarHexString = new ScalarValue(originalTraceIdHexString).ToString();
         var openTelemetryTraceIdFromScalar = ConvertUtils.ToOpenTelemetryTraceId(scalarHexString);
 
         Assert.Equal(16, openTelemetryTraceIdFromScalar?.Length);
@@ -90,7 +91,7 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetrySpanId()
     {
-        var originalSpanId = getRandomBytes(8);
+        var originalSpanId = GetRandomBytes(8);
         var expectedBytes = new byte[8];
         originalSpanId.CopyTo(new Span<byte>(expectedBytes));
         var originalSpanIdHexString = ByteArrayToString(originalSpanId);
@@ -101,7 +102,7 @@ public class ConvertUtilsTest
         Assert.Equal(openTelemetrySpanId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
-        var scalarHexString = (new ScalarValue(originalSpanIdHexString)).ToString();
+        var scalarHexString = new ScalarValue(originalSpanIdHexString).ToString();
         var openTelemetrySpanIdFromScalar = ConvertUtils.ToOpenTelemetrySpanId(scalarHexString);
 
         Assert.Equal(8, openTelemetrySpanIdFromScalar?.Length);
@@ -121,7 +122,7 @@ public class ConvertUtilsTest
     public void TestNewAttribute()
     {
         var key = "ok";
-        var value = new AnyValue()
+        var value = new AnyValue
         {
             IntValue = (long)123
         };
@@ -145,41 +146,41 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetryScalar()
     {
-        var scalar = new ScalarValue((Int16)100);
+        var scalar = new ScalarValue((short)100);
         var result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((Int32)100);
+        scalar = new ScalarValue((int)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((Int64)100);
+        scalar = new ScalarValue((long)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((UInt16)100);
+        scalar = new ScalarValue((ushort)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((UInt32)100);
+        scalar = new ScalarValue((uint)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((UInt64)100);
+        scalar = new ScalarValue((ulong)100);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
-        scalar = new ScalarValue((Single)3.14);
+        scalar = new ScalarValue((float)3.14);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)(Single)3.14, result?.DoubleValue);
+        Assert.Equal((double)(float)3.14, result?.DoubleValue);
 
-        scalar = new ScalarValue((Double)3.14);
+        scalar = new ScalarValue((double)3.14);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
         Assert.Equal((double)3.14, result?.DoubleValue);
 
-        scalar = new ScalarValue((Decimal)3.14);
+        scalar = new ScalarValue((decimal)3.14);
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)(Decimal)3.14, result?.DoubleValue);
+        Assert.Equal((double)(decimal)3.14, result?.DoubleValue);
 
         scalar = new ScalarValue("ok");
         result = ConvertUtils.ToOpenTelemetryScalar(scalar);
@@ -254,7 +255,7 @@ public class ConvertUtilsTest
     [Fact]
     public void TestOnlyHexDigits()
     {
-        var tests = new Dictionary<string, string>()
+        var tests = new Dictionary<string, string>
         {
             ["0123456789abcdefABCDEF"] = "0123456789abcdefABCDEF",
             ["\f\t 123 \t\f"] = "123",

@@ -18,7 +18,7 @@ using Serilog.Events;
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// This class implements the ILogEventEnricher interface for 
+/// This class implements the ILogEventEnricher interface for
 /// Serilog enrichers. This enricher will add a property that
 /// containing the string representation of the message template.
 /// </summary>
@@ -35,7 +35,7 @@ public class MessageTemplateEnricher : ILogEventEnricher
     public MessageTemplateEnricher() { }
 
     /// <summary>
-    /// Implements the `ILogEventEnricher` interface, adding the 
+    /// Implements the `ILogEventEnricher` interface, adding the
     /// string representation of the message template.
     /// </summary>
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
@@ -45,7 +45,7 @@ public class MessageTemplateEnricher : ILogEventEnricher
         AddProperty(logEvent, propertyFactory, MESSAGE_TEMPLATE, template);
     }
 
-    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {

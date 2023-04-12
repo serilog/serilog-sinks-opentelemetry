@@ -26,7 +26,7 @@ internal static class ConvertUtils
 
     internal static ulong ToUnixNano(DateTimeOffset t)
     {
-        return ((ulong)t.ToUnixTimeMilliseconds()) * _millisToNanos;
+        return (ulong)t.ToUnixTimeMilliseconds() * _millisToNanos;
     }
 
     internal static SeverityNumber ToSeverityNumber(LogEventLevel level)
@@ -53,18 +53,18 @@ internal static class ConvertUtils
     internal static ByteString? ToOpenTelemetryTraceId(string hexTraceId)
     {
         var traceIdBytes = StringToByteArray(hexTraceId);
-        return (traceIdBytes.Length == 16) ? ByteString.CopyFrom(traceIdBytes) : null;
+        return traceIdBytes.Length == 16 ? ByteString.CopyFrom(traceIdBytes) : null;
     }
 
     internal static ByteString? ToOpenTelemetrySpanId(string hexTraceId)
     {
         var spanIdBytes = StringToByteArray(hexTraceId);
-        return (spanIdBytes.Length == 8) ? ByteString.CopyFrom(spanIdBytes) : null;
+        return spanIdBytes.Length == 8 ? ByteString.CopyFrom(spanIdBytes) : null;
     }
 
     internal static KeyValue NewAttribute(string key, AnyValue value)
     {
-        return new KeyValue()
+        return new KeyValue
         {
             Key = key,
             Value = value
@@ -73,68 +73,68 @@ internal static class ConvertUtils
 
     internal static KeyValue NewStringAttribute(string key, string value)
     {
-        return NewAttribute(key, new AnyValue()
+        return NewAttribute(key, new AnyValue
         {
             StringValue = value
         });
     }
 
-    internal static AnyValue? ToOpenTelemetryPrimitive(Object? value)
+    internal static AnyValue? ToOpenTelemetryPrimitive(object? value)
     {
         switch (value)
         {
-            case System.Int16 i:
-                return new AnyValue()
+            case short i:
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
-            case System.Int32 i:
-                return new AnyValue()
+            case int i:
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
-            case System.Int64 i:
-                return new AnyValue()
+            case long i:
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
-            case System.UInt16 i:
-                return new AnyValue()
+            case ushort i:
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
-            case System.UInt32 i:
-                return new AnyValue()
+            case uint i:
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
-            case System.UInt64 i:
-                return new AnyValue()
+            case ulong i:
+                return new AnyValue
                 {
                     IntValue = (long)i
                 };
-            case System.Single d:
-                return new AnyValue()
+            case float d:
+                return new AnyValue
                 {
                     DoubleValue = (double)d
                 };
-            case System.Double d:
-                return new AnyValue()
+            case double d:
+                return new AnyValue
                 {
                     DoubleValue = d
                 };
-            case System.Decimal d:
-                return new AnyValue()
+            case decimal d:
+                return new AnyValue
                 {
                     DoubleValue = (double)d
                 };
-            case System.String s:
-                return new AnyValue()
+            case string s:
+                return new AnyValue
                 {
                     StringValue = s
                 };
-            case System.Boolean b:
-                return new AnyValue()
+            case bool b:
+                return new AnyValue
                 {
                     BoolValue = b
                 };
@@ -142,24 +142,26 @@ internal static class ConvertUtils
         return null;
     }
 
-    internal static AnyValue? ToOpenTelemetryScalar(Serilog.Events.ScalarValue scalar)
+    internal static AnyValue? ToOpenTelemetryScalar(ScalarValue scalar)
     {
         return ToOpenTelemetryPrimitive(scalar?.Value);
     }
 
-    internal static AnyValue? ToOpenTelemetryMap(Serilog.Events.StructureValue value)
+    internal static AnyValue? ToOpenTelemetryMap(StructureValue value)
     {
         var map = new AnyValue();
         var kvList = new KeyValueList();
         map.KvlistValue = kvList;
-        foreach (LogEventProperty prop in value.Properties)
+        foreach (var prop in value.Properties)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(prop.Value);
+            var v = ToOpenTelemetryAnyValue(prop.Value);
             if (v != null)
             {
-                var kv = new KeyValue();
-                kv.Key = prop.Name;
-                kv.Value = v;
+                var kv = new KeyValue
+                {
+                    Key = prop.Name,
+                    Value = v
+                };
                 kvList.Values.Add(kv);
             }
         }
@@ -167,14 +169,14 @@ internal static class ConvertUtils
 
     }
 
-    internal static AnyValue? ToOpenTelemetryArray(Serilog.Events.SequenceValue value)
+    internal static AnyValue? ToOpenTelemetryArray(SequenceValue value)
     {
         var array = new AnyValue();
         var values = new ArrayValue();
         array.ArrayValue = values;
-        foreach (LogEventPropertyValue element in value.Elements)
+        foreach (var element in value.Elements)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(element);
+            var v = ToOpenTelemetryAnyValue(element);
             if (v != null)
             {
                 values.Values.Add(v);
@@ -187,12 +189,12 @@ internal static class ConvertUtils
     {
         switch (value)
         {
-            case Serilog.Events.ScalarValue scalar:
-                return ConvertUtils.ToOpenTelemetryScalar(scalar);
-            case Serilog.Events.StructureValue map:
-                return ConvertUtils.ToOpenTelemetryMap(map);
-            case Serilog.Events.SequenceValue array:
-                return ConvertUtils.ToOpenTelemetryArray(array);
+            case ScalarValue scalar:
+                return ToOpenTelemetryScalar(scalar);
+            case StructureValue map:
+                return ToOpenTelemetryMap(map);
+            case SequenceValue array:
+                return ToOpenTelemetryArray(array);
             default:
                 return null;
         }
@@ -210,12 +212,12 @@ internal static class ConvertUtils
         }
     }
 
-    internal static byte[] StringToByteArray(String s)
+    internal static byte[] StringToByteArray(string s)
     {
-        string hex = OnlyHexDigits(s);
-        int nChars = hex.Length;
-        byte[] bytes = new byte[nChars / 2];
-        for (int i = 0; i < nChars; i += 2)
+        var hex = OnlyHexDigits(s);
+        var nChars = hex.Length;
+        var bytes = new byte[nChars / 2];
+        for (var i = 0; i < nChars; i += 2)
             bytes[i / 2] = System.Convert.ToByte(hex.Substring(i, 2), 16);
         return bytes;
     }

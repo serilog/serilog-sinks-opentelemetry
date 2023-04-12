@@ -20,7 +20,7 @@ using System.Text;
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// This class implements the ILogEventEnricher interface for 
+/// This class implements the ILogEventEnricher interface for
 /// Serilog enrichers. This enricher will add a property that
 /// is the MD5 hash of the message template.
 /// </summary>
@@ -48,7 +48,7 @@ public class MessageTemplateHashEnricher : ILogEventEnricher
         AddProperty(logEvent, propertyFactory, MESSAGE_TEMPLATE_HASH, hash);
     }
 
-    void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
+    static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
     {
         if (value != null)
         {
@@ -58,7 +58,7 @@ public class MessageTemplateHashEnricher : ILogEventEnricher
 
     internal static string Md5Hash(string s)
     {
-        using (MD5 md5 = MD5.Create())
+        using (var md5 = MD5.Create())
         {
             md5.Initialize();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));

@@ -26,15 +26,15 @@ public class HttpExporter : IExporter
     readonly HttpClient _client;
 
     /// <summary>
-    /// Creates a new instance of an HttpExporter that writes an 
-    /// ExportLogsServiceRequest to a OTLP/HTTP endpoint as a 
+    /// Creates a new instance of an HttpExporter that writes an
+    /// ExportLogsServiceRequest to a OTLP/HTTP endpoint as a
     /// protobuf payload.
     /// </summary>
     /// <param name="endpoint">
-    /// The full OTLP endpoint to which logs are sent. 
+    /// The full OTLP endpoint to which logs are sent.
     /// </param>
     /// <param name="headers">
-    /// A dictionary containing the request headers. 
+    /// A dictionary containing the request headers.
     /// </param>
     public HttpExporter(string endpoint, IDictionary<string, string>? headers)
     {

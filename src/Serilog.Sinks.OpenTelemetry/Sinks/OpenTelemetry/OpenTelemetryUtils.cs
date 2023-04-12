@@ -36,13 +36,13 @@ internal static class OpenTelemetryUtils
     {
         var scope = new InstrumentationScope();
 
-        var scopeName = OpenTelemetryUtils.GetScopeName();
+        var scopeName = GetScopeName();
         if (scopeName != null)
         {
             scope.Name = scopeName;
         }
 
-        var scopeVersion = OpenTelemetryUtils.GetScopeVersion();
+        var scopeVersion = GetScopeVersion();
         if (scopeVersion != null)
         {
             scope.Version = scopeVersion;
@@ -51,7 +51,7 @@ internal static class OpenTelemetryUtils
         return scope;
     }
 
-    static ResourceLogs CreateResourceLogs(IDictionary<string, Object>? resourceAttributes)
+    static ResourceLogs CreateResourceLogs(IDictionary<string, object>? resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -69,14 +69,16 @@ internal static class OpenTelemetryUtils
 
     static ScopeLogs CreateEmptyScopeLogs()
     {
-        var scopeLogs = new ScopeLogs();
-        scopeLogs.Scope = CreateInstrumentationScope();
-        scopeLogs.SchemaUrl = Convert.SCHEMA_URL;
+        var scopeLogs = new ScopeLogs
+        {
+            Scope = CreateInstrumentationScope(),
+            SchemaUrl = Convert.SCHEMA_URL
+        };
 
         return scopeLogs;
     }
 
-    internal static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, Object>? resourceAttributes)
+    internal static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, object>? resourceAttributes)
     {
         var scopeTemplate = CreateInstrumentationScope();
 

@@ -31,14 +31,14 @@ public class GrpcExporter : IExporter
     readonly Metadata _headers;
 
     /// <summary>
-    /// Creates a new instance of a GrpcExporter that writes an 
+    /// Creates a new instance of a GrpcExporter that writes an
     /// ExportLogsServiceRequest to a gRPC endpoint.
     /// </summary>
     /// <param name="endpoint">
-    /// The full OTLP endpoint to which logs are sent. 
+    /// The full OTLP endpoint to which logs are sent.
     /// </param>
     /// <param name="headers">
-    /// A dictionary containing the request headers. 
+    /// A dictionary containing the request headers.
     /// </param>
     public GrpcExporter(string endpoint, IDictionary<string, string>? headers)
     {

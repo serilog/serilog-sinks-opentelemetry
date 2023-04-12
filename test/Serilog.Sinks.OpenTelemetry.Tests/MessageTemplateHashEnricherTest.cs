@@ -25,8 +25,8 @@ public class MessageTemplateHashEnricherTest
     {
         var md5Regex = new Regex(@"^[a-f\d]{32}$");
 
-        var inputs = new string[] { "", "first string", "second string" };
-        foreach (string input in inputs)
+        var inputs = new[] { "", "first string", "second string" };
+        foreach (var input in inputs)
         {
             Assert.Matches(md5Regex, MessageTemplateHashEnricher.Md5Hash(input));
         }
