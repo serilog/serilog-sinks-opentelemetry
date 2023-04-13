@@ -56,24 +56,22 @@ public class TraceIdEnricherTests
         var enricher = new TraceIdEnricher();
         var factory = new StringPropertyFactory();
 
-        var current = Activity.Current;
-        using (var activity = source.StartActivity("test_activity"))
+        using var activity = source.StartActivity();
+        Assert.NotNull(Activity.Current);
+        
+        if (Activity.Current != null)
         {
-            Assert.NotNull(Activity.Current);
-            if (Activity.Current != null)
-            {
-                var hexTraceId = Activity.Current.TraceId.ToHexString();
-                var hexSpanId = Activity.Current.SpanId.ToHexString();
+            var hexTraceId = Activity.Current.TraceId.ToHexString();
+            var hexSpanId = Activity.Current.SpanId.ToHexString();
 
-                var expectedTraceId = new KeyValuePair<string, LogEventPropertyValue>(TraceIdEnricher.TRACE_ID_PROPERTY_NAME, new ScalarValue(hexTraceId));
-                var expectedSpanId = new KeyValuePair<string, LogEventPropertyValue>(TraceIdEnricher.SPAN_ID_PROPERTY_NAME, new ScalarValue(hexSpanId));
+            var expectedTraceId = new KeyValuePair<string, LogEventPropertyValue>(WellKnownConstants.TraceIdField, new ScalarValue(hexTraceId));
+            var expectedSpanId = new KeyValuePair<string, LogEventPropertyValue>(WellKnownConstants.SpanIdField, new ScalarValue(hexSpanId));
 
-                enricher.Enrich(logEvent, factory);
+            enricher.Enrich(logEvent, factory);
 
-                Assert.Equal(2, logEvent.Properties.Count);
-                Assert.Contains(expectedTraceId, logEvent.Properties);
-                Assert.Contains(expectedSpanId, logEvent.Properties);
-            }
+            Assert.Equal(2, logEvent.Properties.Count);
+            Assert.Contains(expectedTraceId, logEvent.Properties);
+            Assert.Contains(expectedSpanId, logEvent.Properties);
         }
     }
 

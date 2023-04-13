@@ -45,7 +45,7 @@ public class MessageTemplateHashEnricherTest
 
         var expectedHash = MessageTemplateHashEnricher.Md5Hash(TestUtils.TEST_MESSAGE_TEMPLATE);
 
-        var expectedMessageTemplateHash = new KeyValuePair<string, LogEventPropertyValue>(MessageTemplateHashEnricher.MESSAGE_TEMPLATE_HASH, new ScalarValue(expectedHash));
+        var expectedMessageTemplateHash = new KeyValuePair<string, LogEventPropertyValue>(WellKnownConstants.AttributeMessageTemplateMd5Hash, new ScalarValue(expectedHash));
 
         enricher.Enrich(logEvent, factory);
 

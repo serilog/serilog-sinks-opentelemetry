@@ -21,7 +21,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// <summary>
 /// This class implements the ILogEventEnricher interface for
 /// Serilog enrichers. If there is an active, current activity,
-/// the Trace ID and Span ID are extracted, converted to hex
+/// the Trace id and Span id are extracted, converted to hex
 /// string representations, and then added to the log event as
 /// traceId and spanId properties.
 ///
@@ -31,16 +31,6 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// </summary>
 public class TraceIdEnricher : ILogEventEnricher
 {
-    /// <summary>
-    /// Property name for the trace ID extracted from the current activity.
-    /// </summary>
-    public const string TRACE_ID_PROPERTY_NAME = "traceId";
-
-    /// <summary>
-    /// Property name for the span ID extracted from the current activity.
-    /// </summary>
-    public const string SPAN_ID_PROPERTY_NAME = "spanId";
-
     /// <summary>
     /// Creates a new TraceIdEnricher instance.
     /// </summary>
@@ -57,10 +47,10 @@ public class TraceIdEnricher : ILogEventEnricher
     {
 #if NET6_0_OR_GREATER
         var traceId = Activity.Current?.TraceId.ToHexString();
-        AddProperty(logEvent, propertyFactory, TRACE_ID_PROPERTY_NAME, traceId);
+        AddProperty(logEvent, propertyFactory, WellKnownConstants.TraceIdField, traceId);
 
         var spanId = Activity.Current?.SpanId.ToHexString();
-        AddProperty(logEvent, propertyFactory, SPAN_ID_PROPERTY_NAME, spanId);
+        AddProperty(logEvent, propertyFactory, WellKnownConstants.SpanIdField, spanId);
 #endif
     }
 

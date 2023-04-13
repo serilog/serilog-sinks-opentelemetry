@@ -20,14 +20,9 @@ using Serilog.Events;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-internal static class Convert
+static class Convert
 {
-    internal static string MESSAGE_TEMPLATE = "serilog.message.template";
-    internal static string MESSAGE_TEMPLATE_HASH = "serilog.message.template_hash";
-
-    internal static string SCHEMA_URL = "https://opentelemetry.io/schemas/v1.13.0";
-
-    internal static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, object>? resourceAttributes)
+    public static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, object>? resourceAttributes)
     {
         var attributes = new RepeatedField<KeyValue>();
         if (resourceAttributes != null)
@@ -49,7 +44,7 @@ internal static class Convert
         return attributes;
     }
 
-    internal static LogRecord ToLogRecord(LogEvent logEvent, string? renderedMessage)
+    public static LogRecord ToLogRecord(LogEvent logEvent, string? renderedMessage)
     {
         var logRecord = new LogRecord();
 
@@ -62,7 +57,7 @@ internal static class Convert
         return logRecord;
     }
 
-    internal static void ProcessMessage(LogRecord logRecord, string? renderedMessage)
+    public static void ProcessMessage(LogRecord logRecord, string? renderedMessage)
     {
         if (renderedMessage != null && renderedMessage.Trim() != "")
         {
@@ -73,14 +68,14 @@ internal static class Convert
         }
     }
 
-    internal static void ProcessLevel(LogRecord logRecord, LogEvent logEvent)
+    public static void ProcessLevel(LogRecord logRecord, LogEvent logEvent)
     {
         var level = logEvent.Level;
         logRecord.SeverityText = level.ToString();
         logRecord.SeverityNumber = ConvertUtils.ToSeverityNumber(level);
     }
 
-    internal static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
+    public static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
     {
         var properties = logEvent.Properties;
         var attrs = logRecord.Attributes;
@@ -90,7 +85,7 @@ internal static class Convert
             var value = property.Value;
             switch (key)
             {
-                case TraceIdEnricher.TRACE_ID_PROPERTY_NAME:
+                case WellKnownConstants.TraceIdField:
                     var traceId = ConvertUtils.ToOpenTelemetryTraceId(value.ToString());
                     if (traceId != null)
                     {
@@ -98,7 +93,7 @@ internal static class Convert
                     }
                     break;
 
-                case TraceIdEnricher.SPAN_ID_PROPERTY_NAME:
+                case WellKnownConstants.SpanIdField:
                     var spanId = ConvertUtils.ToOpenTelemetrySpanId(value.ToString());
                     if (spanId != null)
                     {
@@ -117,12 +112,12 @@ internal static class Convert
         }
     }
 
-    internal static void ProcessTimestamp(LogRecord logRecord, LogEvent logEvent)
+    public static void ProcessTimestamp(LogRecord logRecord, LogEvent logEvent)
     {
         logRecord.TimeUnixNano = ConvertUtils.ToUnixNano(logEvent.Timestamp);
     }
 
-    internal static void ProcessException(LogRecord logRecord, LogEvent logEvent)
+    public static void ProcessException(LogRecord logRecord, LogEvent logEvent)
     {
         var ex = logEvent.Exception;
         if (ex != null)
