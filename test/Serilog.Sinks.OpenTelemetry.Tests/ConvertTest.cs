@@ -65,8 +65,8 @@ public class ConvertTest
         var spanGuid = "0102030405060708";
         var spanBytes = ConvertUtils.ToOpenTelemetrySpanId(spanGuid);
 
-        var traceId = new LogEventProperty(TraceIdEnricher.TRACE_ID_PROPERTY_NAME, new ScalarValue(traceGuid));
-        var spanId = new LogEventProperty(TraceIdEnricher.SPAN_ID_PROPERTY_NAME, new ScalarValue(spanGuid));
+        var traceId = new LogEventProperty(WellKnownConstants.TraceIdField, new ScalarValue(traceGuid));
+        var spanId = new LogEventProperty(WellKnownConstants.SpanIdField, new ScalarValue(spanGuid));
         var prop = new LogEventProperty("property_name", new ScalarValue("ok"));
         var propertyKeyValue = ConvertUtils.NewStringAttribute("property_name", "ok");
 

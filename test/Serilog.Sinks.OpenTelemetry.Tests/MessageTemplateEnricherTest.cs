@@ -27,7 +27,7 @@ public class MessageTemplateEnricherTest
         var enricher = new MessageTemplateEnricher();
         var factory = new StringPropertyFactory();
 
-        var expectedMessageTemplate = new KeyValuePair<string, LogEventPropertyValue>(MessageTemplateEnricher.MESSAGE_TEMPLATE, new ScalarValue(TestUtils.TEST_MESSAGE_TEMPLATE));
+        var expectedMessageTemplate = new KeyValuePair<string, LogEventPropertyValue>(WellKnownConstants.AttributeMessageTemplateText, new ScalarValue(TestUtils.TEST_MESSAGE_TEMPLATE));
 
         enricher.Enrich(logEvent, factory);
 

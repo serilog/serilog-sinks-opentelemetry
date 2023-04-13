@@ -25,11 +25,6 @@ namespace Serilog.Sinks.OpenTelemetry;
 public class MessageTemplateEnricher : ILogEventEnricher
 {
     /// <summary>
-    /// Property name for the message template MD5 hash.
-    /// </summary>
-    public static string MESSAGE_TEMPLATE = "serilog.message.template";
-
-    /// <summary>
     /// Creates a new MessageTemplateEnricher instance.
     /// </summary>
     public MessageTemplateEnricher() { }
@@ -42,7 +37,7 @@ public class MessageTemplateEnricher : ILogEventEnricher
     {
         var template = logEvent.MessageTemplate.ToString();
 
-        AddProperty(logEvent, propertyFactory, MESSAGE_TEMPLATE, template);
+        AddProperty(logEvent, propertyFactory, WellKnownConstants.AttributeMessageTemplateText, template);
     }
 
     static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)

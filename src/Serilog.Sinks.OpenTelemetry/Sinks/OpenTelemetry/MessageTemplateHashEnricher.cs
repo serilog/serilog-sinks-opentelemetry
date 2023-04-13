@@ -27,11 +27,6 @@ namespace Serilog.Sinks.OpenTelemetry;
 public class MessageTemplateHashEnricher : ILogEventEnricher
 {
     /// <summary>
-    /// Property name for the message template MD5 hash.
-    /// </summary>
-    public static string MESSAGE_TEMPLATE_HASH = "serilog.message.template_hash";
-
-    /// <summary>
     /// Creates a new MessageTemplateHashEnricher instance.
     /// </summary>
     public MessageTemplateHashEnricher() { }
@@ -45,7 +40,7 @@ public class MessageTemplateHashEnricher : ILogEventEnricher
         var template = logEvent.MessageTemplate.ToString();
         var hash = Md5Hash(template);
 
-        AddProperty(logEvent, propertyFactory, MESSAGE_TEMPLATE_HASH, hash);
+        AddProperty(logEvent, propertyFactory, WellKnownConstants.AttributeMessageTemplateMd5Hash, hash);
     }
 
     static void AddProperty(LogEvent logEvent, ILogEventPropertyFactory propertyFactory, string propertyName, string? value)
@@ -58,12 +53,9 @@ public class MessageTemplateHashEnricher : ILogEventEnricher
 
     internal static string Md5Hash(string s)
     {
-        using (var md5 = MD5.Create())
-        {
-            md5.Initialize();
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
-            return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
-        }
+        using var md5 = MD5.Create();
+        md5.Initialize();
+        var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
+        return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
     }
-
 }

@@ -17,10 +17,11 @@ using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
 using System.Reflection;
+using Serilog.Debugging;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-internal static class OpenTelemetryUtils
+static class OpenTelemetryUtils
 {
     static string? GetScopeName()
     {
@@ -56,13 +57,11 @@ internal static class OpenTelemetryUtils
         var resourceLogs = new ResourceLogs();
 
         var attrs = Convert.ToResourceAttributes(resourceAttributes);
-        if (attrs != null)
-        {
-            var resource = new Resource();
-            resource.Attributes.AddRange(attrs);
-            resourceLogs.Resource = resource;
-            resourceLogs.SchemaUrl = Convert.SCHEMA_URL;
-        }
+
+        var resource = new Resource();
+        resource.Attributes.AddRange(attrs);
+        resourceLogs.Resource = resource;
+        resourceLogs.SchemaUrl = WellKnownConstants.OpenTelemetrySchemaUrl;
 
         return resourceLogs;
     }
@@ -72,7 +71,7 @@ internal static class OpenTelemetryUtils
         var scopeLogs = new ScopeLogs
         {
             Scope = CreateInstrumentationScope(),
-            SchemaUrl = Convert.SCHEMA_URL
+            SchemaUrl = WellKnownConstants.OpenTelemetrySchemaUrl
         };
 
         return scopeLogs;
@@ -80,8 +79,6 @@ internal static class OpenTelemetryUtils
 
     internal static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, object>? resourceAttributes)
     {
-        var scopeTemplate = CreateInstrumentationScope();
-
         var resourceLogs = CreateResourceLogs(resourceAttributes);
         resourceLogs.ScopeLogs.Add(CreateEmptyScopeLogs());
 
@@ -97,6 +94,9 @@ internal static class OpenTelemetryUtils
         {
             request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Add(logRecord);
         }
-        catch (Exception) { }
+        catch (Exception ex)
+        {
+            SelfLog.WriteLine("Log record could not be added to ExportLogsServiceRequest: {0}", ex);
+        }
     }
 }
