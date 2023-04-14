@@ -17,12 +17,15 @@ using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
 using System.Reflection;
+using Google.Protobuf.Collections;
 using Serilog.Debugging;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
 static class OpenTelemetryUtils
 {
+    const string OpenTelemetrySchemaUrl = "https://opentelemetry.io/schemas/v1.13.0";
+    
     static string? GetScopeName()
     {
         return Assembly.GetExecutingAssembly().GetName().Name;
@@ -56,12 +59,12 @@ static class OpenTelemetryUtils
     {
         var resourceLogs = new ResourceLogs();
 
-        var attrs = Convert.ToResourceAttributes(resourceAttributes);
+        var attrs = ToResourceAttributes(resourceAttributes);
 
         var resource = new Resource();
         resource.Attributes.AddRange(attrs);
         resourceLogs.Resource = resource;
-        resourceLogs.SchemaUrl = WellKnownConstants.OpenTelemetrySchemaUrl;
+        resourceLogs.SchemaUrl = OpenTelemetrySchemaUrl;
 
         return resourceLogs;
     }
@@ -71,7 +74,7 @@ static class OpenTelemetryUtils
         var scopeLogs = new ScopeLogs
         {
             Scope = CreateInstrumentationScope(),
-            SchemaUrl = WellKnownConstants.OpenTelemetrySchemaUrl
+            SchemaUrl = OpenTelemetrySchemaUrl
         };
 
         return scopeLogs;
@@ -98,5 +101,27 @@ static class OpenTelemetryUtils
         {
             SelfLog.WriteLine("Log record could not be added to ExportLogsServiceRequest: {0}", ex);
         }
+    }
+    
+    static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, object>? resourceAttributes)
+    {
+        var attributes = new RepeatedField<KeyValue>();
+        if (resourceAttributes != null)
+        {
+            foreach (var entry in resourceAttributes)
+            {
+                var v = ConvertUtils.ToOpenTelemetryPrimitive(entry.Value);
+                if (v != null)
+                {
+                    var kv = new KeyValue
+                    {
+                        Value = v,
+                        Key = entry.Key
+                    };
+                    attributes.Add(kv);
+                }
+            }
+        }
+        return attributes;
     }
 }

@@ -24,22 +24,22 @@ public class OpenTelemetryUtilsTests
     public void TestNoDuplicateLogs()
     {
         var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = Convert.ToLogRecord(logEvent, "");
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.None);
 
         var requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(null);
 
         var request = requestTemplate.Clone();
 
-        var n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count();
+        var n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
         Assert.Equal(0, n);
 
         OpenTelemetryUtils.Add(request, logRecord);
 
-        n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count();
+        n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
         Assert.Equal(1, n);
 
         request = requestTemplate.Clone();
-        n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count();
+        n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
 
         Assert.Equal(0, n);
     }

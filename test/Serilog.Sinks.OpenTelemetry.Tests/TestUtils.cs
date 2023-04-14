@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
 using Serilog.Parsing;
 
@@ -20,29 +19,20 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public static class TestUtils
 {
-    public const string TEST_MESSAGE_TEMPLATE = "message template {variable}";
+    public const string TestMessageTemplate = "Message template {Variable}";
 
-    internal static LogEvent CreateLogEvent(DateTimeOffset? timestamp = null, Exception? ex = null)
+    internal static LogEvent CreateLogEvent(DateTimeOffset? timestamp = null, Exception? ex = null, string messageTemplate = TestMessageTemplate)
     {
-        var ts = timestamp != null ? (DateTimeOffset)timestamp : DateTimeOffset.UtcNow;
+        var ts = timestamp ?? DateTimeOffset.UtcNow;
         var parser = new MessageTemplateParser();
-        var template = parser.Parse(TEST_MESSAGE_TEMPLATE);
-        var logRecord = new LogRecord();
+        var template = parser.Parse(messageTemplate);
         var logEvent = new LogEvent(
             ts,
             LogEventLevel.Warning,
             ex,
             template,
-            new List<LogEventProperty>());
+            new List<LogEventProperty>{ new("Variable", new ScalarValue(42)) });
 
         return logEvent;
-    }
-}
-
-public class StringPropertyFactory : Core.ILogEventPropertyFactory
-{
-    public LogEventProperty CreateProperty(string name, object? value, bool destructureObjects = false)
-    {
-        return new LogEventProperty(name, new ScalarValue(value?.ToString()));
     }
 }
