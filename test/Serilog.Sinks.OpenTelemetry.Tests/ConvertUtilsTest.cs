@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Text.RegularExpressions;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
@@ -269,4 +270,18 @@ public class ConvertUtilsTest
         }
     }
 
+    [Fact]
+    public void TestMd5Hash()
+    {
+        var md5Regex = new Regex(@"^[a-f\d]{32}$");
+
+        var inputs = new[] { "", "first string", "second string" };
+        foreach (var input in inputs)
+        {
+            Assert.Matches(md5Regex, ConvertUtils.Md5Hash(input));
+        }
+
+        Assert.Equal(ConvertUtils.Md5Hash("alpha"), ConvertUtils.Md5Hash("alpha"));
+        Assert.NotEqual(ConvertUtils.Md5Hash("alpha"), ConvertUtils.Md5Hash("beta"));
+    }
 }

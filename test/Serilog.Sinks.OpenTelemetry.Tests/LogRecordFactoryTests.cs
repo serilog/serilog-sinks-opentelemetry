@@ -12,43 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Diagnostics;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
 using Serilog.Events;
-using Serilog.Parsing;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
 
-public class ConvertTest
+public class LogRecordFactoryTests
 {
     [Fact]
     public void TestProcessMessage()
     {
         var logRecord = new LogRecord();
-        Convert.ProcessMessage(logRecord, null);
+
+        LogRecordFactory.ProcessMessage(logRecord, TestUtils.CreateLogEvent(messageTemplate: ""), null);
         Assert.Null(logRecord.Body);
 
-        Convert.ProcessMessage(logRecord, "");
+        LogRecordFactory.ProcessMessage(logRecord, TestUtils.CreateLogEvent(messageTemplate: "\t\f "), null);
         Assert.Null(logRecord.Body);
 
-        Convert.ProcessMessage(logRecord, "\t\f ");
-        Assert.Null(logRecord.Body);
-
-        var message = "log message";
-        Convert.ProcessMessage(logRecord, message);
+        const string message = "log message";
+        LogRecordFactory.ProcessMessage(logRecord, TestUtils.CreateLogEvent(messageTemplate: message), null);
         Assert.NotNull(logRecord.Body);
-        Assert.Equal(logRecord.Body.StringValue, message);
+        Assert.Equal(message, logRecord.Body.StringValue);
     }
 
     [Fact]
     public void TestProcessLevel()
     {
-        var template = new MessageTemplate(new List<MessageTemplateToken>());
         var logRecord = new LogRecord();
         var logEvent = TestUtils.CreateLogEvent();
 
-        Convert.ProcessLevel(logRecord, logEvent);
+        LogRecordFactory.ProcessLevel(logRecord, logEvent);
 
         Assert.Equal(LogEventLevel.Warning.ToString(), logRecord.SeverityText);
         Assert.Equal(SeverityNumber.Warn, logRecord.SeverityNumber);
@@ -59,26 +56,15 @@ public class ConvertTest
     {
         var logRecord = new LogRecord();
         var logEvent = TestUtils.CreateLogEvent();
-
-        var traceGuid = "01020304050607080910111213141516";
-        var traceBytes = ConvertUtils.ToOpenTelemetryTraceId(traceGuid);
-        var spanGuid = "0102030405060708";
-        var spanBytes = ConvertUtils.ToOpenTelemetrySpanId(spanGuid);
-
-        var traceId = new LogEventProperty(WellKnownConstants.TraceIdField, new ScalarValue(traceGuid));
-        var spanId = new LogEventProperty(WellKnownConstants.SpanIdField, new ScalarValue(spanGuid));
+        
         var prop = new LogEventProperty("property_name", new ScalarValue("ok"));
         var propertyKeyValue = ConvertUtils.NewStringAttribute("property_name", "ok");
 
-        logEvent.AddOrUpdateProperty(traceId);
-        logEvent.AddOrUpdateProperty(spanId);
         logEvent.AddOrUpdateProperty(prop);
 
-        Convert.ProcessProperties(logRecord, logEvent);
+        LogRecordFactory.ProcessProperties(logRecord, logEvent);
 
         Assert.Single(logRecord.Attributes);
-        Assert.Equal(traceBytes, logRecord.TraceId);
-        Assert.Equal(spanBytes, logRecord.SpanId);
         Assert.NotEqual(-1, logRecord.Attributes.IndexOf(propertyKeyValue));
     }
 
@@ -91,7 +77,7 @@ public class ConvertTest
         var logRecord = new LogRecord();
         var logEvent = TestUtils.CreateLogEvent(timestamp: now);
 
-        Convert.ProcessTimestamp(logRecord, logEvent);
+        LogRecordFactory.ProcessTimestamp(logRecord, logEvent);
 
         Assert.Equal(nowNano, logRecord.TimeUnixNano);
     }
@@ -110,7 +96,7 @@ public class ConvertTest
             var logRecord = new LogRecord();
             var logEvent = TestUtils.CreateLogEvent(ex: ex);
 
-            Convert.ProcessException(logRecord, logEvent);
+            LogRecordFactory.ProcessException(logRecord, logEvent);
 
             var typeKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionType, error.GetType().ToString());
             var messageKeyValue = ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, error.Message);
@@ -128,4 +114,60 @@ public class ConvertTest
         }
     }
 
+    [Fact]
+    public void IncludeMessageTemplateMD5Hash()
+    {
+        var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
+        
+        LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.MessageTemplateMD5HashAttribute);
+
+        var expectedHash = ConvertUtils.Md5Hash(TestUtils.TestMessageTemplate);
+        var expectedProperty = new KeyValuePair<string, LogEventPropertyValue>(LogRecordFactory.AttributeMessageTemplateMD5Hash, new ScalarValue(expectedHash));
+        Assert.Contains(expectedProperty, logEvent.Properties);
+    }
+    
+    [Fact]
+    public void IncludeMessageTemplateText()
+    {
+        var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
+        
+        LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.MessageTemplateTextAttribute);
+
+        var expectedProperty = new KeyValuePair<string, LogEventPropertyValue>(LogRecordFactory.AttributeMessageTemplateMD5Hash, new ScalarValue(TestUtils.TestMessageTemplate));
+        Assert.Contains(expectedProperty, logEvent.Properties);
+    }
+    
+    [Fact]
+    public void IncludeTraceIdWhenActivityIsNull()
+    {
+        Assert.Null(Activity.Current);
+        
+        var logEvent = TestUtils.CreateLogEvent();
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.TraceIdField | LogRecordData.SpanIdField);
+
+        Assert.Null(logRecord.TraceId);
+        Assert.Null(logRecord.SpanId);
+    }
+
+    [Fact]
+    public void IncludeTraceIdAndSpanId()
+    {
+        using var listener = new ActivityListener
+        {
+            ShouldListenTo = _ => true,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+        };
+
+        ActivitySource.AddActivityListener(listener);
+
+        var source = new ActivitySource("test.activity", "1.0.0");
+        using var activity = source.StartActivity();
+        Assert.NotNull(Activity.Current);
+        
+        var logEvent = TestUtils.CreateLogEvent();
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.TraceIdField | LogRecordData.SpanIdField);
+
+        Assert.Equal(logRecord.TraceId, ConvertUtils.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
+        Assert.Equal(logRecord.SpanId, ConvertUtils.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));
+    }
 }

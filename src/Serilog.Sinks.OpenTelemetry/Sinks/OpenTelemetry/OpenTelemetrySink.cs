@@ -25,13 +25,16 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// OpenTelemetry LogRecord objects and emits those to an OTLP
 /// endpoint.
 /// </summary>
-public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
+class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 {
     readonly IFormatProvider? _formatProvider;
 
     readonly ExportLogsServiceRequest _requestTemplate;
 
     readonly IExporter _exporter;
+
+    readonly LogRecordData _includedFields = LogRecordData.MessageTemplateTextAttribute | LogRecordData.TraceIdField |
+                                             LogRecordData.SpanIdField;
 
     /// <summary>
     /// Creates a new instance of an OpenTelemetrySink.
@@ -91,10 +94,9 @@ public class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposabl
         return _exporter.Export(request);
     }
 
-    private void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
+    void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
-        var message = logEvent.RenderMessage(_formatProvider);
-        var logRecord = Convert.ToLogRecord(logEvent, message);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, _formatProvider, _includedFields);
         OpenTelemetryUtils.Add(request, logRecord);
     }
 

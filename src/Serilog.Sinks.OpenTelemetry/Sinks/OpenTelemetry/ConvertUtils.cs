@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Security.Cryptography;
+using System.Text;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
@@ -142,7 +144,9 @@ static class ConvertUtils
             ScalarValue scalar => ToOpenTelemetryScalar(scalar),
             StructureValue map => ToOpenTelemetryMap(map),
             SequenceValue array => ToOpenTelemetryArray(array),
-            _ => null
+            // Not currently supported; OpenTelemetry maps have string keys, so these will most likely become arrays of pairs.
+            DictionaryValue _ => null,
+            _ => null,
         };
     }
 
@@ -167,5 +171,13 @@ static class ConvertUtils
         for (var i = 0; i < nChars; i += 2)
             bytes[i / 2] = System.Convert.ToByte(hex.Substring(i, 2), 16);
         return bytes;
+    }
+    
+    public static string Md5Hash(string s)
+    {
+        using var md5 = MD5.Create();
+        md5.Initialize();
+        var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
+        return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
     }
 }
