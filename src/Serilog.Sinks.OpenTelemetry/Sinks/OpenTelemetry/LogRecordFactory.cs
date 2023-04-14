@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if NET6_0_OR_GREATER
 using System.Diagnostics;
+#endif
+
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
@@ -27,7 +30,7 @@ static class LogRecordFactory
     /// </summary>
     /// <remarks>See also https://opentelemetry.io/docs/reference/specification/logs/semantic_conventions/ and
     /// <see cref="TraceSemanticConventions"/>.</remarks>
-    const string AttributeMessageTemplateText = "message_template.text";
+    public  const string AttributeMessageTemplateText = "message_template.text";
 
     /// <summary>
     /// A https://messagetemplates.org template, hashed using MD5 and encoded as a 128-bit hexadecimal value.
@@ -36,7 +39,7 @@ static class LogRecordFactory
     /// <see cref="TraceSemanticConventions"/>.</remarks>
     public const string AttributeMessageTemplateMD5Hash = "message_template.md5_hash";
 
-    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, LogRecordData includedFields)
+    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields)
     {
         var logRecord = new LogRecord();
 
@@ -71,12 +74,12 @@ static class LogRecordFactory
 
     public static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
     {
-        foreach (var (key, value) in logEvent.Properties)
+        foreach (var property in logEvent.Properties)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(value);
+            var v = ConvertUtils.ToOpenTelemetryAnyValue(property.Value);
             if (v != null)
             {
-                logRecord.Attributes.Add(ConvertUtils.NewAttribute(key, v));
+                logRecord.Attributes.Add(ConvertUtils.NewAttribute(property.Key, v));
             }
         }
     }
@@ -107,23 +110,23 @@ static class LogRecordFactory
         }
     }
 
-    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, LogRecordData includedFields)
+    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields)
     {
 #if NET6_0_OR_GREATER
-        if ((includedFields & LogRecordData.TraceIdField) != LogRecordData.None &&
+        if ((includedFields & IncludedData.TraceIdField) != IncludedData.None &&
             Activity.Current != null)
         {
             logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString());
         }
 
-        if ((includedFields & LogRecordData.SpanIdField) != LogRecordData.None &&
+        if ((includedFields & IncludedData.SpanIdField) != IncludedData.None &&
             Activity.Current != null)
         {
             logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString());
         }
 #endif
 
-        if ((includedFields & LogRecordData.MessageTemplateTextAttribute) != LogRecordData.None)
+        if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)
         {
             logRecord.Attributes.Add(ConvertUtils.NewAttribute(AttributeMessageTemplateText, new()
             {
@@ -131,7 +134,7 @@ static class LogRecordFactory
             }));
         }
 
-        if ((includedFields & LogRecordData.MessageTemplateMD5HashAttribute) != LogRecordData.None)
+        if ((includedFields & IncludedData.MessageTemplateMD5HashAttribute) != IncludedData.None)
         {
             logRecord.Attributes.Add(ConvertUtils.NewAttribute(AttributeMessageTemplateMD5Hash, new()
             {
