@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Diagnostics;
+using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
 using Serilog.Events;
@@ -64,8 +65,7 @@ public class LogRecordFactoryTests
 
         LogRecordFactory.ProcessProperties(logRecord, logEvent);
 
-        Assert.Single(logRecord.Attributes);
-        Assert.NotEqual(-1, logRecord.Attributes.IndexOf(propertyKeyValue));
+        Assert.Contains(propertyKeyValue, logRecord.Attributes);
     }
 
     [Fact]
@@ -119,11 +119,11 @@ public class LogRecordFactoryTests
     {
         var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
         
-        LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.MessageTemplateMD5HashAttribute);
-
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute);
+        
         var expectedHash = ConvertUtils.Md5Hash(TestUtils.TestMessageTemplate);
-        var expectedProperty = new KeyValuePair<string, LogEventPropertyValue>(LogRecordFactory.AttributeMessageTemplateMD5Hash, new ScalarValue(expectedHash));
-        Assert.Contains(expectedProperty, logEvent.Properties);
+        var expectedAttribute = new KeyValue { Key = LogRecordFactory.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
+        Assert.Contains(expectedAttribute, logRecord.Attributes);
     }
     
     [Fact]
@@ -131,10 +131,10 @@ public class LogRecordFactoryTests
     {
         var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
         
-        LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.MessageTemplateTextAttribute);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute);
 
-        var expectedProperty = new KeyValuePair<string, LogEventPropertyValue>(LogRecordFactory.AttributeMessageTemplateMD5Hash, new ScalarValue(TestUtils.TestMessageTemplate));
-        Assert.Contains(expectedProperty, logEvent.Properties);
+        var expectedAttribute = new KeyValue { Key = LogRecordFactory.AttributeMessageTemplateText, Value = new() { StringValue = TestUtils.TestMessageTemplate }};
+        Assert.Contains(expectedAttribute, logRecord.Attributes);
     }
     
     [Fact]
@@ -143,10 +143,10 @@ public class LogRecordFactoryTests
         Assert.Null(Activity.Current);
         
         var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.TraceIdField | LogRecordData.SpanIdField);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField);
 
-        Assert.Null(logRecord.TraceId);
-        Assert.Null(logRecord.SpanId);
+        Assert.True(logRecord.TraceId.IsEmpty);
+        Assert.True(logRecord.SpanId.IsEmpty);
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public class LogRecordFactoryTests
         Assert.NotNull(Activity.Current);
         
         var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, LogRecordData.TraceIdField | LogRecordData.SpanIdField);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField);
 
         Assert.Equal(logRecord.TraceId, ConvertUtils.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
         Assert.Equal(logRecord.SpanId, ConvertUtils.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));

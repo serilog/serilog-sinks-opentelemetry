@@ -20,64 +20,30 @@ using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-/// <summary>
-/// Implements a Serilog sink that transforms LogEvent objects into
-/// OpenTelemetry LogRecord objects and emits those to an OTLP
-/// endpoint.
-/// </summary>
 class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 {
     readonly IFormatProvider? _formatProvider;
-
     readonly ExportLogsServiceRequest _requestTemplate;
-
     readonly IExporter _exporter;
-
-    readonly LogRecordData _includedFields = LogRecordData.MessageTemplateTextAttribute | LogRecordData.TraceIdField |
-                                             LogRecordData.SpanIdField;
-
-    /// <summary>
-    /// Creates a new instance of an OpenTelemetrySink.
-    /// </summary>
-    /// <param name="endpoint">
-    /// The full OTLP endpoint to which logs are sent.
-    /// </param>
-    /// <param name="protocol">
-    /// The protocol to use when sending data. Defaults to gRPC/protobuf.
-    /// </param>
-    /// <param name="formatProvider">
-    /// A IFormatProvider that is used to format the message, which
-    /// is written to the LogRecord body.
-    /// </param>
-    /// <param name="resourceAttributes">
-    /// An IDictionary&lt;string, Object&gt; containing the key-value pairs
-    /// to be used as resource attributes. Non-scalar values are silently
-    /// ignored.
-    /// </param>
-    /// <param name="headers">
-    /// An IDictionary&lt;string, string&gt; containing the key-value pairs
-    /// to be used as request headers.
-    /// </param>
+    readonly IncludedData _includedData;
+    
     public OpenTelemetrySink(
        string endpoint,
-       OtlpProtocol protocol = OtlpProtocol.GrpcProtobuf,
-       IFormatProvider? formatProvider = null,
-       IDictionary<string, object>? resourceAttributes = null,
-       IDictionary<string, string>? headers = null)
+       OtlpProtocol protocol,
+       IFormatProvider? formatProvider,
+       IDictionary<string, object>? resourceAttributes,
+       IDictionary<string, string>? headers,
+       IncludedData includedData)
     {
-        switch (protocol)
+        _exporter = protocol switch
         {
-            case OtlpProtocol.HttpProtobuf:
-                _exporter = new HttpExporter(endpoint, headers);
-                break;
-
-            default:
-                _exporter = new GrpcExporter(endpoint, headers);
-                break;
-        }
+            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers),
+            OtlpProtocol.GrpcProtobuf => new GrpcExporter(endpoint, headers),
+            _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
+        };
 
         _formatProvider = formatProvider;
-
+        _includedData = includedData;
         _requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(resourceAttributes);
     }
 
@@ -96,7 +62,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 
     void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, _formatProvider, _includedFields);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, _formatProvider, _includedData);
         OpenTelemetryUtils.Add(request, logRecord);
     }
 

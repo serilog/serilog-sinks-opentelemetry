@@ -20,7 +20,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// Items that the sink can include in emitted log records.
 /// </summary>
 [Flags]
-public enum LogRecordData
+public enum IncludedData
 {
     /// <summary>
     /// No additional data will be included.
