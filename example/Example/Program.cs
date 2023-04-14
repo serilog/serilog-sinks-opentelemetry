@@ -7,7 +7,7 @@ SelfLog.Enable(Console.Out);
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
-        options.Endpoint = "http://localhost:4318";
+        options.Endpoint = "http://localhost:4318/v1/logs";
         options.Protocol = OtlpProtocol.HttpProtobuf;
     })
     .CreateLogger();
