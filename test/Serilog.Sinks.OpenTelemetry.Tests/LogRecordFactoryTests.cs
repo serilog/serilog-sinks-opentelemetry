@@ -119,7 +119,7 @@ public class LogRecordFactoryTests
     {
         var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
         
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, new());
         
         var expectedHash = ConvertUtils.Md5Hash(TestUtils.TestMessageTemplate);
         var expectedAttribute = new KeyValue { Key = LogRecordFactory.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
@@ -131,7 +131,7 @@ public class LogRecordFactoryTests
     {
         var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
         
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new());
 
         var expectedAttribute = new KeyValue { Key = LogRecordFactory.AttributeMessageTemplateText, Value = new() { StringValue = TestUtils.TestMessageTemplate }};
         Assert.Contains(expectedAttribute, logRecord.Attributes);
@@ -141,9 +141,13 @@ public class LogRecordFactoryTests
     public void IncludeTraceIdWhenActivityIsNull()
     {
         Assert.Null(Activity.Current);
+
+        var collector = new ActivityContextCollector();
         
         var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField);
+        collector.CollectFor(logEvent);
+        
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
 
         Assert.True(logRecord.TraceId.IsEmpty);
         Assert.True(logRecord.SpanId.IsEmpty);
@@ -163,9 +167,13 @@ public class LogRecordFactoryTests
         var source = new ActivitySource("test.activity", "1.0.0");
         using var activity = source.StartActivity();
         Assert.NotNull(Activity.Current);
+
+        var collector = new ActivityContextCollector();
         
         var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField);
+        collector.CollectFor(logEvent);
+        
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
 
         Assert.Equal(logRecord.TraceId, ConvertUtils.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
         Assert.Equal(logRecord.SpanId, ConvertUtils.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));

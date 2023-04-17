@@ -22,7 +22,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// Implements an IExporter that sends OpenTelemetry Log requests
 /// over gRPC.
 /// </summary>
-public class GrpcExporter : IExporter
+sealed class GrpcExporter : IExporter, IDisposable
 {
     readonly LogsService.LogsServiceClient _client;
 

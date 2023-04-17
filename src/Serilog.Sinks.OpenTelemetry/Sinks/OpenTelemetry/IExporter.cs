@@ -14,6 +14,7 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
-internal interface IExporter : IDisposable {
+interface IExporter
+{
     Task Export(ExportLogsServiceRequest request);
 }
