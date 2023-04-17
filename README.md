@@ -16,7 +16,7 @@ body of the OpenTelemetry LogRecord.
 > concerning the implementation, issues, and configuration is
 > welcome.
 
-## Getting Started
+## Getting started
 
 To use the OpenTelemetry sink, first install the
 [NuGet package](https://nuget.org/packages/serilog.sinks.opentelemetry):
@@ -39,7 +39,7 @@ transformed logs to a local OpenTelemetry (OTLP/gRPC) endpoint.
 A more complete configuration would specify the `endpoint` and
 `resourceAttributes`. 
 
-### Endpoint and Protocol
+### Endpoint and protocol
 
 The default endpoint is `http://localhost:4317/v1/logs`, which will send
 logs to an OpenTelemetry collector running on the same machine over the
@@ -60,7 +60,7 @@ are:
 
 Sending OpenTelemetry logs as a JSON payload is not currently supported. 
 
-### Resource Attributes
+### Resource attributes
 
 OpenTelemetry logs may contain a "resource" that provides metadata concerning
 the entity associated with the logs, typically a service or library. These
@@ -122,7 +122,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(
         endpoint: "http://127.0.0.1:4317/v1/logs",
         includedData: IncludedData.MessageTemplate | IncludedData.TraceId | IncludedData.SpanId)
-    .CreateLogger();~~~~
+    .CreateLogger();
 ```
 
 ## Example
