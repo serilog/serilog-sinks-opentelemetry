@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if NET6_0_OR_GREATER
+#if FEATURE_ACTIVITY
 using System.Diagnostics;
 #endif
 
@@ -39,7 +39,7 @@ static class LogRecordFactory
     /// <see cref="TraceSemanticConventions"/>.</remarks>
     public const string AttributeMessageTemplateMD5Hash = "message_template.md5_hash";
 
-    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields)
+    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, ActivityContextCollector activityContextCollector)
     {
         var logRecord = new LogRecord();
 
@@ -48,7 +48,7 @@ static class LogRecordFactory
         ProcessMessage(logRecord, logEvent, formatProvider);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
-        ProcessIncludedFields(logRecord, logEvent, includedFields);
+        ProcessIncludedFields(logRecord, logEvent, includedFields, activityContextCollector);
 
         return logRecord;
     }
@@ -110,19 +110,25 @@ static class LogRecordFactory
         }
     }
 
-    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields)
+    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, ActivityContextCollector activityContextCollector)
     {
-#if NET6_0_OR_GREATER
-        if ((includedFields & IncludedData.TraceIdField) != IncludedData.None &&
-            Activity.Current != null)
+#if FEATURE_ACTIVITY
+        if ((includedFields & (IncludedData.TraceIdField | IncludedData.SpanIdField)) != IncludedData.None)
         {
-            logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString());
-        }
+            var activityContext = activityContextCollector.GetFor(logEvent);
+            
+            if (activityContext is var (activityTraceId, activitySpanId))
+            {
+                if ((includedFields & IncludedData.TraceIdField) != IncludedData.None)
+                {
+                    logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(activityTraceId.ToHexString());
+                }
 
-        if ((includedFields & IncludedData.SpanIdField) != IncludedData.None &&
-            Activity.Current != null)
-        {
-            logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString());
+                if ((includedFields & IncludedData.SpanIdField) != IncludedData.None)
+                {
+                    logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(activitySpanId.ToHexString());
+                }
+            }
         }
 #endif
 

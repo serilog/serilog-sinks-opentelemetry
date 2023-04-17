@@ -21,7 +21,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// Implements an IExporter that sends OpenTelemetry Log requests
 /// over HTTP.
 /// </summary>
-public class HttpExporter : IExporter
+sealed class HttpExporter : IExporter, IDisposable
 {
     readonly HttpClient _client;
 
@@ -61,7 +61,7 @@ public class HttpExporter : IExporter
     /// Sends the given protobuf request containing OpenTelemetry logs
     /// to an OTLP/HTTP endpoint.
     /// </summary>
-    Task IExporter.Export(ExportLogsServiceRequest request)
+    async Task IExporter.Export(ExportLogsServiceRequest request)
     {
         var dataSize = request.CalculateSize();
         var buffer = new byte[dataSize];
@@ -74,6 +74,7 @@ public class HttpExporter : IExporter
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
         httpRequest.Content = content;
 
-        return _client.SendAsync(httpRequest);
+        var response = await _client.SendAsync(httpRequest);
+        response.EnsureSuccessStatusCode();
     }
 }

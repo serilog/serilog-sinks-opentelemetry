@@ -37,6 +37,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
 
         var options = new OpenTelemetrySinkOptions();
         configure(options);
+
+        var collector = new ActivityContextCollector();
         
         var openTelemetrySink = new OpenTelemetrySink(
             endpoint: options.Endpoint,
@@ -44,7 +46,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             formatProvider: options.FormatProvider,
             resourceAttributes: options.ResourceAttributes,
             headers: options.Headers,
-            includedData: options.IncludedData);
+            includedData: options.IncludedData,
+            collector);
 
         ILogEventSink sink = openTelemetrySink;
         if (options.BatchingOptions != null)
@@ -52,6 +55,10 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
         }
 
+#if FEATURE_ACTIVITY
+        sink = new ActivityContextCollectorSink(collector, sink);
+#endif
+        
         return loggerSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
     

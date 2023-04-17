@@ -26,14 +26,16 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     readonly ExportLogsServiceRequest _requestTemplate;
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
-    
+    readonly ActivityContextCollector _activityContextCollector;
+
     public OpenTelemetrySink(
        string endpoint,
        OtlpProtocol protocol,
        IFormatProvider? formatProvider,
        IDictionary<string, object>? resourceAttributes,
        IDictionary<string, string>? headers,
-       IncludedData includedData)
+       IncludedData includedData,
+       ActivityContextCollector activityContextCollector)
     {
         _exporter = protocol switch
         {
@@ -44,6 +46,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 
         _formatProvider = formatProvider;
         _includedData = includedData;
+        _activityContextCollector = activityContextCollector;
         _requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(resourceAttributes);
     }
 
@@ -52,7 +55,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     /// </summary>
     public void Dispose()
     {
-        _exporter.Dispose();
+        (_exporter as IDisposable)?.Dispose();
     }
 
     Task Export(ExportLogsServiceRequest request)
@@ -62,7 +65,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 
     void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, _formatProvider, _includedData);
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, _formatProvider, _includedData, _activityContextCollector);
         OpenTelemetryUtils.Add(request, logRecord);
     }
 
@@ -99,6 +102,6 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     /// </summary>
     public Task OnEmptyBatchAsync()
     {
-        return Task.FromResult(0);
+        return Task.CompletedTask;
     }
 }
