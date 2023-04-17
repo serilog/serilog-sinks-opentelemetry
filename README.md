@@ -28,7 +28,7 @@ dotnet add package Serilog.Sinks.OpenTelemetry
 Then enable the sink using `WriteTo.OpenTelemetry()`:
 
 ```csharp
-var log = new LoggerConfiguration()
+Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry()
     .CreateLogger();
 ```
@@ -58,7 +58,7 @@ are:
 - `OtlpProtocol.HttpProtobuf`: Sends a protobuf representation of the
    OpenTelemetry Logs over an HTTP connection.
 
-Sending OpenTelemetry logs as a JSON payload is not supported. 
+Sending OpenTelemetry logs as a JSON payload is not currently supported. 
 
 ### Resource Attributes
 
@@ -79,90 +79,55 @@ This example shows how the resource attributes can be specified when
 the logger is configured.
 
 ```csharp
-var log = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.OpenTelemetry(endpoint: "http://127.0.0.1:4317/v1/logs",
-    resourceAttributes: new Dictionary<String, Object>() {
-            {"service.name", "test-logging-service"},
-            {"index", 10},
-            {"flag", true},
-            {"value", 3.14}
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(
+        endpoint: "http://127.0.0.1:4317/v1/logs",
+        resourceAttributes: new Dictionary<string, object>
+        {
+            ["service.name"] = "test-logging-service",
+            ["index"] = 10,
+            ["flag"] = true,
+            ["value"] = 3.14
         })
     .CreateLogger();
 ```
 
-## Serilog Log Events to OpenTelemetry Logs Transformation
+## Serilog `LogEvent` to OpenTelemetry log record mapping
 
 The following table provides the mapping between the Serilog log 
-events and the OpenTelemetry logs. 
+events and the OpenTelemetry log records. 
 
-Serilog (LogEvent) | OpenTelemetry (LogRecord) | Comment |
---- | --- | --- | 
-Properties | Attributes[*] | Each property is mapped to an attribute keeping the name. The value's structure is maintained. |
-Timestamp | Field[`TimeUnixNano`] | Serilog provides only millisecond precision |
-MessageTemplate (rendered) | Field[`Body`] | Any formatter can be provided via sink configuration |
-Level | Field[`SeverityText`] | Direct copy of value |
-Level | Field[`SeverityNumber`] | Serilog levels mapped into corresponding OpenTelemetry levels | 
-Exception | Attribute[`exception.type`] | Value of `ex.GetType()` |
-Exception | Attribute[`exception.message`] | Value of `ex.Message`, if not empty |
-Exception | Attribute[`exception.stacktrace`] | Value of `ex.ToString()` |
+Serilog `LogEvent`               | OpenTelemetry `LogRecord`                 | Comments                                                                                      |
+---------------------------------|-------------------------------------------|-----------------------------------------------------------------------------------------------| 
+`Exception.GetType().ToString()` | `Attributes["exception.type"]`            |                                                                                               |
+`Exception.Message`              | `Attributes["exception.message"]`         | Ignored if empty                                                                              |
+`Exception.StackTrace`           | `Attributes["exception.stacktrace"]`      | Value of `ex.ToString()`                                                                      |
+`Level`                          | `SeverityNumber`                          | Serilog levels are mapped to corresponding OpenTelemetry severities                           | 
+`Level.ToString()`               | `SeverityText`                            |                                                                                               |
+`Message`                        | `Body`                                    | Culture-specific formatting can be provided via sink configuration                            |
+`MessageTemplate`                | `Attributes["message_template.text"]`     | Requires `IncludedData.MessageTemplateText` (enabled by default)                              |
+`MessageTemplate` (MD5)          | `Attributes["message_template.md5_hash"]` | Requires `IncludedData.MessageTemplateText`                                                   |
+`Properties`                     | `Attributes`                              | Each property is mapped to an attribute keeping the name; the value's structure is maintained |
+`SpanId` (`Activity.Current`)    | `SpanId`                                  | Requires `IncludedData.SpanId` (enabled by default)                                           |
+`Timestamp`                      | `TimeUnixNano`                            | .NET provides 100-nanosecond precision                                                        |
+`TraceId` (`Activity.Current`)   | `TraceId`                                 | Requires `IncludedData.TraceId` (enabled by default)                                          |
 
-## Message Template and Message Template Hash Enrichment
+### Configuring included data
 
-This sink provides two enrichers that will add a property with the 
-message template or MD5 hash of the message template to the Serilog
-LogEvent.
-
-The `WithMessageTemplate` enricher will add the property 
-`serilog.message.template` which contains a string representation 
-of the message template to the LogEvent.
-
-The `WithMessageTemplateHash` enricher will add the property 
-`serilog.message.template_hash` with contains the MD5 hash of the
-message template to the LogEvent.
-
-These can be used separately, together, or not at all.  The following
-example shows the configuration for these enrichers:
+This sink supports configuration of how common OpenTelemetry fields are populated from
+the Serilog `LogEvent` and .NET `Activity` context via the `IncludedData` flags enum:
 
 ```csharp
-var log = new LoggerConfiguration()
-    .Enrich.WithMessageTemplate()
-    .Enrich.WithMessageTemplateHash()
-    .WriteTo.OpenTelemetry()
-    .CreateLogger();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(
+        endpoint: "http://127.0.0.1:4317/v1/logs",
+        includedData: IncludedData.MessageTemplate | IncludedData.TraceId | IncludedData.SpanId)
+    .CreateLogger();~~~~
 ```
-
-If the enrichers are not used, then the associated properties are not set.
-
-## Trace Context Enrichment
-
-OpenTelemetry allows a TraceID and SpanID to be added to log records to 
-associate a log with a particular request. Within .NET, these are
-found in the current activity.
-
-If the `WithTraceIdAndSpanId` enricher is enabled and if the logging 
-call takes place within an activity, the trace ID and span ID will 
-be extracted from the activity and added to the Serilog LogEvent
-properties (and then into the OpenTelemetry LogRecord).
-
-```csharp
-var log = new LoggerConfiguration()
-    .Enrich.WithTraceIdAndSpanId()
-    .WriteTo.OpenTelemetry()
-    .CreateLogger();
-```
-
-Activity.Current | LogEvent Property | OpenTelemetry (LogRecord) | Comment |
---- | --- | --- | --- |
-TraceId | traceId | Field[`traceID`] | Direct binary conversion maintains fidelity |
-SpanId | spanId | Field[`spanID`] | Direct binary conversion maintains fidelity | 
-
-Although designed to be used with the OpenTelemetry sink, the enricher
-may be also useful when using other sinks.
 
 ## Example
 
-The `test/Serilog.Sinks.OpenTelemetry.Example` subdirectory contains an 
+The `example/Serilog.Sinks.OpenTelemetry.Example` subdirectory contains an 
 example application that logs to a local OpenTelemetry collector. See the
 README in that directory for instructions on running the example.
 
