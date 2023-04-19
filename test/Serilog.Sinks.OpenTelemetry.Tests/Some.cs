@@ -17,11 +17,11 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
 
-public static class TestUtils
+static class Some
 {
     public const string TestMessageTemplate = "Message template {Variable}";
 
-    internal static LogEvent CreateLogEvent(DateTimeOffset? timestamp = null, Exception? ex = null, string messageTemplate = TestMessageTemplate)
+    internal static LogEvent SerilogEvent(DateTimeOffset? timestamp = null, Exception? ex = null, string messageTemplate = TestMessageTemplate)
     {
         var ts = timestamp ?? DateTimeOffset.UtcNow;
         var parser = new MessageTemplateParser();

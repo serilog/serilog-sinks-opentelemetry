@@ -12,28 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
 
-public class OpenTelemetryUtilsTests
+public class RequestTemplateFactoryTests
 {
     [Fact]
     // Ensure that logs are not carried over from one clone of the
     // request template to another.
     public void TestNoDuplicateLogs()
     {
-        var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.None, new());
+        var logEvent = Some.SerilogEvent();
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.None, new());
 
-        var requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(null);
+        var requestTemplate = RequestTemplateFactory.CreateRequestTemplate(null);
 
         var request = requestTemplate.Clone();
 
         var n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
         Assert.Equal(0, n);
 
-        OpenTelemetryUtils.Add(request, logRecord);
+        request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
 
         n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
         Assert.Equal(1, n);

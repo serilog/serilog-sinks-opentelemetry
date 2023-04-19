@@ -20,10 +20,12 @@ using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry.Formatting;
+using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
-static class LogRecordFactory
+static class LogRecordBuilder
 {
     /// <summary>
     /// A https://messagetemplates.org template, as text. For example, the string <c>Hello {Name}!</c>.
@@ -55,7 +57,7 @@ static class LogRecordFactory
 
     public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IFormatProvider? formatProvider)
     {
-        var renderedMessage = logEvent.RenderMessage(formatProvider);
+        var renderedMessage = CleanMessageTemplateFormatter.Format(logEvent.MessageTemplate, logEvent.Properties, formatProvider);
         if (renderedMessage.Trim() != "")
         {
             logRecord.Body = new AnyValue
@@ -69,24 +71,24 @@ static class LogRecordFactory
     {
         var level = logEvent.Level;
         logRecord.SeverityText = level.ToString();
-        logRecord.SeverityNumber = ConvertUtils.ToSeverityNumber(level);
+        logRecord.SeverityNumber = PrimitiveConversions.ToSeverityNumber(level);
     }
 
     public static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
     {
         foreach (var property in logEvent.Properties)
         {
-            var v = ConvertUtils.ToOpenTelemetryAnyValue(property.Value);
+            var v = PrimitiveConversions.ToOpenTelemetryAnyValue(property.Value);
             if (v != null)
             {
-                logRecord.Attributes.Add(ConvertUtils.NewAttribute(property.Key, v));
+                logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(property.Key, v));
             }
         }
     }
 
     public static void ProcessTimestamp(LogRecord logRecord, LogEvent logEvent)
     {
-        logRecord.TimeUnixNano = ConvertUtils.ToUnixNano(logEvent.Timestamp);
+        logRecord.TimeUnixNano = PrimitiveConversions.ToUnixNano(logEvent.Timestamp);
     }
 
     public static void ProcessException(LogRecord logRecord, LogEvent logEvent)
@@ -96,16 +98,16 @@ static class LogRecordFactory
         {
             var attrs = logRecord.Attributes;
 
-            attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionType, ex.GetType().ToString()));
+            attrs.Add(PrimitiveConversions.NewStringAttribute(TraceSemanticConventions.AttributeExceptionType, ex.GetType().ToString()));
 
             if (ex.Message != "")
             {
-                attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, ex.Message));
+                attrs.Add(PrimitiveConversions.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, ex.Message));
             }
 
             if (ex.ToString() != "")
             {
-                attrs.Add(ConvertUtils.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.ToString()));
+                attrs.Add(PrimitiveConversions.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.ToString()));
             }
         }
     }
@@ -121,12 +123,12 @@ static class LogRecordFactory
             {
                 if ((includedFields & IncludedData.TraceIdField) != IncludedData.None)
                 {
-                    logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(activityTraceId.ToHexString());
+                    logRecord.TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(activityTraceId.ToHexString());
                 }
 
                 if ((includedFields & IncludedData.SpanIdField) != IncludedData.None)
                 {
-                    logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(activitySpanId.ToHexString());
+                    logRecord.SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(activitySpanId.ToHexString());
                 }
             }
         }
@@ -134,7 +136,7 @@ static class LogRecordFactory
 
         if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)
         {
-            logRecord.Attributes.Add(ConvertUtils.NewAttribute(AttributeMessageTemplateText, new()
+            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(AttributeMessageTemplateText, new()
             {
                 StringValue = logEvent.MessageTemplate.Text
             }));
@@ -142,9 +144,9 @@ static class LogRecordFactory
 
         if ((includedFields & IncludedData.MessageTemplateMD5HashAttribute) != IncludedData.None)
         {
-            logRecord.Attributes.Add(ConvertUtils.NewAttribute(AttributeMessageTemplateMD5Hash, new()
+            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(AttributeMessageTemplateMD5Hash, new()
             {
-                StringValue = ConvertUtils.Md5Hash(logEvent.MessageTemplate.Text)
+                StringValue = PrimitiveConversions.Md5Hash(logEvent.MessageTemplate.Text)
             }));
         }
     }
