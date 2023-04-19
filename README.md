@@ -1,7 +1,7 @@
 # Serilog.Sinks.OpenTelemetry [![Build status](https://ci.appveyor.com/api/projects/status/sqmrvw34pcuatwl5/branch/dev?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-opentelemetry/branch/dev) [![NuGet Version](http://img.shields.io/nuget/vpre/Serilog.Sinks.OpenTelemetry.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.OpenTelemetry/)
 
 This Serilog sink will transform Serilog events into OpenTelemetry
-LogRecords and send them to an OpenTelemetry gRPC endpoint.
+`LogRecord`s and send them to an OpenTelemetry gRPC endpoint.
 
 OpenTelemetry attributes support for scalar values, arrays, and maps.
 Serilog does as well. Consequently, the sink does a one-to-one
@@ -10,11 +10,7 @@ There is no flattening, renaming, or other modifications done to the
 properies by default.
 
 The formatter renders the log message, which is then stored as the
-body of the OpenTelemetry LogRecord.
-
-> :exclamation: This package works but is still new and evolving. All feedback
-> concerning the implementation, issues, and configuration is
-> welcome.
+body of the OpenTelemetry `LogRecord`.
 
 ## Getting started
 
