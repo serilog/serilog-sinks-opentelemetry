@@ -12,19 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Reflection;
+using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
-using System.Reflection;
-using Google.Protobuf.Collections;
-using Serilog.Debugging;
 
-namespace Serilog.Sinks.OpenTelemetry;
+namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
-static class OpenTelemetryUtils
+static class RequestTemplateFactory
 {
     const string OpenTelemetrySchemaUrl = "https://opentelemetry.io/schemas/v1.13.0";
+    
+    public static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, object>? resourceAttributes)
+    {
+        var resourceLogs = CreateResourceLogs(resourceAttributes);
+        resourceLogs.ScopeLogs.Add(CreateEmptyScopeLogs());
+
+        var request = new ExportLogsServiceRequest();
+        request.ResourceLogs.Add(resourceLogs);
+
+        return request;
+    }
     
     static string? GetScopeName()
     {
@@ -80,29 +90,6 @@ static class OpenTelemetryUtils
         return scopeLogs;
     }
 
-    internal static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, object>? resourceAttributes)
-    {
-        var resourceLogs = CreateResourceLogs(resourceAttributes);
-        resourceLogs.ScopeLogs.Add(CreateEmptyScopeLogs());
-
-        var request = new ExportLogsServiceRequest();
-        request.ResourceLogs.Add(resourceLogs);
-
-        return request;
-    }
-
-    internal static void Add(ExportLogsServiceRequest request, LogRecord logRecord)
-    {
-        try
-        {
-            request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Add(logRecord);
-        }
-        catch (Exception ex)
-        {
-            SelfLog.WriteLine("Log record could not be added to ExportLogsServiceRequest: {0}", ex);
-        }
-    }
-    
     static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, object>? resourceAttributes)
     {
         var attributes = new RepeatedField<KeyValue>();
@@ -110,7 +97,7 @@ static class OpenTelemetryUtils
         {
             foreach (var entry in resourceAttributes)
             {
-                var v = ConvertUtils.ToOpenTelemetryPrimitive(entry.Value);
+                var v = PrimitiveConversions.ToOpenTelemetryPrimitive(entry.Value);
                 if (v != null)
                 {
                     var kv = new KeyValue

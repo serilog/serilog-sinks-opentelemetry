@@ -16,11 +16,12 @@ using System.Text.RegularExpressions;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
 
-public class ConvertUtilsTest
+public class PrimitiveConversionsTests
 {
     public static byte[] GetRandomBytes(int size) {
         var bytes = new byte[size];
@@ -40,13 +41,13 @@ public class ConvertUtilsTest
         // current time has expected value
         var t0 = DateTimeOffset.UtcNow;
         var nanos = (ulong)t0.ToUnixTimeMilliseconds() * 1000000;
-        var actual = ConvertUtils.ToUnixNano(t0);
-        Assert.Equal(nanos, ConvertUtils.ToUnixNano(t0));
+        var actual = PrimitiveConversions.ToUnixNano(t0);
+        Assert.Equal(nanos, PrimitiveConversions.ToUnixNano(t0));
 
         // later time has different (greater) value
         Thread.Sleep(1000);
         var t1 = DateTimeOffset.UtcNow;
-        Assert.True(ConvertUtils.ToUnixNano(t1) > nanos);
+        Assert.True(PrimitiveConversions.ToUnixNano(t1) > nanos);
     }
 
     [Fact]
@@ -64,7 +65,7 @@ public class ConvertUtilsTest
 
         foreach ((var level, var severity) in data)
         {
-            Assert.Equal(severity, ConvertUtils.ToSeverityNumber(level));
+            Assert.Equal(severity, PrimitiveConversions.ToSeverityNumber(level));
         }
     }
 
@@ -76,14 +77,14 @@ public class ConvertUtilsTest
         originalTraceId.CopyTo(new Span<byte>(expectedBytes));
         var originalTraceIdHexString = ByteArrayToString(originalTraceId);
 
-        var openTelemetryTraceId = ConvertUtils.ToOpenTelemetryTraceId(originalTraceIdHexString);
+        var openTelemetryTraceId = PrimitiveConversions.ToOpenTelemetryTraceId(originalTraceIdHexString);
 
         Assert.Equal(16, openTelemetryTraceId?.Length);
         Assert.Equal(openTelemetryTraceId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
         var scalarHexString = new ScalarValue(originalTraceIdHexString).ToString();
-        var openTelemetryTraceIdFromScalar = ConvertUtils.ToOpenTelemetryTraceId(scalarHexString);
+        var openTelemetryTraceIdFromScalar = PrimitiveConversions.ToOpenTelemetryTraceId(scalarHexString);
 
         Assert.Equal(16, openTelemetryTraceIdFromScalar?.Length);
         Assert.Equal(openTelemetryTraceIdFromScalar?.ToByteArray(), expectedBytes);
@@ -97,14 +98,14 @@ public class ConvertUtilsTest
         originalSpanId.CopyTo(new Span<byte>(expectedBytes));
         var originalSpanIdHexString = ByteArrayToString(originalSpanId);
 
-        var openTelemetrySpanId = ConvertUtils.ToOpenTelemetrySpanId(originalSpanIdHexString);
+        var openTelemetrySpanId = PrimitiveConversions.ToOpenTelemetrySpanId(originalSpanIdHexString);
 
         Assert.Equal(8, openTelemetrySpanId?.Length);
         Assert.Equal(openTelemetrySpanId?.ToByteArray(), expectedBytes);
 
         // default format adds quotes to string values
         var scalarHexString = new ScalarValue(originalSpanIdHexString).ToString();
-        var openTelemetrySpanIdFromScalar = ConvertUtils.ToOpenTelemetrySpanId(scalarHexString);
+        var openTelemetrySpanIdFromScalar = PrimitiveConversions.ToOpenTelemetrySpanId(scalarHexString);
 
         Assert.Equal(8, openTelemetrySpanIdFromScalar?.Length);
         Assert.Equal(openTelemetrySpanIdFromScalar?.ToByteArray(), expectedBytes);
@@ -113,10 +114,10 @@ public class ConvertUtilsTest
     [Fact]
     public void TestToOpenTelemetryTraceIdAndSpanIdNulls()
     {
-        Assert.Null(ConvertUtils.ToOpenTelemetryTraceId("invalid"));
-        Assert.Null(ConvertUtils.ToOpenTelemetryTraceId(""));
-        Assert.Null(ConvertUtils.ToOpenTelemetrySpanId("invalid"));
-        Assert.Null(ConvertUtils.ToOpenTelemetrySpanId(""));
+        Assert.Null(PrimitiveConversions.ToOpenTelemetryTraceId("invalid"));
+        Assert.Null(PrimitiveConversions.ToOpenTelemetryTraceId(""));
+        Assert.Null(PrimitiveConversions.ToOpenTelemetrySpanId("invalid"));
+        Assert.Null(PrimitiveConversions.ToOpenTelemetrySpanId(""));
     }
 
     [Fact]
@@ -127,7 +128,7 @@ public class ConvertUtilsTest
         {
             IntValue = (long)123
         };
-        var attribute = ConvertUtils.NewAttribute(key, value);
+        var attribute = PrimitiveConversions.NewAttribute(key, value);
 
         Assert.Equal(key, attribute.Key);
         Assert.Equal(value, attribute.Value);
@@ -138,7 +139,7 @@ public class ConvertUtilsTest
     {
         var key = "ok";
         var value = "also-ok";
-        var attribute = ConvertUtils.NewStringAttribute(key, value);
+        var attribute = PrimitiveConversions.NewStringAttribute(key, value);
 
         Assert.Equal(key, attribute.Key);
         Assert.Equal(value, attribute.Value?.StringValue);
@@ -148,52 +149,52 @@ public class ConvertUtilsTest
     public void TestToOpenTelemetryScalar()
     {
         var scalar = new ScalarValue((short)100);
-        var result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        var result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
         scalar = new ScalarValue((int)100);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
         scalar = new ScalarValue((long)100);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
         scalar = new ScalarValue((ushort)100);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
         scalar = new ScalarValue((uint)100);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
         scalar = new ScalarValue((ulong)100);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((long)100, result?.IntValue);
 
         scalar = new ScalarValue((float)3.14);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((double)(float)3.14, result?.DoubleValue);
 
         scalar = new ScalarValue((double)3.14);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((double)3.14, result?.DoubleValue);
 
         scalar = new ScalarValue((decimal)3.14);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal((double)(decimal)3.14, result?.DoubleValue);
 
         scalar = new ScalarValue("ok");
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal("ok", result?.StringValue);
 
         scalar = new ScalarValue(true);
-        result = ConvertUtils.ToOpenTelemetryScalar(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
         Assert.Equal(true, result?.BoolValue);
 
         // indirect conversion
         scalar = new ScalarValue(true);
-        result = ConvertUtils.ToOpenTelemetryAnyValue(scalar);
+        result = PrimitiveConversions.ToOpenTelemetryAnyValue(scalar);
         Assert.Equal(true, result?.BoolValue);
     }
 
@@ -208,7 +209,7 @@ public class ConvertUtilsTest
         var input = new StructureValue(properties);
 
         // direct conversion
-        var result = ConvertUtils.ToOpenTelemetryMap(input);
+        var result = PrimitiveConversions.ToOpenTelemetryMap(input);
         Assert.NotNull(result);
         var kvlistValue = result?.KvlistValue;
         Assert.Equal(3, kvlistValue?.Values.Count);
@@ -217,7 +218,7 @@ public class ConvertUtilsTest
         Assert.Equal("2", secondPair?.Value.StringValue);
 
         // indirect conversion
-        result = ConvertUtils.ToOpenTelemetryAnyValue(input);
+        result = PrimitiveConversions.ToOpenTelemetryAnyValue(input);
         Assert.NotNull(result);
         kvlistValue = result?.KvlistValue;
         Assert.Equal(3, kvlistValue?.Values.Count);
@@ -237,7 +238,7 @@ public class ConvertUtilsTest
         var input = new SequenceValue(elements);
 
         // direct conversion
-        var result = ConvertUtils.ToOpenTelemetryArray(input);
+        var result = PrimitiveConversions.ToOpenTelemetryArray(input);
         Assert.NotNull(result);
         var arrayValue = result?.ArrayValue;
         Assert.Equal(3, arrayValue?.Values.Count);
@@ -245,7 +246,7 @@ public class ConvertUtilsTest
         Assert.Equal("2", secondElement?.StringValue);
 
         // indirect conversion
-        result = ConvertUtils.ToOpenTelemetryAnyValue(input);
+        result = PrimitiveConversions.ToOpenTelemetryAnyValue(input);
         Assert.NotNull(result);
         arrayValue = result?.ArrayValue;
         Assert.Equal(3, arrayValue?.Values.Count);
@@ -266,7 +267,7 @@ public class ConvertUtilsTest
 
         foreach (var (input, expected) in tests)
         {
-            Assert.Equal(expected, ConvertUtils.OnlyHexDigits(input));
+            Assert.Equal(expected, PrimitiveConversions.OnlyHexDigits(input));
         }
     }
 
@@ -278,10 +279,10 @@ public class ConvertUtilsTest
         var inputs = new[] { "", "first string", "second string" };
         foreach (var input in inputs)
         {
-            Assert.Matches(md5Regex, ConvertUtils.Md5Hash(input));
+            Assert.Matches(md5Regex, PrimitiveConversions.Md5Hash(input));
         }
 
-        Assert.Equal(ConvertUtils.Md5Hash("alpha"), ConvertUtils.Md5Hash("alpha"));
-        Assert.NotEqual(ConvertUtils.Md5Hash("alpha"), ConvertUtils.Md5Hash("beta"));
+        Assert.Equal(PrimitiveConversions.Md5Hash("alpha"), PrimitiveConversions.Md5Hash("alpha"));
+        Assert.NotEqual(PrimitiveConversions.Md5Hash("alpha"), PrimitiveConversions.Md5Hash("beta"));
     }
 }

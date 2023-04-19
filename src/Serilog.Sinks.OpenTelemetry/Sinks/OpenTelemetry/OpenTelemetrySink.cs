@@ -16,6 +16,7 @@ using OpenTelemetry.Proto.Collector.Logs.V1;
 using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OpenTelemetry;
@@ -47,7 +48,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
         _formatProvider = formatProvider;
         _includedData = includedData;
         _activityContextCollector = activityContextCollector;
-        _requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(resourceAttributes);
+        _requestTemplate = RequestTemplateFactory.CreateRequestTemplate(resourceAttributes);
     }
 
     /// <summary>
@@ -65,8 +66,18 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 
     void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, _formatProvider, _includedData, _activityContextCollector);
-        OpenTelemetryUtils.Add(request, logRecord);
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData, _activityContextCollector);
+        try
+        {
+            request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
+        }
+        catch (Exception ex)
+        {
+            // TODO: this seems like an artifact of the early development process, we should avoid try/catch here if
+            // we expect the line above to be infallible.
+            
+            SelfLog.WriteLine("Log record could not be added to ExportLogsServiceRequest: {0}", ex);
+        }
     }
 
     /// <summary>

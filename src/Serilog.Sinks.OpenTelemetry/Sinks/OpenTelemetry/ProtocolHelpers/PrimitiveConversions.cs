@@ -14,16 +14,16 @@
 
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
-using Serilog.Events;
-using System.Text.RegularExpressions;
 using Serilog.Debugging;
+using Serilog.Events;
 
-namespace Serilog.Sinks.OpenTelemetry;
+namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
-static class ConvertUtils
+static class PrimitiveConversions
 {
     const ulong MillisToNanos = 1000000;
 
@@ -169,7 +169,7 @@ static class ConvertUtils
         var nChars = hex.Length;
         var bytes = new byte[nChars / 2];
         for (var i = 0; i < nChars; i += 2)
-            bytes[i / 2] = System.Convert.ToByte(hex.Substring(i, 2), 16);
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
         return bytes;
     }
     
