@@ -47,7 +47,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes: options.ResourceAttributes,
             headers: options.Headers,
             includedData: options.IncludedData,
-            collector);
+            httpClientFactory: options.HttpClientFactory,
+            activityContextCollector: collector);
 
         ILogEventSink sink = openTelemetrySink;
         if (options.BatchingOptions != null)
@@ -61,7 +62,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         
         return loggerSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
-    
+
     /// <summary>
     /// Send log events to an OTLP exporter.
     /// </summary>
@@ -70,6 +71,9 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// </param>
     /// <param name="endpoint">
     /// The full URL of the OTLP exporter endpoint.
+    /// </param>
+    /// <param name="httpClientFactory">
+    /// The HTTP client factory.
     /// </param>
     /// <param name="protocol">
     /// The OTLP protocol to use.
@@ -111,6 +115,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
         string endpoint = OpenTelemetrySinkOptions.DefaultEndpoint,
+        Func<HttpClient>? httpClientFactory = null,
         OtlpProtocol protocol = OpenTelemetrySinkOptions.DefaultProtocol,
         IDictionary<string, object>? resourceAttributes = null,
         IDictionary<string, string>? headers = null,
@@ -135,6 +140,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             options.RestrictedToMinimumLevel = restrictedToMinimumLevel;
             options.LevelSwitch = levelSwitch;
             options.IncludedData = includedData;
+            options.HttpClientFactory = httpClientFactory ?? new Func<HttpClient>(()=> new HttpClient());
             
             if (disableBatching)
             {
