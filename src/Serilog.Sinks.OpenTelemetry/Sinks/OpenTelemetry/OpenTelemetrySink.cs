@@ -36,12 +36,13 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
        IDictionary<string, object>? resourceAttributes,
        IDictionary<string, string>? headers,
        IncludedData includedData,
-       ActivityContextCollector activityContextCollector)
+       Func<HttpClient> httpClientFactory, 
+       ActivityContextCollector activityContextCollector) 
     {
         _exporter = protocol switch
         {
-            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers),
-            OtlpProtocol.GrpcProtobuf => new GrpcExporter(endpoint, headers),
+            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers, httpClientFactory),
+            OtlpProtocol.GrpcProtobuf => new GrpcExporter(endpoint, headers, httpClientFactory),
             _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
         };
 
