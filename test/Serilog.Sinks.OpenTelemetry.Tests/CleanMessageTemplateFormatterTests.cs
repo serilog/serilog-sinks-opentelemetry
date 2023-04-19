@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Serilog.Events;
+﻿using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.OpenTelemetry.Formatting;
 using Xunit;
