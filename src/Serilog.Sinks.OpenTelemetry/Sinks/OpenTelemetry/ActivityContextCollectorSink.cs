@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if FEATURE_ACTIVITY
-
 using Serilog.Core;
 using Serilog.Events;
 
@@ -26,10 +24,10 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// <seealso cref="ActivityContextCollector"/>.
 sealed class ActivityContextCollectorSink : ILogEventSink, IDisposable
 {
-    readonly ActivityContextCollector _collector;
+    readonly IActivityContextCollector _collector;
     readonly ILogEventSink _inner;
     
-    public ActivityContextCollectorSink(ActivityContextCollector collector, ILogEventSink inner)
+    public ActivityContextCollectorSink(IActivityContextCollector collector, ILogEventSink inner)
     {
         _collector = collector;
         _inner = inner;
@@ -46,5 +44,3 @@ sealed class ActivityContextCollectorSink : ILogEventSink, IDisposable
         (_inner as IDisposable)?.Dispose();
     }
 }
-
-#endif

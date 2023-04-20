@@ -119,7 +119,7 @@ public class LogRecordFactoryTests
     {
         var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
         
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, new());
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, new ActivityContextCollector());
         
         var expectedHash = ConvertUtils.Md5Hash(TestUtils.TestMessageTemplate);
         var expectedAttribute = new KeyValue { Key = LogRecordFactory.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
@@ -131,7 +131,7 @@ public class LogRecordFactoryTests
     {
         var logEvent = TestUtils.CreateLogEvent(messageTemplate: TestUtils.TestMessageTemplate);
         
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new());
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new ActivityContextCollector());
 
         var expectedAttribute = new KeyValue { Key = LogRecordFactory.AttributeMessageTemplateText, Value = new() { StringValue = TestUtils.TestMessageTemplate }};
         Assert.Contains(expectedAttribute, logRecord.Attributes);

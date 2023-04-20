@@ -26,7 +26,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     readonly ExportLogsServiceRequest _requestTemplate;
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
-    readonly ActivityContextCollector _activityContextCollector;
+    readonly IActivityContextCollector _activityContextCollector;
 
     public OpenTelemetrySink(
        string endpoint,
@@ -35,7 +35,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
        IDictionary<string, object>? resourceAttributes,
        IDictionary<string, string>? headers,
        IncludedData includedData,
-       ActivityContextCollector activityContextCollector)
+       IActivityContextCollector activityContextCollector)
     {
         _exporter = protocol switch
         {

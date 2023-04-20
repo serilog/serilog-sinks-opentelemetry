@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if FEATURE_ACTIVITY
-using System.Diagnostics;
-#endif
-
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
@@ -39,7 +35,7 @@ static class LogRecordFactory
     /// <see cref="TraceSemanticConventions"/>.</remarks>
     public const string AttributeMessageTemplateMD5Hash = "message_template.md5_hash";
 
-    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, ActivityContextCollector activityContextCollector)
+    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, IActivityContextCollector activityContextCollector)
     {
         var logRecord = new LogRecord();
 
@@ -110,9 +106,8 @@ static class LogRecordFactory
         }
     }
 
-    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, ActivityContextCollector activityContextCollector)
+    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, IActivityContextCollector activityContextCollector)
     {
-#if FEATURE_ACTIVITY
         if ((includedFields & (IncludedData.TraceIdField | IncludedData.SpanIdField)) != IncludedData.None)
         {
             var activityContext = activityContextCollector.GetFor(logEvent);
@@ -121,16 +116,15 @@ static class LogRecordFactory
             {
                 if ((includedFields & IncludedData.TraceIdField) != IncludedData.None)
                 {
-                    logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(activityTraceId.ToHexString());
+                    logRecord.TraceId = ConvertUtils.ToOpenTelemetryTraceId(activityTraceId);
                 }
 
                 if ((includedFields & IncludedData.SpanIdField) != IncludedData.None)
                 {
-                    logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(activitySpanId.ToHexString());
+                    logRecord.SpanId = ConvertUtils.ToOpenTelemetrySpanId(activitySpanId);
                 }
             }
         }
-#endif
 
         if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)
         {

@@ -24,7 +24,7 @@ public class OpenTelemetryUtilsTests
     public void TestNoDuplicateLogs()
     {
         var logEvent = TestUtils.CreateLogEvent();
-        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.None, new());
+        var logRecord = LogRecordFactory.ToLogRecord(logEvent, null, IncludedData.None, new ActivityContextCollector());
 
         var requestTemplate = OpenTelemetryUtils.CreateRequestTemplate(null);
 

@@ -86,4 +86,10 @@ public class OpenTelemetrySinkOptions
         Period = TimeSpan.FromSeconds(DefaultPeriodSeconds),
         QueueLimit = DefaultQueueLimit
     };
+    
+    /// <summary>
+    /// The <see cref="IActivityContextCollector">IActivityContextCollector</see> to use for getting TraceId and SpanId information.
+    /// If no collector is provided, the default collector only collects TraceId and SpanId when targeting net6.0 or higher.
+    /// </summary>
+    public IActivityContextCollector? ActivityContextCollector { get; set; }
 }

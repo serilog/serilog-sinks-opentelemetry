@@ -28,7 +28,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// <remarks>CWT is necessary because queue limits, batch dropping, and other constraints make it hard to guarantee that
 /// no space leak will occur due to log events being added that are never subsequently removed by the background
 /// worker.</remarks>
-sealed class ActivityContextCollector
+sealed class ActivityContextCollector : IActivityContextCollector
 {
 #if FEATURE_ACTIVITY
     record CollectedContext(ActivityTraceId TraceId, ActivitySpanId SpanId);
@@ -41,12 +41,15 @@ sealed class ActivityContextCollector
             _context.AddOrUpdate(logEvent, new CollectedContext(Activity.Current.TraceId, Activity.Current.SpanId));
     }
 
-    public (ActivityTraceId, ActivitySpanId)? GetFor(LogEvent logEvent)
+    public (string, string)? GetFor(LogEvent logEvent)
     {
         if (_context.TryGetValue(logEvent, out var context))
-            return (context.TraceId, context.SpanId);
+            return (context.TraceId.ToHexString(), context.SpanId.ToHexString());
         
         return null;
     }
+#else
+    public void CollectFor(LogEvent logEvent) { }
+    public (string, string)? GetFor(LogEvent logEvent) => null;
 #endif
 }
