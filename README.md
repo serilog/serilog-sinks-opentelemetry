@@ -123,7 +123,7 @@ Log.Logger = new LoggerConfiguration()
 
 ## Example
 
-The `example/Serilog.Sinks.OpenTelemetry.Example` subdirectory contains an 
+The `example/Example` subdirectory contains an 
 example application that logs to a local OpenTelemetry collector. See the
 README in that directory for instructions on running the example.
 
