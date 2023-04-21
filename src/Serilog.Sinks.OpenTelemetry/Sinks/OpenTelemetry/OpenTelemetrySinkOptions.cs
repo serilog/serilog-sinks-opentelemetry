@@ -37,9 +37,9 @@ public class OpenTelemetrySinkOptions
     public string Endpoint { get; set; } = DefaultEndpoint;
 
     /// <summary>
-    /// The HTTP client factory.
+    /// Custom HTTP message handler.
     /// </summary>
-    public Func<HttpClient> HttpClientFactory { get; set; } = () => new HttpClient();
+    public HttpMessageHandler? HttpMessageHandler { get; set; }
     
     /// <summary>
     /// The OTLP protocol to use.

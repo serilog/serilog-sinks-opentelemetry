@@ -40,20 +40,23 @@ sealed class GrpcExporter : IExporter, IDisposable
     /// <param name="headers">
     /// A dictionary containing the request headers.
     /// </param>
-    /// <param name="httpClientFactory">
-    /// The HTTP client factory.
+    /// <param name="httpMessageHandler">
+    /// Custom HTTP message handler.
     /// </param>
     public GrpcExporter(string endpoint, IDictionary<string, string>? headers,
-        Func<HttpClient>? httpClientFactory)
+        HttpMessageHandler? httpMessageHandler = null)
     {
-        _channel = GrpcChannel.ForAddress(endpoint, 
-            new GrpcChannelOptions
-            {
-                HttpClient = httpClientFactory?.Invoke() ?? new HttpClient(), 
-                DisposeHttpClient = true
-            });
+        var grpcChannelOptions = new GrpcChannelOptions();
+        if (httpMessageHandler != null)
+        {
+            grpcChannelOptions.HttpClient = new HttpClient(httpMessageHandler);
+            grpcChannelOptions.DisposeHttpClient = true;
+        };
+        
+        _channel = GrpcChannel.ForAddress(endpoint, grpcChannelOptions);
         _client = new LogsService.LogsServiceClient(_channel);
         _headers = new Metadata();
+        
         if (headers != null)
         {
             foreach (var header in headers)

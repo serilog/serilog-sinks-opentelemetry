@@ -36,12 +36,12 @@ sealed class HttpExporter : IExporter, IDisposable
     /// <param name="headers">
     /// A dictionary containing the request headers.
     /// </param>
-    /// <param name="httpClientFactory">
-    /// The HTTP client factory.
+    /// <param name="httpMessageHandler">
+    /// Custom HTTP message handler.
     /// </param>
-    public HttpExporter(string endpoint, IDictionary<string, string>? headers, Func<HttpClient>? httpClientFactory = null)
+    public HttpExporter(string endpoint, IDictionary<string, string>? headers, HttpMessageHandler? httpMessageHandler = null)
     {
-        _client = httpClientFactory?.Invoke() ?? new HttpClient();
+        _client = new HttpClient(httpMessageHandler ?? new HttpClientHandler());
         _client.BaseAddress = new Uri(endpoint);
         if (headers != null)
         {
