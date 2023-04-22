@@ -41,7 +41,7 @@ sealed class HttpExporter : IExporter, IDisposable
     /// </param>
     public HttpExporter(string endpoint, IDictionary<string, string>? headers, HttpMessageHandler? httpMessageHandler = null)
     {
-        _client = new HttpClient(httpMessageHandler ?? new HttpClientHandler());
+        _client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
         _client.BaseAddress = new Uri(endpoint);
         if (headers != null)
         {
