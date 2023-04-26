@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -75,26 +76,37 @@ static class PrimitiveConversions
         });
     }
 
-    public static AnyValue? ToOpenTelemetryPrimitive(object? value)
+    public static AnyValue ToOpenTelemetryPrimitive(object? value)
     {
         return value switch
         {
+            null => new AnyValue(),
             short i => new AnyValue { IntValue = i },
             int i => new AnyValue { IntValue = i },
             long i => new AnyValue { IntValue = i },
+            byte i => new AnyValue { IntValue = i },
             ushort i => new AnyValue { IntValue = i },
             uint i => new AnyValue { IntValue = i },
-            ulong i => new AnyValue { IntValue = (long)i },
+            ulong i and < long.MaxValue => new AnyValue { IntValue = (long)i },
+#if FEATURE_HALF
+            Half d => new AnyValue { DoubleValue = (double)d },
+#endif
             float d => new AnyValue { DoubleValue = d },
             double d => new AnyValue { DoubleValue = d },
             decimal d => new AnyValue { DoubleValue = (double)d },
             string s => new AnyValue { StringValue = s },
             bool b => new AnyValue { BoolValue = b },
-            _ => null
+            DateTime dateTime => new AnyValue { StringValue = dateTime.ToString("o") },
+            DateTimeOffset dateTimeOffset => new AnyValue { StringValue = dateTimeOffset.ToString("o") },
+            // We may want to thread through the format provider that's used for message rendering, but where the
+            // results are consumed by a computer system rather than by an individual user InvariantCulture is often
+            // more predictable.
+            IFormattable f => new AnyValue { StringValue = f.ToString(null, CultureInfo.InvariantCulture) },
+            _ => new AnyValue { StringValue = value.ToString() }
         };
     }
 
-    public static AnyValue? ToOpenTelemetryScalar(ScalarValue scalar)
+    public static AnyValue ToOpenTelemetryScalar(ScalarValue scalar)
     {
         return ToOpenTelemetryPrimitive(scalar.Value);
     }
@@ -107,18 +119,40 @@ static class PrimitiveConversions
         foreach (var prop in value.Properties)
         {
             var v = ToOpenTelemetryAnyValue(prop.Value);
-            if (v != null)
+            var kv = new KeyValue
             {
-                var kv = new KeyValue
-                {
-                    Key = prop.Name,
-                    Value = v
-                };
-                kvList.Values.Add(kv);
-            }
+                Key = prop.Name,
+                Value = v
+            };
+            kvList.Values.Add(kv);
         }
 
         return map;
+    }
+
+    public static AnyValue ToOpenTelemetryArray(DictionaryValue value)
+    {
+        var array = new AnyValue();
+        var values = new ArrayValue();
+        array.ArrayValue = values;
+        foreach (var element in value.Elements)
+        {
+            var v = new AnyValue();
+            var kvList = new KeyValueList();
+            v.KvlistValue = kvList;
+            kvList.Values.Add(new KeyValue
+            {
+                Key = "Key",
+                Value = ToOpenTelemetryAnyValue(element.Key)
+            });
+            kvList.Values.Add(new KeyValue
+            {
+                Key = "Value",
+                Value = ToOpenTelemetryAnyValue(element.Value)
+            });
+            values.Values.Add(v);
+        }
+        return array;
     }
 
     public static AnyValue ToOpenTelemetryArray(SequenceValue value)
@@ -129,24 +163,20 @@ static class PrimitiveConversions
         foreach (var element in value.Elements)
         {
             var v = ToOpenTelemetryAnyValue(element);
-            if (v != null)
-            {
-                values.Values.Add(v);
-            }
+            values.Values.Add(v);
         }
         return array;
     }
 
-    internal static AnyValue? ToOpenTelemetryAnyValue(LogEventPropertyValue value)
+    internal static AnyValue ToOpenTelemetryAnyValue(LogEventPropertyValue value)
     {
         return value switch
         {
             ScalarValue scalar => ToOpenTelemetryScalar(scalar),
             StructureValue map => ToOpenTelemetryMap(map),
             SequenceValue array => ToOpenTelemetryArray(array),
-            // Not currently supported; OpenTelemetry maps have string keys, so these will most likely become arrays of pairs.
-            DictionaryValue _ => null,
-            _ => null,
+            DictionaryValue d => ToOpenTelemetryArray(d),
+            _ => ToOpenTelemetryPrimitive(value.ToString()),
         };
     }
 
