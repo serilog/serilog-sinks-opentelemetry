@@ -15,7 +15,7 @@
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-		<DefineConstants>$(DefineConstants);FEATURE_ACTIVITY</DefineConstants>
+		<DefineConstants>$(DefineConstants);FEATURE_ACTIVITY;FEATURE_HALF</DefineConstants>
 	</PropertyGroup>
 	
 	<ItemGroup>
