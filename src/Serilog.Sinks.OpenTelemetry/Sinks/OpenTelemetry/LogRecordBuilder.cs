@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if FEATURE_ACTIVITY
 using System.Diagnostics;
-#endif
-
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
@@ -114,7 +111,6 @@ static class LogRecordBuilder
 
     static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, ActivityContextCollector activityContextCollector)
     {
-#if FEATURE_ACTIVITY
         if ((includedFields & (IncludedData.TraceIdField | IncludedData.SpanIdField)) != IncludedData.None)
         {
             var activityContext = activityContextCollector.GetFor(logEvent);
@@ -132,7 +128,6 @@ static class LogRecordBuilder
                 }
             }
         }
-#endif
 
         if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)
         {
