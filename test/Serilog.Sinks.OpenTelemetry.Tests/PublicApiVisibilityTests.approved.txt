@@ -1,0 +1,39 @@
+﻿namespace Serilog
+{
+    public static class OpenTelemetryLoggerConfigurationExtensions
+    {
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.OpenTelemetrySinkOptions> configure) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, string endpoint = "http://localhost:4317/v1/logs", System.Net.Http.HttpMessageHandler? httpMessageHandler = null, Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, System.Collections.Generic.IDictionary<string, string>? headers = null, System.IFormatProvider? formatProvider = null, Serilog.Events.LogEventLevel restrictedToMinimumLevel = 0, Serilog.Core.LoggingLevelSwitch? levelSwitch = null, int batchSizeLimit = 1000, System.TimeSpan? period = default, int queueLimit = 100000, bool disableBatching = false, Serilog.Sinks.OpenTelemetry.IncludedData includedData = 13) { }
+    }
+}
+namespace Serilog.Sinks.OpenTelemetry
+{
+    [System.Flags]
+    public enum IncludedData
+    {
+        None = 0,
+        MessageTemplateTextAttribute = 1,
+        MessageTemplateMD5HashAttribute = 2,
+        TraceIdField = 4,
+        SpanIdField = 8,
+    }
+    public class OpenTelemetrySinkOptions
+    {
+        public OpenTelemetrySinkOptions() { }
+        public Serilog.Sinks.PeriodicBatching.PeriodicBatchingSinkOptions? BatchingOptions { get; set; }
+        public string Endpoint { get; set; }
+        public System.IFormatProvider? FormatProvider { get; set; }
+        public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }
+        public System.Net.Http.HttpMessageHandler? HttpMessageHandler { get; set; }
+        public Serilog.Sinks.OpenTelemetry.IncludedData IncludedData { get; set; }
+        public Serilog.Core.LoggingLevelSwitch? LevelSwitch { get; set; }
+        public Serilog.Sinks.OpenTelemetry.OtlpProtocol Protocol { get; set; }
+        public System.Collections.Generic.IDictionary<string, object> ResourceAttributes { get; set; }
+        public Serilog.Events.LogEventLevel RestrictedToMinimumLevel { get; set; }
+    }
+    public enum OtlpProtocol
+    {
+        GrpcProtobuf = 0,
+        HttpProtobuf = 1,
+    }
+}

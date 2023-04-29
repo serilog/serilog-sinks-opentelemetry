@@ -65,8 +65,8 @@ static class Program
 
         logger
             .ForContext("Elapsed", elapsedMs)
-            .ForContext("protocol", protocol)
-            .Information("Position is {@Position}", position);
+            .ForContext("Protocol", protocol)
+            .Information("The position is {@Position}", position);
 
         try
         {

@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/test/Serilog.Sinks.OpenTelemetry.Tests/PublicApiVisibilityTests.received.txt

@@ -12,7 +12,7 @@ using scg = global::System.Collections.Generic;
 namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   /// <summary>Holder for reflection information generated from opentelemetry/proto/collector/logs/v1/logs_service.proto</summary>
-  public static partial class LogsServiceReflection {
+  static partial class LogsServiceReflection {
 
     #region Descriptor
     /// <summary>File descriptor for opentelemetry/proto/collector/logs/v1/logs_service.proto</summary>
@@ -53,7 +53,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   }
   #region Messages
-  public sealed partial class ExportLogsServiceRequest : pb::IMessage<ExportLogsServiceRequest>
+  sealed partial class ExportLogsServiceRequest : pb::IMessage<ExportLogsServiceRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -238,7 +238,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   }
 
-  public sealed partial class ExportLogsServiceResponse : pb::IMessage<ExportLogsServiceResponse>
+  sealed partial class ExportLogsServiceResponse : pb::IMessage<ExportLogsServiceResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -453,7 +453,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   }
 
-  public sealed partial class ExportLogsPartialSuccess : pb::IMessage<ExportLogsPartialSuccess>
+  sealed partial class ExportLogsPartialSuccess : pb::IMessage<ExportLogsPartialSuccess>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
