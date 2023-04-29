@@ -74,14 +74,14 @@ static class Program
         }
         catch (Exception ex)
         {
-            logger.ForContext("Protocol", protocol).Error(ex, "Error in roll {Roll}", roll);
+            logger.ForContext("protocol", protocol).Error(ex, "Error on roll {Roll}", roll);
         }
     }
 
     static ILogger GetLogger(OtlpProtocol protocol)
     {
-        var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 4317;
-        var endpoint = $"http://127.0.0.1:{port}/v1/logs";
+        var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 45341;
+        var endpoint = $"https://localhost:{port}/v1/logs";
 
         return new LoggerConfiguration()
           .MinimumLevel.Information()
