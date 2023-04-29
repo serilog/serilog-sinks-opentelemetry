@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if FEATURE_ACTIVITY
-
 using Serilog.Core;
 using Serilog.Events;
 
@@ -46,5 +44,3 @@ sealed class ActivityContextCollectorSink : ILogEventSink, IDisposable
         (_inner as IDisposable)?.Dispose();
     }
 }
-
-#endif

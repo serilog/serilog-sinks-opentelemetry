@@ -56,9 +56,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
         }
 
-#if FEATURE_ACTIVITY
         sink = new ActivityContextCollectorSink(collector, sink);
-#endif
         
         return loggerSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }

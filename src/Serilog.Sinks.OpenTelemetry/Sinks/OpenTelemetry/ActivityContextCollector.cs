@@ -30,15 +30,38 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// worker.</remarks>
 sealed class ActivityContextCollector
 {
-#if FEATURE_ACTIVITY
-    record CollectedContext(ActivityTraceId TraceId, ActivitySpanId SpanId);
+    class CollectedContext
+    {
+        public CollectedContext(ActivityTraceId traceId, ActivitySpanId spanId)
+        {
+            TraceId = traceId;
+            SpanId = spanId;
+        }
+        
+        public ActivityTraceId TraceId { get; }
+        public ActivitySpanId SpanId { get; }
+    }
     
     readonly ConditionalWeakTable<LogEvent, CollectedContext> _context = new();
     
     public void CollectFor(LogEvent logEvent)
     {
         if (Activity.Current != null)
+        {
+#if FEATURE_CWT_ADDORUPDATE
             _context.AddOrUpdate(logEvent, new CollectedContext(Activity.Current.TraceId, Activity.Current.SpanId));
+#else
+            // Aiming to remove this (whole type) when we move to a generic `PeriodicBatchingSink`.
+            try
+            {   
+                _context.Add(logEvent, new CollectedContext(Activity.Current.TraceId, Activity.Current.SpanId));
+            }
+            catch (ArgumentException)
+            {
+                // Key already exists
+            }
+#endif
+        }
     }
 
     public (ActivityTraceId, ActivitySpanId)? GetFor(LogEvent logEvent)
@@ -48,5 +71,4 @@ sealed class ActivityContextCollector
         
         return null;
     }
-#endif
 }
