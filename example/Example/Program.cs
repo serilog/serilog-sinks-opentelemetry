@@ -65,8 +65,8 @@ static class Program
 
         logger
             .ForContext("Elapsed", elapsedMs)
-            .ForContext("protocol", protocol)
-            .Information("{@Position}", position);
+            .ForContext("Protocol", protocol)
+            .Information("The position is {@Position}", position);
 
         try
         {
@@ -74,7 +74,7 @@ static class Program
         }
         catch (Exception ex)
         {
-            logger.ForContext("protocol", protocol).Error(ex, "{@Roll}", roll);
+            logger.ForContext("Protocol", protocol).Error(ex, "Error in roll {Roll}", roll);
         }
     }
 

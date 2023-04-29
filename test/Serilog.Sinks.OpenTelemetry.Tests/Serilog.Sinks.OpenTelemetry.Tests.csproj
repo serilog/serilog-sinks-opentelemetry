@@ -11,11 +11,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all" />
     <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="PublicApiGenerator" Version="11.0.0" />
+    <PackageReference Include="Shouldly" Version="4.2.1" />
   </ItemGroup>
 
 </Project>

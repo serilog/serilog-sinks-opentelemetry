@@ -12,7 +12,7 @@ using scg = global::System.Collections.Generic;
 namespace OpenTelemetry.Proto.Logs.V1 {
 
   /// <summary>Holder for reflection information generated from opentelemetry/proto/logs/v1/logs.proto</summary>
-  public static partial class LogsReflection {
+  static partial class LogsReflection {
 
     #region Descriptor
     /// <summary>File descriptor for opentelemetry/proto/logs/v1/logs.proto</summary>
@@ -82,7 +82,7 @@ namespace OpenTelemetry.Proto.Logs.V1 {
   /// <summary>
   /// Possible values for LogRecord.SeverityNumber.
   /// </summary>
-  public enum SeverityNumber {
+  enum SeverityNumber {
     /// <summary>
     /// UNSPECIFIED is the default SeverityNumber, it MUST NOT be used.
     /// </summary>
@@ -116,7 +116,7 @@ namespace OpenTelemetry.Proto.Logs.V1 {
   /// <summary>
   /// Masks for LogRecord.flags field.
   /// </summary>
-  public enum LogRecordFlags {
+  enum LogRecordFlags {
     [pbr::OriginalName("LOG_RECORD_FLAG_UNSPECIFIED")] LogRecordFlagUnspecified = 0,
     [pbr::OriginalName("LOG_RECORD_FLAG_TRACE_FLAGS_MASK")] LogRecordFlagTraceFlagsMask = 255,
   }
@@ -136,7 +136,7 @@ namespace OpenTelemetry.Proto.Logs.V1 {
   /// When new fields are added into this message, the OTLP request MUST be updated
   /// as well.
   /// </summary>
-  public sealed partial class LogsData : pb::IMessage<LogsData>
+  sealed partial class LogsData : pb::IMessage<LogsData>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -324,7 +324,7 @@ namespace OpenTelemetry.Proto.Logs.V1 {
   /// <summary>
   /// A collection of ScopeLogs from a Resource.
   /// </summary>
-  public sealed partial class ResourceLogs : pb::IMessage<ResourceLogs>
+  sealed partial class ResourceLogs : pb::IMessage<ResourceLogs>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -599,7 +599,7 @@ namespace OpenTelemetry.Proto.Logs.V1 {
   /// <summary>
   /// A collection of Logs produced by a Scope.
   /// </summary>
-  public sealed partial class ScopeLogs : pb::IMessage<ScopeLogs>
+  sealed partial class ScopeLogs : pb::IMessage<ScopeLogs>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -875,7 +875,7 @@ namespace OpenTelemetry.Proto.Logs.V1 {
   /// A log record according to OpenTelemetry Log Data Model:
   /// https://github.com/open-telemetry/oteps/blob/main/text/logs/0097-log-data-model.md
   /// </summary>
-  public sealed partial class LogRecord : pb::IMessage<LogRecord>
+  sealed partial class LogRecord : pb::IMessage<LogRecord>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

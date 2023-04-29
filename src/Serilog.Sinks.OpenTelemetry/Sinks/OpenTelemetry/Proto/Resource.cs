@@ -12,7 +12,7 @@ using scg = global::System.Collections.Generic;
 namespace OpenTelemetry.Proto.Resource.V1 {
 
   /// <summary>Holder for reflection information generated from opentelemetry/proto/resource/v1/resource.proto</summary>
-  public static partial class ResourceReflection {
+  static partial class ResourceReflection {
 
     #region Descriptor
     /// <summary>File descriptor for opentelemetry/proto/resource/v1/resource.proto</summary>
@@ -46,7 +46,7 @@ namespace OpenTelemetry.Proto.Resource.V1 {
   /// <summary>
   /// Resource information.
   /// </summary>
-  public sealed partial class Resource : pb::IMessage<Resource>
+  sealed partial class Resource : pb::IMessage<Resource>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
