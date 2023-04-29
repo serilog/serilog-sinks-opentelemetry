@@ -28,7 +28,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
   /// OpenTelemetry and an collector, or between an collector and a central collector (in this
   /// case logs are sent/received to/from multiple Applications).
   /// </summary>
-  static partial class LogsService
+  public static partial class LogsService
   {
     static readonly string __ServiceName = "opentelemetry.proto.collector.logs.v1.LogsService";
 

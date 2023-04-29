@@ -12,7 +12,7 @@ using scg = global::System.Collections.Generic;
 namespace OpenTelemetry.Proto.Common.V1 {
 
   /// <summary>Holder for reflection information generated from opentelemetry/proto/common/v1/common.proto</summary>
-  static partial class CommonReflection {
+  public static partial class CommonReflection {
 
     #region Descriptor
     /// <summary>File descriptor for opentelemetry/proto/common/v1/common.proto</summary>
@@ -62,7 +62,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// primitive value such as a string or integer or it may contain an arbitrary nested
   /// object containing arrays, key-value lists and primitives.
   /// </summary>
-  sealed partial class AnyValue : pb::IMessage<AnyValue>
+  public sealed partial class AnyValue : pb::IMessage<AnyValue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -551,7 +551,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// ArrayValue is a list of AnyValue messages. We need ArrayValue as a message
   /// since oneof in AnyValue does not allow repeated fields.
   /// </summary>
-  sealed partial class ArrayValue : pb::IMessage<ArrayValue>
+  public sealed partial class ArrayValue : pb::IMessage<ArrayValue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -739,7 +739,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// avoid unnecessary extra wrapping (which slows down the protocol). The 2 approaches
   /// are semantically equivalent.
   /// </summary>
-  sealed partial class KeyValueList : pb::IMessage<KeyValueList>
+  public sealed partial class KeyValueList : pb::IMessage<KeyValueList>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -927,7 +927,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// KeyValue is a key-value pair that is used to store Span attributes, Link
   /// attributes, etc.
   /// </summary>
-  sealed partial class KeyValue : pb::IMessage<KeyValue>
+  public sealed partial class KeyValue : pb::IMessage<KeyValue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1166,7 +1166,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// InstrumentationScope is a message representing the instrumentation scope information
   /// such as the fully qualified name and version. 
   /// </summary>
-  sealed partial class InstrumentationScope : pb::IMessage<InstrumentationScope>
+  public sealed partial class InstrumentationScope : pb::IMessage<InstrumentationScope>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
