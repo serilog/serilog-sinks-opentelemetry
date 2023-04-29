@@ -96,8 +96,12 @@ static class PrimitiveConversions
             decimal d => new AnyValue { DoubleValue = (double)d },
             string s => new AnyValue { StringValue = s },
             bool b => new AnyValue { BoolValue = b },
-            DateTime dateTime => new AnyValue { StringValue = dateTime.ToString("o") },
-            DateTimeOffset dateTimeOffset => new AnyValue { StringValue = dateTimeOffset.ToString("o") },
+            DateTime dateTime => new AnyValue { StringValue = dateTime.ToString("O") },
+            DateTimeOffset dateTimeOffset => new AnyValue { StringValue = dateTimeOffset.ToString("O") },
+#if FEATURE_DATE_AND_TIME_ONLY
+            DateOnly dateOnly => new AnyValue { StringValue = dateOnly.ToString("yyyy-MM-dd") },
+            TimeOnly timeOnly => new AnyValue { StringValue = timeOnly.ToString("O") },
+#endif
             // We may want to thread through the format provider that's used for message rendering, but where the
             // results are consumed by a computer system rather than by an individual user InvariantCulture is often
             // more predictable.
