@@ -47,4 +47,11 @@ With the necessary prerequisites available, you can then:
 - The files for metrics and traces are not necessary and can be
   removed.
 
+- Change the visibility of the generated methods and enums from "public" to "internal".
+  These functions should not form part of the sink's public API.
+
 Ensure that all unit tests pass before checking in the new code.
+
+Document the version of the OpenTelemetry proto below:
+
+- Version 0.19.0 (See proto version used in OpenTelemetry Collector builds [here](https://github.com/open-telemetry/opentelemetry-collector/blob/3b62976f35387b150244390e8f8286a820966963/Makefile#L190).)

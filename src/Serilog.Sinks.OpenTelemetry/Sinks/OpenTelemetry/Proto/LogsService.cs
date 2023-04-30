@@ -12,11 +12,11 @@ using scg = global::System.Collections.Generic;
 namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   /// <summary>Holder for reflection information generated from opentelemetry/proto/collector/logs/v1/logs_service.proto</summary>
-  public static partial class LogsServiceReflection {
+  static partial class LogsServiceReflection {
 
     #region Descriptor
     /// <summary>File descriptor for opentelemetry/proto/collector/logs/v1/logs_service.proto</summary>
-    public static pbr::FileDescriptor Descriptor {
+    static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
@@ -53,7 +53,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   }
   #region Messages
-  public sealed partial class ExportLogsServiceRequest : pb::IMessage<ExportLogsServiceRequest>
+  sealed partial class ExportLogsServiceRequest : pb::IMessage<ExportLogsServiceRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -62,11 +62,11 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<ExportLogsServiceRequest> Parser { get { return _parser; } }
+    static pb::MessageParser<ExportLogsServiceRequest> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Collector.Logs.V1.LogsServiceReflection.Descriptor.MessageTypes[0]; }
     }
 
@@ -78,7 +78,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsServiceRequest() {
+    ExportLogsServiceRequest() {
       OnConstruction();
     }
 
@@ -86,19 +86,19 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsServiceRequest(ExportLogsServiceRequest other) : this() {
+    ExportLogsServiceRequest(ExportLogsServiceRequest other) : this() {
       resourceLogs_ = other.resourceLogs_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsServiceRequest Clone() {
+    ExportLogsServiceRequest Clone() {
       return new ExportLogsServiceRequest(this);
     }
 
     /// <summary>Field number for the "resource_logs" field.</summary>
-    public const int ResourceLogsFieldNumber = 1;
+    const int ResourceLogsFieldNumber = 1;
     private static readonly pb::FieldCodec<global::OpenTelemetry.Proto.Logs.V1.ResourceLogs> _repeated_resourceLogs_codec
         = pb::FieldCodec.ForMessage(10, global::OpenTelemetry.Proto.Logs.V1.ResourceLogs.Parser);
     private readonly pbc::RepeatedField<global::OpenTelemetry.Proto.Logs.V1.ResourceLogs> resourceLogs_ = new pbc::RepeatedField<global::OpenTelemetry.Proto.Logs.V1.ResourceLogs>();
@@ -111,19 +111,19 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::OpenTelemetry.Proto.Logs.V1.ResourceLogs> ResourceLogs {
+    pbc::RepeatedField<global::OpenTelemetry.Proto.Logs.V1.ResourceLogs> ResourceLogs {
       get { return resourceLogs_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    override bool Equals(object other) {
       return Equals(other as ExportLogsServiceRequest);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(ExportLogsServiceRequest other) {
+    bool Equals(ExportLogsServiceRequest other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -136,7 +136,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    override int GetHashCode() {
       int hash = 1;
       hash ^= resourceLogs_.GetHashCode();
       if (_unknownFields != null) {
@@ -147,13 +147,13 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
+    void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -177,7 +177,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    int CalculateSize() {
       int size = 0;
       size += resourceLogs_.CalculateSize(_repeated_resourceLogs_codec);
       if (_unknownFields != null) {
@@ -188,7 +188,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(ExportLogsServiceRequest other) {
+    void MergeFrom(ExportLogsServiceRequest other) {
       if (other == null) {
         return;
       }
@@ -198,7 +198,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
+    void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
@@ -238,7 +238,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   }
 
-  public sealed partial class ExportLogsServiceResponse : pb::IMessage<ExportLogsServiceResponse>
+  sealed partial class ExportLogsServiceResponse : pb::IMessage<ExportLogsServiceResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -247,11 +247,11 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<ExportLogsServiceResponse> Parser { get { return _parser; } }
+    static pb::MessageParser<ExportLogsServiceResponse> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Collector.Logs.V1.LogsServiceReflection.Descriptor.MessageTypes[1]; }
     }
 
@@ -263,7 +263,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsServiceResponse() {
+    ExportLogsServiceResponse() {
       OnConstruction();
     }
 
@@ -271,19 +271,19 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsServiceResponse(ExportLogsServiceResponse other) : this() {
+    ExportLogsServiceResponse(ExportLogsServiceResponse other) : this() {
       partialSuccess_ = other.partialSuccess_ != null ? other.partialSuccess_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsServiceResponse Clone() {
+    ExportLogsServiceResponse Clone() {
       return new ExportLogsServiceResponse(this);
     }
 
     /// <summary>Field number for the "partial_success" field.</summary>
-    public const int PartialSuccessFieldNumber = 1;
+    const int PartialSuccessFieldNumber = 1;
     private global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsPartialSuccess partialSuccess_;
     /// <summary>
     /// The details of a partially successful export request.
@@ -304,7 +304,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsPartialSuccess PartialSuccess {
+    global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsPartialSuccess PartialSuccess {
       get { return partialSuccess_; }
       set {
         partialSuccess_ = value;
@@ -313,13 +313,13 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    override bool Equals(object other) {
       return Equals(other as ExportLogsServiceResponse);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(ExportLogsServiceResponse other) {
+    bool Equals(ExportLogsServiceResponse other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -332,7 +332,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    override int GetHashCode() {
       int hash = 1;
       if (partialSuccess_ != null) hash ^= PartialSuccess.GetHashCode();
       if (_unknownFields != null) {
@@ -343,13 +343,13 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
+    void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -379,7 +379,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    int CalculateSize() {
       int size = 0;
       if (partialSuccess_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(PartialSuccess);
@@ -392,7 +392,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(ExportLogsServiceResponse other) {
+    void MergeFrom(ExportLogsServiceResponse other) {
       if (other == null) {
         return;
       }
@@ -407,7 +407,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
+    void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
@@ -453,7 +453,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
   }
 
-  public sealed partial class ExportLogsPartialSuccess : pb::IMessage<ExportLogsPartialSuccess>
+  sealed partial class ExportLogsPartialSuccess : pb::IMessage<ExportLogsPartialSuccess>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -462,11 +462,11 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<ExportLogsPartialSuccess> Parser { get { return _parser; } }
+    static pb::MessageParser<ExportLogsPartialSuccess> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Collector.Logs.V1.LogsServiceReflection.Descriptor.MessageTypes[2]; }
     }
 
@@ -478,7 +478,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsPartialSuccess() {
+    ExportLogsPartialSuccess() {
       OnConstruction();
     }
 
@@ -486,7 +486,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsPartialSuccess(ExportLogsPartialSuccess other) : this() {
+    ExportLogsPartialSuccess(ExportLogsPartialSuccess other) : this() {
       rejectedLogRecords_ = other.rejectedLogRecords_;
       errorMessage_ = other.errorMessage_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -494,12 +494,12 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ExportLogsPartialSuccess Clone() {
+    ExportLogsPartialSuccess Clone() {
       return new ExportLogsPartialSuccess(this);
     }
 
     /// <summary>Field number for the "rejected_log_records" field.</summary>
-    public const int RejectedLogRecordsFieldNumber = 1;
+    const int RejectedLogRecordsFieldNumber = 1;
     private long rejectedLogRecords_;
     /// <summary>
     /// The number of rejected log records.
@@ -509,7 +509,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long RejectedLogRecords {
+    long RejectedLogRecords {
       get { return rejectedLogRecords_; }
       set {
         rejectedLogRecords_ = value;
@@ -517,7 +517,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     }
 
     /// <summary>Field number for the "error_message" field.</summary>
-    public const int ErrorMessageFieldNumber = 2;
+    const int ErrorMessageFieldNumber = 2;
     private string errorMessage_ = "";
     /// <summary>
     /// A developer-facing human-readable message in English. It should be used
@@ -530,7 +530,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string ErrorMessage {
+    string ErrorMessage {
       get { return errorMessage_; }
       set {
         errorMessage_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -539,13 +539,13 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    override bool Equals(object other) {
       return Equals(other as ExportLogsPartialSuccess);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(ExportLogsPartialSuccess other) {
+    bool Equals(ExportLogsPartialSuccess other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -559,7 +559,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    override int GetHashCode() {
       int hash = 1;
       if (RejectedLogRecords != 0L) hash ^= RejectedLogRecords.GetHashCode();
       if (ErrorMessage.Length != 0) hash ^= ErrorMessage.GetHashCode();
@@ -571,13 +571,13 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
+    void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -615,7 +615,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    int CalculateSize() {
       int size = 0;
       if (RejectedLogRecords != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(RejectedLogRecords);
@@ -631,7 +631,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(ExportLogsPartialSuccess other) {
+    void MergeFrom(ExportLogsPartialSuccess other) {
       if (other == null) {
         return;
       }
@@ -646,7 +646,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
+    void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
