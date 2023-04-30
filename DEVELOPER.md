@@ -47,4 +47,15 @@ With the necessary prerequisites available, you can then:
 - The files for metrics and traces are not necessary and can be
   removed.
 
+- Reduce the access to top-level classes and enums in the binding
+  files from "public" to "internal" (implicit), to avoid these
+  becoming part of the sink's public API.
+
 Ensure that all unit tests pass before checking in the new code.
+
+**Current OpenTelemetry proto binding files have been generated from
+tag v0.19.0.**
+
+The OpenTelemetry proto version used in the OpenTelemetry Collector
+can be found in the [open-telemetry/opentelemetry-collector/Makefile](https://github.com/open-telemetry/opentelemetry-collector/blob/main/Makefile). Look for the `OPENTELEMETRY_PROTO_VERSION` variable
+definition.
