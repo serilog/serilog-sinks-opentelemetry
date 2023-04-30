@@ -28,7 +28,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
   /// OpenTelemetry and an collector, or between an collector and a central collector (in this
   /// case logs are sent/received to/from multiple Applications).
   /// </summary>
-  static partial class LogsService
+  public static partial class LogsService
   {
     static readonly string __ServiceName = "opentelemetry.proto.collector.logs.v1.LogsService";
 
@@ -50,7 +50,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static class __Helper_MessageCache<T>
     {
-      static readonly bool IsBufferMessage = global::System.Reflection.IntrospectionExtensions.GetTypeInfo(typeof(global::Google.Protobuf.IBufferMessage)).IsAssignableFrom(typeof(T));
+      public static readonly bool IsBufferMessage = global::System.Reflection.IntrospectionExtensions.GetTypeInfo(typeof(global::Google.Protobuf.IBufferMessage)).IsAssignableFrom(typeof(T));
     }
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -79,14 +79,14 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
         __Marshaller_opentelemetry_proto_collector_logs_v1_ExportLogsServiceResponse);
 
     /// <summary>Service descriptor</summary>
-    static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
+    public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
       get { return global::OpenTelemetry.Proto.Collector.Logs.V1.LogsServiceReflection.Descriptor.Services[0]; }
     }
 
     /// <summary>Base class for server-side implementations of LogsService</summary>
     [grpc::BindServiceMethod(typeof(LogsService), "BindService")]
-    abstract partial class LogsServiceBase
+    public abstract partial class LogsServiceBase
     {
       /// <summary>
       /// For performance reasons, it is recommended to keep this RPC
@@ -96,7 +96,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
       /// <param name="context">The context of the server-side call handler being invoked.</param>
       /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      virtual global::System.Threading.Tasks.Task<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse> Export(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse> Export(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -104,18 +104,18 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     }
 
     /// <summary>Client for LogsService</summary>
-    partial class LogsServiceClient : grpc::ClientBase<LogsServiceClient>
+    public partial class LogsServiceClient : grpc::ClientBase<LogsServiceClient>
     {
       /// <summary>Creates a new client for LogsService</summary>
       /// <param name="channel">The channel to use to make remote calls.</param>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      LogsServiceClient(grpc::ChannelBase channel) : base(channel)
+      public LogsServiceClient(grpc::ChannelBase channel) : base(channel)
       {
       }
       /// <summary>Creates a new client for LogsService that uses a custom <c>CallInvoker</c>.</summary>
       /// <param name="callInvoker">The callInvoker to use to make remote calls.</param>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      LogsServiceClient(grpc::CallInvoker callInvoker) : base(callInvoker)
+      public LogsServiceClient(grpc::CallInvoker callInvoker) : base(callInvoker)
       {
       }
       /// <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
@@ -140,7 +140,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
       /// <param name="cancellationToken">An optional token for canceling the call.</param>
       /// <returns>The response received from the server.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      virtual global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse Export(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse Export(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Export(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
@@ -152,7 +152,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
       /// <param name="options">The options for the call.</param>
       /// <returns>The response received from the server.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      virtual global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse Export(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::CallOptions options)
+      public virtual global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse Export(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_Export, null, options, request);
       }
@@ -166,7 +166,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
       /// <param name="cancellationToken">An optional token for canceling the call.</param>
       /// <returns>The call object.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      virtual grpc::AsyncUnaryCall<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse> ExportAsync(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse> ExportAsync(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return ExportAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
@@ -178,7 +178,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
       /// <param name="options">The options for the call.</param>
       /// <returns>The call object.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      virtual grpc::AsyncUnaryCall<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse> ExportAsync(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse> ExportAsync(global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_Export, null, options, request);
       }
@@ -193,7 +193,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     /// <summary>Creates service definition that can be registered with a server</summary>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static grpc::ServerServiceDefinition BindService(LogsServiceBase serviceImpl)
+    public static grpc::ServerServiceDefinition BindService(LogsServiceBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
           .AddMethod(__Method_Export, serviceImpl.Export).Build();
@@ -204,7 +204,7 @@ namespace OpenTelemetry.Proto.Collector.Logs.V1 {
     /// <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static void BindService(grpc::ServiceBinderBase serviceBinder, LogsServiceBase serviceImpl)
+    public static void BindService(grpc::ServiceBinderBase serviceBinder, LogsServiceBase serviceImpl)
     {
       serviceBinder.AddMethod(__Method_Export, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceRequest, global::OpenTelemetry.Proto.Collector.Logs.V1.ExportLogsServiceResponse>(serviceImpl.Export));
     }

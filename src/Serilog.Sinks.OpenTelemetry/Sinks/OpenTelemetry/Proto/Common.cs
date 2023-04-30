@@ -12,11 +12,11 @@ using scg = global::System.Collections.Generic;
 namespace OpenTelemetry.Proto.Common.V1 {
 
   /// <summary>Holder for reflection information generated from opentelemetry/proto/common/v1/common.proto</summary>
-  static partial class CommonReflection {
+  public static partial class CommonReflection {
 
     #region Descriptor
     /// <summary>File descriptor for opentelemetry/proto/common/v1/common.proto</summary>
-    static pbr::FileDescriptor Descriptor {
+    public static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
@@ -62,7 +62,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// primitive value such as a string or integer or it may contain an arbitrary nested
   /// object containing arrays, key-value lists and primitives.
   /// </summary>
-  sealed partial class AnyValue : pb::IMessage<AnyValue>
+  public sealed partial class AnyValue : pb::IMessage<AnyValue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -71,11 +71,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pb::MessageParser<AnyValue> Parser { get { return _parser; } }
+    public static pb::MessageParser<AnyValue> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Common.V1.CommonReflection.Descriptor.MessageTypes[0]; }
     }
 
@@ -87,7 +87,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    AnyValue() {
+    public AnyValue() {
       OnConstruction();
     }
 
@@ -95,7 +95,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    AnyValue(AnyValue other) : this() {
+    public AnyValue(AnyValue other) : this() {
       switch (other.ValueCase) {
         case ValueOneofCase.StringValue:
           StringValue = other.StringValue;
@@ -125,15 +125,15 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    AnyValue Clone() {
+    public AnyValue Clone() {
       return new AnyValue(this);
     }
 
     /// <summary>Field number for the "string_value" field.</summary>
-    const int StringValueFieldNumber = 1;
+    public const int StringValueFieldNumber = 1;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    string StringValue {
+    public string StringValue {
       get { return valueCase_ == ValueOneofCase.StringValue ? (string) value_ : ""; }
       set {
         value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -142,10 +142,10 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "bool_value" field.</summary>
-    const int BoolValueFieldNumber = 2;
+    public const int BoolValueFieldNumber = 2;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    bool BoolValue {
+    public bool BoolValue {
       get { return valueCase_ == ValueOneofCase.BoolValue ? (bool) value_ : false; }
       set {
         value_ = value;
@@ -154,10 +154,10 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "int_value" field.</summary>
-    const int IntValueFieldNumber = 3;
+    public const int IntValueFieldNumber = 3;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    long IntValue {
+    public long IntValue {
       get { return valueCase_ == ValueOneofCase.IntValue ? (long) value_ : 0L; }
       set {
         value_ = value;
@@ -166,10 +166,10 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "double_value" field.</summary>
-    const int DoubleValueFieldNumber = 4;
+    public const int DoubleValueFieldNumber = 4;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    double DoubleValue {
+    public double DoubleValue {
       get { return valueCase_ == ValueOneofCase.DoubleValue ? (double) value_ : 0D; }
       set {
         value_ = value;
@@ -178,10 +178,10 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "array_value" field.</summary>
-    const int ArrayValueFieldNumber = 5;
+    public const int ArrayValueFieldNumber = 5;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    global::OpenTelemetry.Proto.Common.V1.ArrayValue ArrayValue {
+    public global::OpenTelemetry.Proto.Common.V1.ArrayValue ArrayValue {
       get { return valueCase_ == ValueOneofCase.ArrayValue ? (global::OpenTelemetry.Proto.Common.V1.ArrayValue) value_ : null; }
       set {
         value_ = value;
@@ -190,10 +190,10 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "kvlist_value" field.</summary>
-    const int KvlistValueFieldNumber = 6;
+    public const int KvlistValueFieldNumber = 6;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    global::OpenTelemetry.Proto.Common.V1.KeyValueList KvlistValue {
+    public global::OpenTelemetry.Proto.Common.V1.KeyValueList KvlistValue {
       get { return valueCase_ == ValueOneofCase.KvlistValue ? (global::OpenTelemetry.Proto.Common.V1.KeyValueList) value_ : null; }
       set {
         value_ = value;
@@ -202,10 +202,10 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "bytes_value" field.</summary>
-    const int BytesValueFieldNumber = 7;
+    public const int BytesValueFieldNumber = 7;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pb::ByteString BytesValue {
+    public pb::ByteString BytesValue {
       get { return valueCase_ == ValueOneofCase.BytesValue ? (pb::ByteString) value_ : pb::ByteString.Empty; }
       set {
         value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -215,7 +215,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     private object value_;
     /// <summary>Enum of possible cases for the "value" oneof.</summary>
-    enum ValueOneofCase {
+    public enum ValueOneofCase {
       None = 0,
       StringValue = 1,
       BoolValue = 2,
@@ -228,26 +228,26 @@ namespace OpenTelemetry.Proto.Common.V1 {
     private ValueOneofCase valueCase_ = ValueOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    ValueOneofCase ValueCase {
+    public ValueOneofCase ValueCase {
       get { return valueCase_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void ClearValue() {
+    public void ClearValue() {
       valueCase_ = ValueOneofCase.None;
       value_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override bool Equals(object other) {
+    public override bool Equals(object other) {
       return Equals(other as AnyValue);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    bool Equals(AnyValue other) {
+    public bool Equals(AnyValue other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -267,7 +267,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override int GetHashCode() {
+    public override int GetHashCode() {
       int hash = 1;
       if (valueCase_ == ValueOneofCase.StringValue) hash ^= StringValue.GetHashCode();
       if (valueCase_ == ValueOneofCase.BoolValue) hash ^= BoolValue.GetHashCode();
@@ -285,13 +285,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override string ToString() {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void WriteTo(pb::CodedOutputStream output) {
+    public void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -369,7 +369,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    int CalculateSize() {
+    public int CalculateSize() {
       int size = 0;
       if (valueCase_ == ValueOneofCase.StringValue) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(StringValue);
@@ -400,7 +400,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(AnyValue other) {
+    public void MergeFrom(AnyValue other) {
       if (other == null) {
         return;
       }
@@ -439,7 +439,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(pb::CodedInputStream input) {
+    public void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
@@ -551,7 +551,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// ArrayValue is a list of AnyValue messages. We need ArrayValue as a message
   /// since oneof in AnyValue does not allow repeated fields.
   /// </summary>
-  sealed partial class ArrayValue : pb::IMessage<ArrayValue>
+  public sealed partial class ArrayValue : pb::IMessage<ArrayValue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -560,11 +560,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pb::MessageParser<ArrayValue> Parser { get { return _parser; } }
+    public static pb::MessageParser<ArrayValue> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Common.V1.CommonReflection.Descriptor.MessageTypes[1]; }
     }
 
@@ -576,7 +576,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    ArrayValue() {
+    public ArrayValue() {
       OnConstruction();
     }
 
@@ -584,19 +584,19 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    ArrayValue(ArrayValue other) : this() {
+    public ArrayValue(ArrayValue other) : this() {
       values_ = other.values_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    ArrayValue Clone() {
+    public ArrayValue Clone() {
       return new ArrayValue(this);
     }
 
     /// <summary>Field number for the "values" field.</summary>
-    const int ValuesFieldNumber = 1;
+    public const int ValuesFieldNumber = 1;
     private static readonly pb::FieldCodec<global::OpenTelemetry.Proto.Common.V1.AnyValue> _repeated_values_codec
         = pb::FieldCodec.ForMessage(10, global::OpenTelemetry.Proto.Common.V1.AnyValue.Parser);
     private readonly pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.AnyValue> values_ = new pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.AnyValue>();
@@ -605,19 +605,19 @@ namespace OpenTelemetry.Proto.Common.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.AnyValue> Values {
+    public pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.AnyValue> Values {
       get { return values_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override bool Equals(object other) {
+    public override bool Equals(object other) {
       return Equals(other as ArrayValue);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    bool Equals(ArrayValue other) {
+    public bool Equals(ArrayValue other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -630,7 +630,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override int GetHashCode() {
+    public override int GetHashCode() {
       int hash = 1;
       hash ^= values_.GetHashCode();
       if (_unknownFields != null) {
@@ -641,13 +641,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override string ToString() {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void WriteTo(pb::CodedOutputStream output) {
+    public void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -671,7 +671,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    int CalculateSize() {
+    public int CalculateSize() {
       int size = 0;
       size += values_.CalculateSize(_repeated_values_codec);
       if (_unknownFields != null) {
@@ -682,7 +682,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(ArrayValue other) {
+    public void MergeFrom(ArrayValue other) {
       if (other == null) {
         return;
       }
@@ -692,7 +692,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(pb::CodedInputStream input) {
+    public void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
@@ -739,7 +739,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// avoid unnecessary extra wrapping (which slows down the protocol). The 2 approaches
   /// are semantically equivalent.
   /// </summary>
-  sealed partial class KeyValueList : pb::IMessage<KeyValueList>
+  public sealed partial class KeyValueList : pb::IMessage<KeyValueList>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -748,11 +748,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pb::MessageParser<KeyValueList> Parser { get { return _parser; } }
+    public static pb::MessageParser<KeyValueList> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Common.V1.CommonReflection.Descriptor.MessageTypes[2]; }
     }
 
@@ -764,7 +764,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    KeyValueList() {
+    public KeyValueList() {
       OnConstruction();
     }
 
@@ -772,19 +772,19 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    KeyValueList(KeyValueList other) : this() {
+    public KeyValueList(KeyValueList other) : this() {
       values_ = other.values_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    KeyValueList Clone() {
+    public KeyValueList Clone() {
       return new KeyValueList(this);
     }
 
     /// <summary>Field number for the "values" field.</summary>
-    const int ValuesFieldNumber = 1;
+    public const int ValuesFieldNumber = 1;
     private static readonly pb::FieldCodec<global::OpenTelemetry.Proto.Common.V1.KeyValue> _repeated_values_codec
         = pb::FieldCodec.ForMessage(10, global::OpenTelemetry.Proto.Common.V1.KeyValue.Parser);
     private readonly pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue> values_ = new pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue>();
@@ -796,19 +796,19 @@ namespace OpenTelemetry.Proto.Common.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue> Values {
+    public pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue> Values {
       get { return values_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override bool Equals(object other) {
+    public override bool Equals(object other) {
       return Equals(other as KeyValueList);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    bool Equals(KeyValueList other) {
+    public bool Equals(KeyValueList other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -821,7 +821,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override int GetHashCode() {
+    public override int GetHashCode() {
       int hash = 1;
       hash ^= values_.GetHashCode();
       if (_unknownFields != null) {
@@ -832,13 +832,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override string ToString() {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void WriteTo(pb::CodedOutputStream output) {
+    public void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -862,7 +862,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    int CalculateSize() {
+    public int CalculateSize() {
       int size = 0;
       size += values_.CalculateSize(_repeated_values_codec);
       if (_unknownFields != null) {
@@ -873,7 +873,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(KeyValueList other) {
+    public void MergeFrom(KeyValueList other) {
       if (other == null) {
         return;
       }
@@ -883,7 +883,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(pb::CodedInputStream input) {
+    public void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
@@ -927,7 +927,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// KeyValue is a key-value pair that is used to store Span attributes, Link
   /// attributes, etc.
   /// </summary>
-  sealed partial class KeyValue : pb::IMessage<KeyValue>
+  public sealed partial class KeyValue : pb::IMessage<KeyValue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -936,11 +936,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pb::MessageParser<KeyValue> Parser { get { return _parser; } }
+    public static pb::MessageParser<KeyValue> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Common.V1.CommonReflection.Descriptor.MessageTypes[3]; }
     }
 
@@ -952,7 +952,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    KeyValue() {
+    public KeyValue() {
       OnConstruction();
     }
 
@@ -960,7 +960,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    KeyValue(KeyValue other) : this() {
+    public KeyValue(KeyValue other) : this() {
       key_ = other.key_;
       value_ = other.value_ != null ? other.value_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -968,16 +968,16 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    KeyValue Clone() {
+    public KeyValue Clone() {
       return new KeyValue(this);
     }
 
     /// <summary>Field number for the "key" field.</summary>
-    const int KeyFieldNumber = 1;
+    public const int KeyFieldNumber = 1;
     private string key_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    string Key {
+    public string Key {
       get { return key_; }
       set {
         key_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -985,11 +985,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "value" field.</summary>
-    const int ValueFieldNumber = 2;
+    public const int ValueFieldNumber = 2;
     private global::OpenTelemetry.Proto.Common.V1.AnyValue value_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    global::OpenTelemetry.Proto.Common.V1.AnyValue Value {
+    public global::OpenTelemetry.Proto.Common.V1.AnyValue Value {
       get { return value_; }
       set {
         value_ = value;
@@ -998,13 +998,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override bool Equals(object other) {
+    public override bool Equals(object other) {
       return Equals(other as KeyValue);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    bool Equals(KeyValue other) {
+    public bool Equals(KeyValue other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -1018,7 +1018,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override int GetHashCode() {
+    public override int GetHashCode() {
       int hash = 1;
       if (Key.Length != 0) hash ^= Key.GetHashCode();
       if (value_ != null) hash ^= Value.GetHashCode();
@@ -1030,13 +1030,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override string ToString() {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void WriteTo(pb::CodedOutputStream output) {
+    public void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -1074,7 +1074,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    int CalculateSize() {
+    public int CalculateSize() {
       int size = 0;
       if (Key.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Key);
@@ -1090,7 +1090,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(KeyValue other) {
+    public void MergeFrom(KeyValue other) {
       if (other == null) {
         return;
       }
@@ -1108,7 +1108,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(pb::CodedInputStream input) {
+    public void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
@@ -1166,7 +1166,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
   /// InstrumentationScope is a message representing the instrumentation scope information
   /// such as the fully qualified name and version. 
   /// </summary>
-  sealed partial class InstrumentationScope : pb::IMessage<InstrumentationScope>
+  public sealed partial class InstrumentationScope : pb::IMessage<InstrumentationScope>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1175,11 +1175,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pb::MessageParser<InstrumentationScope> Parser { get { return _parser; } }
+    public static pb::MessageParser<InstrumentationScope> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::OpenTelemetry.Proto.Common.V1.CommonReflection.Descriptor.MessageTypes[4]; }
     }
 
@@ -1191,7 +1191,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    InstrumentationScope() {
+    public InstrumentationScope() {
       OnConstruction();
     }
 
@@ -1199,7 +1199,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    InstrumentationScope(InstrumentationScope other) : this() {
+    public InstrumentationScope(InstrumentationScope other) : this() {
       name_ = other.name_;
       version_ = other.version_;
       attributes_ = other.attributes_.Clone();
@@ -1209,19 +1209,19 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    InstrumentationScope Clone() {
+    public InstrumentationScope Clone() {
       return new InstrumentationScope(this);
     }
 
     /// <summary>Field number for the "name" field.</summary>
-    const int NameFieldNumber = 1;
+    public const int NameFieldNumber = 1;
     private string name_ = "";
     /// <summary>
     /// An empty instrumentation scope name means the name is unknown.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    string Name {
+    public string Name {
       get { return name_; }
       set {
         name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -1229,11 +1229,11 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "version" field.</summary>
-    const int VersionFieldNumber = 2;
+    public const int VersionFieldNumber = 2;
     private string version_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    string Version {
+    public string Version {
       get { return version_; }
       set {
         version_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -1241,22 +1241,22 @@ namespace OpenTelemetry.Proto.Common.V1 {
     }
 
     /// <summary>Field number for the "attributes" field.</summary>
-    const int AttributesFieldNumber = 3;
+    public const int AttributesFieldNumber = 3;
     private static readonly pb::FieldCodec<global::OpenTelemetry.Proto.Common.V1.KeyValue> _repeated_attributes_codec
         = pb::FieldCodec.ForMessage(26, global::OpenTelemetry.Proto.Common.V1.KeyValue.Parser);
     private readonly pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue> attributes_ = new pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue> Attributes {
+    public pbc::RepeatedField<global::OpenTelemetry.Proto.Common.V1.KeyValue> Attributes {
       get { return attributes_; }
     }
 
     /// <summary>Field number for the "dropped_attributes_count" field.</summary>
-    const int DroppedAttributesCountFieldNumber = 4;
+    public const int DroppedAttributesCountFieldNumber = 4;
     private uint droppedAttributesCount_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    uint DroppedAttributesCount {
+    public uint DroppedAttributesCount {
       get { return droppedAttributesCount_; }
       set {
         droppedAttributesCount_ = value;
@@ -1265,13 +1265,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override bool Equals(object other) {
+    public override bool Equals(object other) {
       return Equals(other as InstrumentationScope);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    bool Equals(InstrumentationScope other) {
+    public bool Equals(InstrumentationScope other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -1287,7 +1287,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override int GetHashCode() {
+    public override int GetHashCode() {
       int hash = 1;
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (Version.Length != 0) hash ^= Version.GetHashCode();
@@ -1301,13 +1301,13 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    override string ToString() {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void WriteTo(pb::CodedOutputStream output) {
+    public void WriteTo(pb::CodedOutputStream output) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
@@ -1355,7 +1355,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    int CalculateSize() {
+    public int CalculateSize() {
       int size = 0;
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
@@ -1375,7 +1375,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(InstrumentationScope other) {
+    public void MergeFrom(InstrumentationScope other) {
       if (other == null) {
         return;
       }
@@ -1394,7 +1394,7 @@ namespace OpenTelemetry.Proto.Common.V1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void MergeFrom(pb::CodedInputStream input) {
+    public void MergeFrom(pb::CodedInputStream input) {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
     #else
