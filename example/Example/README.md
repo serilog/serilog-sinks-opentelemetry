@@ -30,20 +30,17 @@ within it. The Kubernetes CLI `kubectl` must also be available.
 
 ### Start Collector
 
-From the `k8s` subdirectory, run the command `kubectl apply -f .`. You
-should see two resources created. One should be a pod with a name
+From the this subdirectory, run the command `kubectl apply -f k8s`.
+You should see two resources created. One should be a pod with a name
 starting with "collector".
 
 To make the **ports visible on your local machine**, forward the
-ports with the command:
+ports with by running the command in a separate terminal (or in 
+the background):
 
 ```sh
-k port-forward collector-... 4317:4317 4318:4318
+kubectl port-forward collector 4317:4317 4318:4318
 ```
-
-replacing "collector-..." with your actual pod name. These will need
-to be run in separate terminals (or alternatively, run in the 
-background.)
 
 You should now be ready to use the console application to send logs to
 the gRPC/protobuf and HTTP/protobuf endpoints.
@@ -51,7 +48,7 @@ the gRPC/protobuf and HTTP/protobuf endpoints.
 ### Stop Collector
 
 When you're done, you can shut down the local collector with `kubectl
-delete -f .` from the same directory where you started it.
+delete -f k8s` from the same directory where you started it.
 
 ## Run the Program
 
