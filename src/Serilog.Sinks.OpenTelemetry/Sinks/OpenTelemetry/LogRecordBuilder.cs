@@ -36,7 +36,7 @@ static class LogRecordBuilder
     /// </summary>
     /// <remarks>See also https://opentelemetry.io/docs/reference/specification/logs/semantic_conventions/ and
     /// <see cref="TraceSemanticConventions"/>.</remarks>
-    public const string AttributeMessageTemplateMD5Hash = "message_template.md5_hash";
+    public const string AttributeMessageTemplateMD5Hash = "message_template.hash.md5";
 
     public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, ActivityContextCollector activityContextCollector)
     {
