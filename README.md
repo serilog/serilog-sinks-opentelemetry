@@ -102,7 +102,7 @@ Serilog `LogEvent`               | OpenTelemetry `LogRecord`                 | C
 `Level.ToString()`               | `SeverityText`                            |                                                                                               |
 `Message`                        | `Body`                                    | Culture-specific formatting can be provided via sink configuration                            |
 `MessageTemplate`                | `Attributes["message_template.text"]`     | Requires `IncludedData.MessageTemplateText` (enabled by default)                              |
-`MessageTemplate` (MD5)          | `Attributes["message_template.md5_hash"]` | Requires `IncludedData.MessageTemplateText`                                                   |
+`MessageTemplate` (MD5)          | `Attributes["message_template.hash.md5"]` | Requires `IncludedData.MessageTemplateMD5HashAttribute`                                                   |
 `Properties`                     | `Attributes`                              | Each property is mapped to an attribute keeping the name; the value's structure is maintained |
 `SpanId` (`Activity.Current`)    | `SpanId`                                  | Requires `IncludedData.SpanId` (enabled by default)                                           |
 `Timestamp`                      | `TimeUnixNano`                            | .NET provides 100-nanosecond precision                                                        |
