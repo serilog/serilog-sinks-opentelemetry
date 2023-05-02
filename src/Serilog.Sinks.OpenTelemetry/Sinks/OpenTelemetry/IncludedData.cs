@@ -34,7 +34,7 @@ public enum IncludedData
     MessageTemplateTextAttribute = 1,
     
     /// <summary>
-    /// Include an MD5 hash of the log event's message template as a hex-encoded string in <c>message_template.md5_hash</c>.
+    /// Include an MD5 hash of the log event's message template as a hex-encoded string in <c>message_template.hash.md5</c>.
     /// </summary>
     /// <remarks>See also https://messagetemplates.org.</remarks>
     MessageTemplateMD5HashAttribute = 2,
