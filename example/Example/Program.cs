@@ -19,6 +19,7 @@
 using Serilog;
 using System.Diagnostics;
 using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.PeriodicBatching;
 
 namespace Example;
 
@@ -80,29 +81,37 @@ static class Program
 
     static ILogger GetLogger(OtlpProtocol protocol)
     {
-        var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 45341;
+        var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 4317;
         var endpoint = $"https://localhost:{port}/v1/logs";
 
         return new LoggerConfiguration()
-          .MinimumLevel.Information()
-          .WriteTo.OpenTelemetry(
-              endpoint: endpoint,
-              protocol: protocol,
-              includedData: IncludedData.SpanIdField | IncludedData.TraceIdField
-                          | IncludedData.MessageTemplateTextAttribute | IncludedData.MessageTemplateMD5HashAttribute,
-              resourceAttributes: new Dictionary<string, object> {
-                        ["service.name"] = "test-logging-service",
-                        ["index"] = 10,
-                        ["flag"] = true,
-                        ["pi"] = 3.14
-              },
-              headers: new Dictionary<string, string>
-              {
+            .MinimumLevel.Information()
+            .WriteTo.OpenTelemetry(options => {
+                options.Endpoint = endpoint;
+                options.Protocol = protocol;
+                options.IncludedData = 
+                    IncludedData.SpanIdField
+                    | IncludedData.TraceIdField
+                    | IncludedData.MessageTemplateTextAttribute
+                    | IncludedData.MessageTemplateMD5HashAttribute;
+                options.ResourceAttributes = new Dictionary<string, object>
+                {
+                    ["service.name"] = "test-logging-service",
+                    ["index"] = 10,
+                    ["flag"] = true,
+                    ["pi"] = 3.14
+                };
+                options.Headers = new Dictionary<string, string>
+                {
                     ["Authorization"] = "Basic dXNlcjphYmMxMjM=", // user:abc123
-              },
-              batchSizeLimit: 2,
-              period: TimeSpan.FromSeconds(2),
-              queueLimit: 10)
-          .CreateLogger();
+                };
+                options.BatchingOptions = new PeriodicBatchingSinkOptions()
+                {
+                    BatchSizeLimit = 2,
+                    Period = TimeSpan.FromSeconds(2),
+                    QueueLimit = 10
+                };
+            })
+            .CreateLogger();
     }
 }

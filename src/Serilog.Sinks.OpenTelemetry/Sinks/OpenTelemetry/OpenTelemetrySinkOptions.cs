@@ -15,7 +15,6 @@
 using System.Diagnostics;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OpenTelemetry;
