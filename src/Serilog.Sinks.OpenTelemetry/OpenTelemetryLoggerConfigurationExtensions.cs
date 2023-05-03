@@ -71,15 +71,11 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// <param name="protocol">
     /// The OTLP protocol to use.
     /// </param>
-    /// <param name="headers">
-    /// Headers to send with network requests.
-    /// </param>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
         string endpoint = OpenTelemetrySinkOptions.DefaultEndpoint,
-        OtlpProtocol protocol = OpenTelemetrySinkOptions.DefaultProtocol,
-        IDictionary<string, string>? headers = null)
+        OtlpProtocol protocol = OpenTelemetrySinkOptions.DefaultProtocol)
     {
         if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
 
@@ -87,7 +83,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
-            options.Headers = headers ?? new Dictionary<string, string>();
         });
     }
 }
