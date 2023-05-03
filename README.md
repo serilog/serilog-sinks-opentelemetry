@@ -32,8 +32,8 @@ Log.Logger = new LoggerConfiguration()
 Then use the `Log.Information(...)` and similar methods to send 
 transformed logs to a local OpenTelemetry (OTLP/gRPC) endpoint.
 
-A more complete configuration would specify the `endpoint` and
-`resourceAttributes`. 
+A more complete configuration would specify `Endpoint` and
+`ResourceAttributes` as shown in the examples below.~~~~
 
 ### Endpoint and protocol
 
@@ -76,15 +76,17 @@ the logger is configured.
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.OpenTelemetry(
-        endpoint: "http://127.0.0.1:4317/v1/logs",
-        resourceAttributes: new Dictionary<string, object>
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.Endpoint = "http://127.0.0.1:4317/v1/logs";
+        options.ResourceAttributes = new Dictionary<string, object>
         {
             ["service.name"] = "test-logging-service",
             ["index"] = 10,
             ["flag"] = true,
             ["value"] = 3.14
-        })
+        };
+    })
     .CreateLogger();
 ```
 
@@ -115,9 +117,11 @@ the Serilog `LogEvent` and .NET `Activity` context via the `IncludedData` flags 
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.OpenTelemetry(
-        endpoint: "http://127.0.0.1:4317/v1/logs",
-        includedData: IncludedData.MessageTemplate | IncludedData.TraceId | IncludedData.SpanId)
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.Endpoint = "http://127.0.0.1:4317/v1/logs";
+        options.IncludedData: IncludedData.MessageTemplate | IncludedData.TraceId | IncludedData.SpanId;
+    })
     .CreateLogger();
 ```
 
