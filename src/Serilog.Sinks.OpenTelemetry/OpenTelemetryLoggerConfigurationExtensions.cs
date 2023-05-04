@@ -92,7 +92,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// <param name="loggerAuditSinkConfiguration">
     /// The `AuditTo` configuration object.
     /// </param>
-    /// <param name="configure">The configuration callback. Note that </param>
+    /// <param name="configure">The configuration callback.</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerAuditSinkConfiguration loggerAuditSinkConfiguration,
         Action<OpenTelemetrySinkOptions> configure)
