@@ -2,12 +2,19 @@
 {
     public static class OpenTelemetryLoggerConfigurationExtensions
     {
-        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.OpenTelemetrySinkOptions> configure) { }
-        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, string endpoint = "http://localhost:4317/v1/logs", System.Net.Http.HttpMessageHandler? httpMessageHandler = null, Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, System.Collections.Generic.IDictionary<string, string>? headers = null, System.IFormatProvider? formatProvider = null, Serilog.Events.LogEventLevel restrictedToMinimumLevel = 0, Serilog.Core.LoggingLevelSwitch? levelSwitch = null, int batchSizeLimit = 1000, System.TimeSpan? period = default, int queueLimit = 100000, bool disableBatching = false, Serilog.Sinks.OpenTelemetry.IncludedData includedData = 13) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.OpenTelemetrySinkOptions> configure) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.BatchedOpenTelemetrySinkOptions> configure) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, string endpoint = "http://localhost:4317/v1/logs", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, string endpoint = "http://localhost:4317/v1/logs", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0) { }
     }
 }
 namespace Serilog.Sinks.OpenTelemetry
 {
+    public class BatchedOpenTelemetrySinkOptions : Serilog.Sinks.OpenTelemetry.OpenTelemetrySinkOptions
+    {
+        public BatchedOpenTelemetrySinkOptions() { }
+        public Serilog.Sinks.PeriodicBatching.PeriodicBatchingSinkOptions BatchingOptions { get; }
+    }
     [System.Flags]
     public enum IncludedData
     {
@@ -20,7 +27,6 @@ namespace Serilog.Sinks.OpenTelemetry
     public class OpenTelemetrySinkOptions
     {
         public OpenTelemetrySinkOptions() { }
-        public Serilog.Sinks.PeriodicBatching.PeriodicBatchingSinkOptions? BatchingOptions { get; set; }
         public string Endpoint { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }

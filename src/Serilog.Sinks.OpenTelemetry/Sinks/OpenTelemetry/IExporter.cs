@@ -14,7 +14,10 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
+namespace Serilog.Sinks.OpenTelemetry;
+
 interface IExporter
 {
-    Task Export(ExportLogsServiceRequest request);
+    void Export(ExportLogsServiceRequest request);
+    Task ExportAsync(ExportLogsServiceRequest request);
 }

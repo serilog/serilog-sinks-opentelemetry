@@ -19,7 +19,6 @@
 using Serilog;
 using System.Diagnostics;
 using Serilog.Sinks.OpenTelemetry;
-using Serilog.Sinks.PeriodicBatching;
 
 namespace Example;
 
@@ -82,7 +81,7 @@ static class Program
     static ILogger GetLogger(OtlpProtocol protocol)
     {
         var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 4317;
-        var endpoint = $"https://localhost:{port}/v1/logs";
+        var endpoint = $"http://localhost:{port}/v1/logs";
 
         return new LoggerConfiguration()
             .MinimumLevel.Information()
@@ -105,12 +104,9 @@ static class Program
                 {
                     ["Authorization"] = "Basic dXNlcjphYmMxMjM=", // user:abc123
                 };
-                options.BatchingOptions = new PeriodicBatchingSinkOptions()
-                {
-                    BatchSizeLimit = 2,
-                    Period = TimeSpan.FromSeconds(2),
-                    QueueLimit = 10
-                };
+                options.BatchingOptions.BatchSizeLimit = 2;
+                options.BatchingOptions.Period = TimeSpan.FromSeconds(2);
+                options.BatchingOptions.QueueLimit = 10;
             })
             .CreateLogger();
     }

@@ -18,6 +18,10 @@
 		<DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY</DefineConstants>
 	</PropertyGroup>
 	
+	<PropertyGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
+		<DefineConstants>$(DefineConstants);NO_SYNC_HTTP_SEND</DefineConstants>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<None Include="..\..\assets\serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="" />
 		<PackageReference Include="Google.Protobuf" Version="3.21.11" />

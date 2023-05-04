@@ -19,7 +19,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
 /// Implements an IExporter that sends OpenTelemetry Log requests
-/// over HTTP.
+/// over HTTP using Protobuf encoding.
 /// </summary>
 sealed class HttpExporter : IExporter, IDisposable
 {
@@ -52,19 +52,40 @@ sealed class HttpExporter : IExporter, IDisposable
         }
     }
 
-    /// <summary>
-    /// Frees the HTTP client that sends logs to the OTLP/HTTP endpoint.
-    /// </summary>
     public void Dispose()
     {
         _client.Dispose();
+    }
+
+    public void Export(ExportLogsServiceRequest request)
+    {
+        var httpRequest = CreateHttpRequestMessage(request);
+
+#if NO_SYNC_HTTP_SEND
+        var response = _client.SendAsync(httpRequest).Result;
+#else
+        // We could consider using HttpCompletionOption.ResponseHeadersRead here.
+        var response = _client.Send(httpRequest);
+#endif
+        
+        response.EnsureSuccessStatusCode();
     }
 
     /// <summary>
     /// Sends the given protobuf request containing OpenTelemetry logs
     /// to an OTLP/HTTP endpoint.
     /// </summary>
-    async Task IExporter.Export(ExportLogsServiceRequest request)
+    public async Task ExportAsync(ExportLogsServiceRequest request)
+    {
+        var httpRequest = CreateHttpRequestMessage(request);
+
+        // We could consider using HttpCompletionOption.ResponseHeadersRead here.
+        var response = await _client.SendAsync(httpRequest);
+        
+        response.EnsureSuccessStatusCode();
+    }
+
+    static HttpRequestMessage CreateHttpRequestMessage(ExportLogsServiceRequest request)
     {
         var dataSize = request.CalculateSize();
         var buffer = new byte[dataSize];
@@ -76,8 +97,6 @@ sealed class HttpExporter : IExporter, IDisposable
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
         httpRequest.Content = content;
-
-        var response = await _client.SendAsync(httpRequest);
-        response.EnsureSuccessStatusCode();
+        return httpRequest;
     }
 }

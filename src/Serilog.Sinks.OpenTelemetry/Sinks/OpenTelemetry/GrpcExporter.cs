@@ -66,19 +66,17 @@ sealed class GrpcExporter : IExporter, IDisposable
         }
     }
 
-    /// <summary>
-    /// Frees the gRPC channel used to send logs to the OTLP endpoint.
-    /// </summary>
     public void Dispose()
     {
         _channel.Dispose();
     }
 
-    /// <summary>
-    /// Sends the given protobuf request containing OpenTelemetry logs
-    /// to an gRPC/HTTP endpoint.
-    /// </summary>
-    Task IExporter.Export(ExportLogsServiceRequest request)
+    public void Export(ExportLogsServiceRequest request)
+    {
+        _client.Export(request, _headers);
+    }
+
+    public Task ExportAsync(ExportLogsServiceRequest request)
     {
         return _client.ExportAsync(request, _headers).ResponseAsync;
     }

@@ -60,25 +60,10 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
         (_exporter as IDisposable)?.Dispose();
     }
 
-    Task Export(ExportLogsServiceRequest request)
-    {
-        return _exporter.Export(request);
-    }
-
     void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData, _activityContextCollector);
-        try
-        {
-            request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
-        }
-        catch (Exception ex)
-        {
-            // TODO: this seems like an artifact of the early development process, we should avoid try/catch here if
-            // we expect the line above to be infallible.
-            
-            SelfLog.WriteLine("Log record could not be added to ExportLogsServiceRequest: {0}", ex);
-        }
+        request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
     }
 
     /// <summary>
@@ -94,7 +79,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
             AddLogEventToRequest(logEvent, request);
         }
 
-        return Export(request);
+        return _exporter.ExportAsync(request);
     }
 
     /// <summary>
@@ -105,8 +90,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     {
         var request = _requestTemplate.Clone();
         AddLogEventToRequest(logEvent, request);
-        Export(request)
-            .ContinueWith(t => SelfLog.WriteLine("Exception while emitting event from {0}: {1}", this, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+        _exporter.Export(request);
     }
 
     /// <summary>
