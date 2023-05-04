@@ -27,13 +27,17 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// <summary>
     /// Send log events to an OTLP exporter.
     /// </summary>
+    /// <param name="loggerSinkConfiguration">
+    /// The `WriteTo` configuration object.
+    /// </param>
+    /// <param name="configure">The configuration callback.</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
-        Action<OpenTelemetrySinkOptions> configure)
+        Action<BatchedOpenTelemetrySinkOptions> configure)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        var options = new OpenTelemetrySinkOptions();
+        var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
         var collector = new ActivityContextCollector();
@@ -48,11 +52,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             httpMessageHandler: options.HttpMessageHandler,
             activityContextCollector: collector);
 
-        ILogEventSink sink = openTelemetrySink;
-        if (options.BatchingOptions != null)
-        {
-            sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
-        }
+        ILogEventSink sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
 
         sink = new ActivityContextCollectorSink(collector, sink);
         
@@ -63,7 +63,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// Send log events to an OTLP exporter.
     /// </summary>
     /// <param name="loggerSinkConfiguration">
-    /// The logger configuration.
+    /// The `WriteTo` configuration object.
     /// </param>
     /// <param name="endpoint">
     /// The full URL of the OTLP exporter endpoint.
@@ -80,6 +80,67 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
 
         return loggerSinkConfiguration.OpenTelemetry(options =>
+        {
+            options.Endpoint = endpoint;
+            options.Protocol = protocol;
+        });
+    }
+    
+    /// <summary>
+    /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller.
+    /// </summary>
+    /// <param name="loggerAuditSinkConfiguration">
+    /// The `AuditTo` configuration object.
+    /// </param>
+    /// <param name="configure">The configuration callback.</param>
+    public static LoggerConfiguration OpenTelemetry(
+        this LoggerAuditSinkConfiguration loggerAuditSinkConfiguration,
+        Action<OpenTelemetrySinkOptions> configure)
+    {
+        if (configure == null) throw new ArgumentNullException(nameof(configure));
+
+        var options = new OpenTelemetrySinkOptions();
+        
+        configure(options);
+
+        var collector = new ActivityContextCollector();
+        
+        var openTelemetrySink = new OpenTelemetrySink(
+            endpoint: options.Endpoint,
+            protocol: options.Protocol,
+            formatProvider: options.FormatProvider,
+            resourceAttributes: options.ResourceAttributes,
+            headers: options.Headers,
+            includedData: options.IncludedData,
+            httpMessageHandler: options.HttpMessageHandler,
+            activityContextCollector: collector);
+
+        var sink = new ActivityContextCollectorSink(collector, openTelemetrySink);
+        
+        return loggerAuditSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
+    }
+    
+    /// <summary>
+    /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller.
+    /// </summary>
+    /// <param name="loggerAuditSinkConfiguration">
+    /// The `AuditTo` configuration object.
+    /// </param>
+    /// <param name="endpoint">
+    /// The full URL of the OTLP exporter endpoint.
+    /// </param>
+    /// <param name="protocol">
+    /// The OTLP protocol to use.
+    /// </param>
+    /// <returns>Logger configuration, allowing configuration to continue.</returns>
+    public static LoggerConfiguration OpenTelemetry(
+        this LoggerAuditSinkConfiguration loggerAuditSinkConfiguration,
+        string endpoint = OpenTelemetrySinkOptions.DefaultEndpoint,
+        OtlpProtocol protocol = OpenTelemetrySinkOptions.DefaultProtocol)
+    {
+        if (loggerAuditSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerAuditSinkConfiguration));
+
+        return loggerAuditSinkConfiguration.OpenTelemetry(options =>
         {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
