@@ -95,20 +95,20 @@ Log.Logger = new LoggerConfiguration()
 The following table provides the mapping between the Serilog log 
 events and the OpenTelemetry log records. 
 
-Serilog `LogEvent`               | OpenTelemetry `LogRecord`                 | Comments                                                                                      |
----------------------------------|-------------------------------------------|-----------------------------------------------------------------------------------------------| 
-`Exception.GetType().ToString()` | `Attributes["exception.type"]`            |                                                                                               |
-`Exception.Message`              | `Attributes["exception.message"]`         | Ignored if empty                                                                              |
-`Exception.StackTrace`           | `Attributes["exception.stacktrace"]`      | Value of `ex.ToString()`                                                                      |
-`Level`                          | `SeverityNumber`                          | Serilog levels are mapped to corresponding OpenTelemetry severities                           | 
-`Level.ToString()`               | `SeverityText`                            |                                                                                               |
-`Message`                        | `Body`                                    | Culture-specific formatting can be provided via sink configuration                            |
-`MessageTemplate`                | `Attributes["message_template.text"]`     | Requires `IncludedData.MessageTemplateText` (enabled by default)                              |
-`MessageTemplate` (MD5)          | `Attributes["message_template.hash.md5"]` | Requires `IncludedData.MessageTemplateMD5HashAttribute`                                                   |
-`Properties`                     | `Attributes`                              | Each property is mapped to an attribute keeping the name; the value's structure is maintained |
-`SpanId` (`Activity.Current`)    | `SpanId`                                  | Requires `IncludedData.SpanId` (enabled by default)                                           |
-`Timestamp`                      | `TimeUnixNano`                            | .NET provides 100-nanosecond precision                                                        |
-`TraceId` (`Activity.Current`)   | `TraceId`                                 | Requires `IncludedData.TraceId` (enabled by default)                                          |
+Serilog `LogEvent`               | OpenTelemetry `LogRecord`                  | Comments                                                                                      |
+---------------------------------|--------------------------------------------|-----------------------------------------------------------------------------------------------| 
+`Exception.GetType().ToString()` | `Attributes["exception.type"]`             |                                                                                               |
+`Exception.Message`              | `Attributes["exception.message"]`          | Ignored if empty                                                                              |
+`Exception.StackTrace`           | `Attributes[ "exception.stacktrace"]`      | Value of `ex.ToString()`                                                                      |
+`Level`                          | `SeverityNumber`                           | Serilog levels are mapped to corresponding OpenTelemetry severities                           | 
+`Level.ToString()`               | `SeverityText`                             |                                                                                               |
+`Message`                        | `Body`                                     | Culture-specific formatting can be provided via sink configuration                            |
+`MessageTemplate`                | `Attributes[ "message_template.text"]`     | Requires `IncludedData. MessageTemplateText` (enabled by default)                             |
+`MessageTemplate` (MD5)          | `Attributes[ "message_template.hash.md5"]` | Requires `IncludedData. MessageTemplateMD5 HashAttribute`                                     |
+`Properties`                     | `Attributes`                               | Each property is mapped to an attribute keeping the name; the value's structure is maintained |
+`SpanId` (`Activity.Current`)    | `SpanId`                                   | Requires `IncludedData.SpanId` (enabled by default)                                           |
+`Timestamp`                      | `TimeUnixNano`                             | .NET provides 100-nanosecond precision                                                        |
+`TraceId` (`Activity.Current`)   | `TraceId`                                  | Requires `IncludedData.TraceId` (enabled by default)                                          |
 
 ### Configuring included data
 
@@ -120,7 +120,8 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
         options.Endpoint = "http://127.0.0.1:4317/v1/logs";
-        options.IncludedData: IncludedData.MessageTemplate | IncludedData.TraceId | IncludedData.SpanId;
+        options.IncludedData: IncludedData.MessageTemplate |
+                              IncludedData.TraceId | IncludedData.SpanId;
     })
     .CreateLogger();
 ```
