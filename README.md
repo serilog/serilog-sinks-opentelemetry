@@ -163,7 +163,8 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 ```
 
-The default is to include all three fields.
+The example shows the default value; `IncludedData.MessageTemplateMD5HashAttribute` can
+also be used to add the MD5 hash of the message template.
 
 ## Example
 
