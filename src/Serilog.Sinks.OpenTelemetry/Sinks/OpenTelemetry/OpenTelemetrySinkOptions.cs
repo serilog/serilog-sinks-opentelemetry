@@ -81,7 +81,7 @@ public class OpenTelemetrySinkOptions
 }
 
 /// <summary>
-/// Options type for 
+/// Options type for controlling batching behavior.
 /// </summary>
 public class BatchedOpenTelemetrySinkOptions : OpenTelemetrySinkOptions
 {

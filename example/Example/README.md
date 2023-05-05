@@ -11,8 +11,11 @@ testing. This **must** be deployed before running the program.
 
 ### Prerequisites
 
-You must have docker installed locally with a kind cluster running
-within it. The Kubernetes CLI `kubectl` must also be available.
+Ensure that the following tools are available on your machine:
+
+- Docker ([installation](https://docs.docker.com/get-docker/))
+- Kind ([installation](https://kind.sigs.k8s.io/docs/user/quick-start/))
+- Kubernetes CLI `kubectl` ([installation](https://kubernetes.io/docs/tasks/tools/))
 
 ### Manifests
 
@@ -31,11 +34,11 @@ within it. The Kubernetes CLI `kubectl` must also be available.
 ### Start Collector
 
 From the this subdirectory, run the command `kubectl apply -f k8s`.
-You should see two resources created. One should be a pod with a name
-starting with "collector".
+You should see two resources created. One should be a pod named
+"collector".
 
 To make the **ports visible on your local machine**, forward the
-ports with by running the command in a separate terminal (or in 
+ports with by running this command in a separate terminal (or in 
 the background):
 
 ```sh
@@ -173,3 +176,15 @@ Span ID: d809a6ccef5b691e
 Flags: 0
 	{"kind": "exporter", "data_type": "logs", "name": "logging"}
 ```
+
+## Troubleshooting
+
+If you do not see the logs appearing in the collector, here are some common
+problems and solutions:
+
+- Ensure that the collector is running properly. Tail the collector logs
+  and look for any errors. Correct any identified issues.
+- Ensure that the collector endpoints are accessible. Did you run the 
+  "port-forward" command? Are there any errors about conflicting ports?
+- If you've modified the example, verify that the endpoint is correct 
+  and that you are generating logs.

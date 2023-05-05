@@ -1,9 +1,10 @@
 # Serilog.Sinks.OpenTelemetry [![Build status](https://ci.appveyor.com/api/projects/status/sqmrvw34pcuatwl5/branch/dev?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-opentelemetry/branch/dev) [![NuGet Version](http://img.shields.io/nuget/vpre/Serilog.Sinks.OpenTelemetry.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.OpenTelemetry/)
 
 This Serilog sink will transform Serilog events into OpenTelemetry
-`LogRecord`s and send them to an OpenTelemetry gRPC endpoint.
+`LogRecord`s and send them as a protobuf payload to an OpenTelemetry
+OTLP (gRPC or HTTP) endpoint.
 
-OpenTelemetry attributes support for scalar values, arrays, and maps.
+OpenTelemetry supports attributes with scalar values, arrays, and maps.
 Serilog does as well. Consequently, the sink does a one-to-one
 mapping between Serilog properties and OpenTelemetry attributes.
 There is no flattening, renaming, or other modifications done to the
@@ -29,22 +30,59 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 ```
 
-Then use the `Log.Information(...)` and similar methods to send 
-transformed logs to a local OpenTelemetry (OTLP/gRPC) endpoint.
+Generate logs using the `Log.Information(...)` and similar methods to
+send transformed logs to a local OpenTelemetry OTLP endpoint.
 
-A more complete configuration would specify `Endpoint` and
-`ResourceAttributes` as shown in the examples below.~~~~
+A more complete configuration would specify `Endpoint`, `Protocol`,
+and other parameters, such as`ResourceAttributes`, as shown in the
+examples below.
+
+## Configuration
+
+This sink supports two configuration styles: inline and options. The
+inline configuration looks like:
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(
+        endpoint: "http://127.0.0.1:4317/v1/logs",
+        protocol: OtlpProtocol.GrpcProtobuf)
+    .CreateLogger();
+```
+
+This configuration is appropriate only for simple, local logging 
+setups.
+
+More complicated use cases will need to use the options
+configuration, which looks like:
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.Endpoint = endpoint;
+        options.Protocol = protocol;
+    })
+    .CreateLogger();
+
+```
+
+This supports the sink's full set of configuration options. See the
+`OpenTelemetrySinkOptions.cs` file for the full set of options. 
+Some of the more imporant parameters are discussed in the following
+sections.
 
 ### Endpoint and protocol
 
 The default endpoint is `http://localhost:4317/v1/logs`, which will send
-logs to an OpenTelemetry collector running on the same machine over the
-gRPC protocol. This is appropriate for testing or for using a local
-OpenTelemetry collector as a proxy for a downstream logging service.
+logs formatted as a protobuf payload to an OpenTelemetry collector
+running on the same machine over the gRPC protocol. This is appropriate
+for testing or for using a local OpenTelemetry collector as a proxy for
+a downstream logging service.
 
 In most production scenarios, you will want to set an endpoint. To do so,
 add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call. This
-must be a full URL to an OTLP/gRPC endpoint.
+must be the **full** URL to an OTLP/gRPC endpoint.
 
 You may also want to set the protocol explicitly. The supported values
 are:
@@ -64,7 +102,7 @@ may contain "resource attributes" and are emitted for all logs flowing through
 the configured logger.
 
 These resource attributes may be provided as a `Dictionary<string, Object>`
-when configuring a logger. While OpenTelemetry allows resource attributes
+when configuring a logger. OpenTelemetry allows resource attributes
 with rich values; however, this implementation _only_ supports resource 
 attributes with primitive values. 
 
@@ -126,10 +164,13 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 ```
 
+The example shows the default value; `IncludedData.MessageTemplateMD5HashAttribute` can
+also be used to add the MD5 hash of the message template.
+
 ## Example
 
-The `example/Example` subdirectory contains an 
-example application that logs to a local OpenTelemetry collector. See the
-README in that directory for instructions on running the example.
+The `example/Example` subdirectory contains an example application that logs
+to a local [OpenTelemetry collector](https://opentelemetry.io/docs/collector/).
+See the README in that directory for instructions on how to run the example.
 
 _Copyright &copy; Serilog Contributors - Provided under the [Apache License, Version 2.0](http://apache.org/licenses/LICENSE-2.0.html)._
