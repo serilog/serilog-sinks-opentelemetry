@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <IsPackable>False</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +16,7 @@
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="PublicApiGenerator" Version="11.0.0" />
     <PackageReference Include="Shouldly" Version="4.2.1" />
+    <PackageReference Include="OpenTelemetry.SemanticConventions" Version="1.0.0-rc9.9" />
   </ItemGroup>
 
 </Project>
