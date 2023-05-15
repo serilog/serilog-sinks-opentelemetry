@@ -14,7 +14,6 @@
 
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
-using OpenTelemetry.Trace;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.Formatting;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
@@ -23,20 +22,6 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 static class LogRecordBuilder
 {
-    /// <summary>
-    /// A https://messagetemplates.org template, as text. For example, the string <c>Hello {Name}!</c>.
-    /// </summary>
-    /// <remarks>See also https://opentelemetry.io/docs/reference/specification/logs/semantic_conventions/ and
-    /// <see cref="TraceSemanticConventions"/>.</remarks>
-    public  const string AttributeMessageTemplateText = "message_template.text";
-
-    /// <summary>
-    /// A https://messagetemplates.org template, hashed using MD5 and encoded as a 128-bit hexadecimal value.
-    /// </summary>
-    /// <remarks>See also https://opentelemetry.io/docs/reference/specification/logs/semantic_conventions/ and
-    /// <see cref="TraceSemanticConventions"/>.</remarks>
-    public const string AttributeMessageTemplateMD5Hash = "message_template.hash.md5";
-
     public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, ActivityContextCollector activityContextCollector)
     {
         var logRecord = new LogRecord();
@@ -75,10 +60,7 @@ static class LogRecordBuilder
         foreach (var property in logEvent.Properties)
         {
             var v = PrimitiveConversions.ToOpenTelemetryAnyValue(property.Value);
-            if (v != null)
-            {
-                logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(property.Key, v));
-            }
+            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(property.Key, v));
         }
     }
 
@@ -94,16 +76,16 @@ static class LogRecordBuilder
         {
             var attrs = logRecord.Attributes;
 
-            attrs.Add(PrimitiveConversions.NewStringAttribute(TraceSemanticConventions.AttributeExceptionType, ex.GetType().ToString()));
+            attrs.Add(PrimitiveConversions.NewStringAttribute(SemanticConventions.AttributeExceptionType, ex.GetType().ToString()));
 
             if (ex.Message != "")
             {
-                attrs.Add(PrimitiveConversions.NewStringAttribute(TraceSemanticConventions.AttributeExceptionMessage, ex.Message));
+                attrs.Add(PrimitiveConversions.NewStringAttribute(SemanticConventions.AttributeExceptionMessage, ex.Message));
             }
 
             if (ex.ToString() != "")
             {
-                attrs.Add(PrimitiveConversions.NewStringAttribute(TraceSemanticConventions.AttributeExceptionStacktrace, ex.ToString()));
+                attrs.Add(PrimitiveConversions.NewStringAttribute(SemanticConventions.AttributeExceptionStacktrace, ex.ToString()));
             }
         }
     }
@@ -130,7 +112,7 @@ static class LogRecordBuilder
 
         if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)
         {
-            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(AttributeMessageTemplateText, new()
+            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(SemanticConventions.AttributeMessageTemplateText, new()
             {
                 StringValue = logEvent.MessageTemplate.Text
             }));
@@ -138,7 +120,7 @@ static class LogRecordBuilder
 
         if ((includedFields & IncludedData.MessageTemplateMD5HashAttribute) != IncludedData.None)
         {
-            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(AttributeMessageTemplateMD5Hash, new()
+            logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(SemanticConventions.AttributeMessageTemplateMD5Hash, new()
             {
                 StringValue = PrimitiveConversions.Md5Hash(logEvent.MessageTemplate.Text)
             }));

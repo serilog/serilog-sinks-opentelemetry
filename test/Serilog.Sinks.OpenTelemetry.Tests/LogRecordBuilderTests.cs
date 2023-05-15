@@ -123,7 +123,7 @@ public class LogRecordBuilderTests
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, new());
         
         var expectedHash = PrimitiveConversions.Md5Hash(Some.TestMessageTemplate);
-        var expectedAttribute = new KeyValue { Key = LogRecordBuilder.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
+        var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
         Assert.Contains(expectedAttribute, logRecord.Attributes);
     }
     
@@ -134,7 +134,7 @@ public class LogRecordBuilderTests
         
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new());
 
-        var expectedAttribute = new KeyValue { Key = LogRecordBuilder.AttributeMessageTemplateText, Value = new() { StringValue = Some.TestMessageTemplate }};
+        var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateText, Value = new() { StringValue = Some.TestMessageTemplate }};
         Assert.Contains(expectedAttribute, logRecord.Attributes);
     }
     
