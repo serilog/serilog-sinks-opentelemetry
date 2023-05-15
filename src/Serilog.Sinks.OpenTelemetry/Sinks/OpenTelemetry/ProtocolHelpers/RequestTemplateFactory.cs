@@ -36,14 +36,16 @@ static class RequestTemplateFactory
         return request;
     }
     
-    static string? GetScopeName()
+    static string GetScopeName()
     {
-        return Assembly.GetExecutingAssembly().GetName().Name;
+        return typeof(RequestTemplateFactory).Assembly.GetName().Name
+            // Best we know about this, if it occurs.
+            ?? throw new InvalidOperationException("Sink assembly name could not be retrieved.");
     }
 
-    static string? GetScopeVersion()
+    static string GetScopeVersion()
     {
-        return Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+        return typeof(RequestTemplateFactory).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
     }
 
     static InstrumentationScope CreateInstrumentationScope()
