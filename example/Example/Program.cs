@@ -46,7 +46,7 @@ static class Program
 
         using (source.StartActivity("grpc-loop"))
         {
-            SendLogs(grpcLogger, "grpc/protobuf");
+            SendLogs(grpcLogger, "grpc");
         }
 
         using (source.StartActivity("http-loop"))
