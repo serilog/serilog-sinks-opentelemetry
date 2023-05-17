@@ -4,6 +4,9 @@ This Serilog sink will transform Serilog events into OpenTelemetry
 `LogRecord`s and send them as a protobuf payload to an OpenTelemetry
 OTLP (gRPC or HTTP) endpoint.
 
+The sink aims for full compliance with the OpenTelemetry Logs protocol. It
+does not depend on the OpenTelemetry SDK or .NET API.
+
 OpenTelemetry supports attributes with scalar values, arrays, and maps.
 Serilog does as well. Consequently, the sink does a one-to-one
 mapping between Serilog properties and OpenTelemetry attributes.
