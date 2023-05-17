@@ -46,7 +46,7 @@ inline configuration looks like:
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(
         endpoint: "http://127.0.0.1:4317/v1/logs",
-        protocol: OtlpProtocol.GrpcProtobuf)
+        protocol: OtlpProtocol.Grpc)
     .CreateLogger();
 ```
 
@@ -87,7 +87,7 @@ must be the **full** URL to an OTLP/gRPC endpoint.
 You may also want to set the protocol explicitly. The supported values
 are:
 
-- `OtlpProtocol.GrpcProtobuf`: Sends a protobuf representation of the 
+- `OtlpProtocol.Grpc`: Sends a protobuf representation of the 
    OpenTelemetry Logs over a gRPC connection.
 - `OtlpProtocol.HttpProtobuf`: Sends a protobuf representation of the
    OpenTelemetry Logs over an HTTP connection.

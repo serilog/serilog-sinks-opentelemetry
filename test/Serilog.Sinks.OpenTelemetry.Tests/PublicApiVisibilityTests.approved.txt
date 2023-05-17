@@ -39,7 +39,7 @@ namespace Serilog.Sinks.OpenTelemetry
     }
     public enum OtlpProtocol
     {
-        GrpcProtobuf = 0,
+        Grpc = 0,
         HttpProtobuf = 1,
     }
 }

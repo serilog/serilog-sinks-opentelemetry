@@ -41,7 +41,7 @@ static class Program
         var source = new ActivitySource("test.example", "1.0.0");
 
         // Create the loggers to send to gRPC and to HTTP.
-        var grpcLogger = GetLogger(OtlpProtocol.GrpcProtobuf);
+        var grpcLogger = GetLogger(OtlpProtocol.Grpc);
         var httpLogger = GetLogger(OtlpProtocol.HttpProtobuf);
 
         using (source.StartActivity("grpc-loop"))
