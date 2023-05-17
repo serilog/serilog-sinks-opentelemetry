@@ -45,8 +45,8 @@ inline configuration looks like:
 ```csharp
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(
-        endpoint: "http://127.0.0.1:4317/v1/logs",
-        protocol: OtlpProtocol.Grpc)
+        endpoint: "http://127.0.0.1:4318/v1/logs",
+        protocol: OtlpProtocol.HttpProtobuf)
     .CreateLogger();
 ```
 
@@ -60,8 +60,8 @@ configuration, which looks like:
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
-        options.Endpoint = endpoint;
-        options.Protocol = protocol;
+        options.Endpoint = "http://127.0.0.1:4318/v1/logs";
+        options.Protocol = OtlpProtocol.HttpProtobuf;
     })
     .CreateLogger();
 
@@ -74,25 +74,24 @@ sections.
 
 ### Endpoint and protocol
 
-The default endpoint is `http://localhost:4317/v1/logs`, which will send
-logs formatted as a protobuf payload to an OpenTelemetry collector
-running on the same machine over the gRPC protocol. This is appropriate
-for testing or for using a local OpenTelemetry collector as a proxy for
-a downstream logging service.
+The default endpoint is `http://localhost:4317`, which will send
+logs to an OpenTelemetry collector running on the same machine over
+the gRPC protocol. This is appropriate for testing or for using a 
+local OpenTelemetry collector as a proxy for a downstream logging service.
 
 In most production scenarios, you will want to set an endpoint. To do so,
-add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call. This
-must be the **full** URL to an OTLP/gRPC endpoint.
+add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call.
 
 You may also want to set the protocol explicitly. The supported values
 are:
 
 - `OtlpProtocol.Grpc`: Sends a protobuf representation of the 
-   OpenTelemetry Logs over a gRPC connection.
+   OpenTelemetry Logs over a gRPC connection (the default).
 - `OtlpProtocol.HttpProtobuf`: Sends a protobuf representation of the
    OpenTelemetry Logs over an HTTP connection.
 
-Sending OpenTelemetry logs as a JSON payload is not currently supported. 
+When the `OtlpProtocol.HttpProtobuf` option is specified, the endpoint
+URL **must** include the full path, for example `http://localhost:4318/v1/logs`.
 
 ### Resource attributes
 
@@ -116,7 +115,7 @@ the logger is configured.
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
-        options.Endpoint = "http://127.0.0.1:4317/v1/logs";
+        options.Endpoint = "http://127.0.0.1:4317";
         options.ResourceAttributes = new Dictionary<string, object>
         {
             ["service.name"] = "test-logging-service",
@@ -157,14 +156,14 @@ the Serilog `LogEvent` and .NET `Activity` context via the `IncludedData` flags 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
-        options.Endpoint = "http://127.0.0.1:4317/v1/logs";
+        options.Endpoint = "http://127.0.0.1:4317";
         options.IncludedData: IncludedData.MessageTemplate |
                               IncludedData.TraceId | IncludedData.SpanId;
     })
     .CreateLogger();
 ```
 
-The example shows the default value; `IncludedData.MessageTemplateMD5HashAttribute` can
+The example shows the default value; `IncludedData.MessageTemplateMD5HashAttribute`~~~~ can
 also be used to add the MD5 hash of the message template.
 
 ## Example

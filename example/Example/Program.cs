@@ -80,8 +80,9 @@ static class Program
 
     static ILogger GetLogger(OtlpProtocol protocol)
     {
-        var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 4317;
-        var endpoint = $"http://localhost:{port}/v1/logs";
+        var endpoint = protocol == OtlpProtocol.HttpProtobuf ?
+            "http://localhost:4318/v1/logs" :
+            "http://localhost:4317";
 
         return new LoggerConfiguration()
             .MinimumLevel.Information()

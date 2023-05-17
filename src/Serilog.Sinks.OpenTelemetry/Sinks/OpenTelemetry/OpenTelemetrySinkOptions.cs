@@ -24,7 +24,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 /// </summary>
 public class OpenTelemetrySinkOptions
 {
-    internal const string DefaultEndpoint = "http://localhost:4317/v1/logs";
+    internal const string DefaultEndpoint = "http://localhost:4317";
     internal const OtlpProtocol DefaultProtocol = OtlpProtocol.Grpc;
 
     const IncludedData DefaultIncludedData = IncludedData.MessageTemplateTextAttribute |
