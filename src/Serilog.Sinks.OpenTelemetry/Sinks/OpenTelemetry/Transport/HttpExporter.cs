@@ -15,13 +15,13 @@
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
-namespace Serilog.Sinks.OpenTelemetry;
+namespace Serilog.Sinks.OpenTelemetry.Transport;
 
 /// <summary>
 /// Implements an IExporter that sends OpenTelemetry Log requests
 /// over HTTP using Protobuf encoding.
 /// </summary>
-sealed class HttpExporter : IExporter, IDisposable
+sealed class HttpProtobufExporter : IExporter, IDisposable
 {
     readonly HttpClient _client;
 
@@ -39,7 +39,7 @@ sealed class HttpExporter : IExporter, IDisposable
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
-    public HttpExporter(string endpoint, IDictionary<string, string>? headers, HttpMessageHandler? httpMessageHandler = null)
+    public HttpProtobufExporter(string endpoint, IDictionary<string, string>? headers, HttpMessageHandler? httpMessageHandler = null)
     {
         _client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
         _client.BaseAddress = new Uri(endpoint);

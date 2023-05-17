@@ -14,7 +14,7 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
-namespace Serilog.Sinks.OpenTelemetry;
+namespace Serilog.Sinks.OpenTelemetry.Transport;
 
 interface IExporter
 {

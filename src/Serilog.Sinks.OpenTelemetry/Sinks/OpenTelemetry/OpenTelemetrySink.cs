@@ -14,9 +14,9 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using Serilog.Core;
-using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
+using Serilog.Sinks.OpenTelemetry.Transport;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OpenTelemetry;
@@ -28,27 +28,21 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
     readonly ActivityContextCollector _activityContextCollector;
+    readonly Func<IDisposable>? _suppressInstrumentationScope;
 
     public OpenTelemetrySink(
-       string endpoint,
-       OtlpProtocol protocol,
-       IFormatProvider? formatProvider,
-       IDictionary<string, object>? resourceAttributes,
-       IDictionary<string, string>? headers,
-       IncludedData includedData,
-       HttpMessageHandler? httpMessageHandler, 
-       ActivityContextCollector activityContextCollector) 
+        IExporter exporter,
+        IFormatProvider? formatProvider,
+        IDictionary<string, object>? resourceAttributes,
+        IncludedData includedData,
+        ActivityContextCollector activityContextCollector,
+        Func<IDisposable>? suppressInstrumentationScope)
     {
-        _exporter = protocol switch
-        {
-            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers, httpMessageHandler),
-            OtlpProtocol.GrpcProtobuf => new GrpcExporter(endpoint, headers, httpMessageHandler),
-            _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
-        };
-
+        _exporter = exporter;
         _formatProvider = formatProvider;
         _includedData = includedData;
         _activityContextCollector = activityContextCollector;
+        _suppressInstrumentationScope = suppressInstrumentationScope;
         _requestTemplate = RequestTemplateFactory.CreateRequestTemplate(resourceAttributes);
     }
 
@@ -70,7 +64,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     /// Transforms and sends the given batch of LogEvent objects
     /// to an OTLP endpoint.
     /// </summary>
-    public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
+    public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
         var request = _requestTemplate.Clone();
 
@@ -79,7 +73,8 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
             AddLogEventToRequest(logEvent, request);
         }
 
-        return _exporter.ExportAsync(request);
+        using var _ = _suppressInstrumentationScope?.Invoke();
+        await _exporter.ExportAsync(request);
     }
 
     /// <summary>
@@ -90,6 +85,8 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     {
         var request = _requestTemplate.Clone();
         AddLogEventToRequest(logEvent, request);
+
+        using var _ = _suppressInstrumentationScope?.Invoke();
         _exporter.Export(request);
     }
 

@@ -27,6 +27,7 @@ namespace Serilog.Sinks.OpenTelemetry
     public class OpenTelemetrySinkOptions
     {
         public OpenTelemetrySinkOptions() { }
+        public System.Func<System.IDisposable>? BeginSuppressInstrumentationScope { get; set; }
         public string Endpoint { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }

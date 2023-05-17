@@ -78,6 +78,17 @@ public class OpenTelemetrySinkOptions
     /// to be changed at runtime.
     /// </summary>
     public LoggingLevelSwitch? LevelSwitch { get; set; }
+    
+    /// <summary>
+    /// A callback that may be used to suppress further instrumentation when the sink makes outbound network requests.
+    /// </summary>
+    /// <example>
+    /// If using the OpenTelemetry SDK, set this value to <c>SuppressInstrumentationScope.Begin</c>:
+    /// <code>
+    /// options.BeginSuppressInstrumentationScope = () => OpenTelemetry.SuppressInstrumentationScope.Begin();
+    /// </code>
+    /// </example>
+    public Func<IDisposable>? BeginSuppressInstrumentationScope { get; set; }
 }
 
 /// <summary>

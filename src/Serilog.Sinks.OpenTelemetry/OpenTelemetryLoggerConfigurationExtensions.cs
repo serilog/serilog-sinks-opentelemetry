@@ -15,6 +15,7 @@
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry.Transport;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog;
@@ -41,16 +42,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         configure(options);
 
         var collector = new ActivityContextCollector();
-        
-        var openTelemetrySink = new OpenTelemetrySink(
-            endpoint: options.Endpoint,
-            protocol: options.Protocol,
-            formatProvider: options.FormatProvider,
-            resourceAttributes: options.ResourceAttributes,
-            headers: options.Headers,
-            includedData: options.IncludedData,
-            httpMessageHandler: options.HttpMessageHandler,
-            activityContextCollector: collector);
+
+        var openTelemetrySink = CreateOpenTelemetrySink(options, collector);
 
         ILogEventSink sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
 
@@ -104,22 +97,14 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         configure(options);
 
         var collector = new ActivityContextCollector();
-        
-        var openTelemetrySink = new OpenTelemetrySink(
-            endpoint: options.Endpoint,
-            protocol: options.Protocol,
-            formatProvider: options.FormatProvider,
-            resourceAttributes: options.ResourceAttributes,
-            headers: options.Headers,
-            includedData: options.IncludedData,
-            httpMessageHandler: options.HttpMessageHandler,
-            activityContextCollector: collector);
+
+        var openTelemetrySink = CreateOpenTelemetrySink(options, collector);
 
         var sink = new ActivityContextCollectorSink(collector, openTelemetrySink);
         
         return loggerAuditSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
-    
+
     /// <summary>
     /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller.
     /// </summary>
@@ -145,5 +130,20 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             options.Endpoint = endpoint;
             options.Protocol = protocol;
         });
+    }
+    
+    static OpenTelemetrySink CreateOpenTelemetrySink(OpenTelemetrySinkOptions options, ActivityContextCollector collector)
+    {
+        var exporter = Exporter.Create(options.Endpoint, options.Protocol, options.Headers, options.HttpMessageHandler);
+
+        var openTelemetrySink = new OpenTelemetrySink(
+            exporter: exporter,
+            formatProvider: options.FormatProvider,
+            resourceAttributes: options.ResourceAttributes,
+            includedData: options.IncludedData,
+            activityContextCollector: collector,
+            suppressInstrumentationScope: options.BeginSuppressInstrumentationScope);
+
+        return openTelemetrySink;
     }
 }
