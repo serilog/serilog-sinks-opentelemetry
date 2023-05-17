@@ -14,7 +14,6 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using Serilog.Core;
-using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Serilog.Sinks.PeriodicBatching;
@@ -33,8 +32,8 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
        string endpoint,
        OtlpProtocol protocol,
        IFormatProvider? formatProvider,
-       IDictionary<string, object>? resourceAttributes,
-       IDictionary<string, string>? headers,
+       IReadOnlyDictionary<string, object> resourceAttributes,
+       IReadOnlyDictionary<string, string> headers,
        IncludedData includedData,
        HttpMessageHandler? httpMessageHandler, 
        ActivityContextCollector activityContextCollector) 
@@ -49,6 +48,12 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
         _formatProvider = formatProvider;
         _includedData = includedData;
         _activityContextCollector = activityContextCollector;
+
+        if ((includedData & IncludedData.SpecRequiredResourceAttributes) == IncludedData.SpecRequiredResourceAttributes)
+        {
+            resourceAttributes = RequiredResourceAttributes.AddDefaults(resourceAttributes);
+        }
+
         _requestTemplate = RequestTemplateFactory.CreateRequestTemplate(resourceAttributes);
     }
 

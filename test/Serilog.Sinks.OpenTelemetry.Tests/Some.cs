@@ -19,6 +19,8 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 static class Some
 {
+    static int _nextInt;
+    
     public const string TestMessageTemplate = "Message template {Variable}";
 
     internal static LogEvent SerilogEvent(DateTimeOffset? timestamp = null, Exception? ex = null, string messageTemplate = TestMessageTemplate)
@@ -34,5 +36,15 @@ static class Some
             new List<LogEventProperty>{ new("Variable", new ScalarValue(42)) });
 
         return logEvent;
+    }
+
+    static int Int32()
+    {
+        return Interlocked.Increment(ref _nextInt);
+    }
+
+    public static string String()
+    {
+        return $"S_{Int32()}";
     }
 }

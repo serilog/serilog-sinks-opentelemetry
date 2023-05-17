@@ -25,7 +25,7 @@ static class RequestTemplateFactory
 {
     const string OpenTelemetrySchemaUrl = "https://opentelemetry.io/schemas/v1.13.0";
     
-    public static ExportLogsServiceRequest CreateRequestTemplate(IDictionary<string, object>? resourceAttributes)
+    public static ExportLogsServiceRequest CreateRequestTemplate(IReadOnlyDictionary<string, object> resourceAttributes)
     {
         var resourceLogs = CreateResourceLogs(resourceAttributes);
         resourceLogs.ScopeLogs.Add(CreateEmptyScopeLogs());
@@ -36,38 +36,18 @@ static class RequestTemplateFactory
         return request;
     }
     
-    static string GetScopeName()
-    {
-        return typeof(RequestTemplateFactory).Assembly.GetName().Name
-            // Best we know about this, if it occurs.
-            ?? throw new InvalidOperationException("Sink assembly name could not be retrieved.");
-    }
-
-    static string GetScopeVersion()
-    {
-        return typeof(RequestTemplateFactory).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-    }
-
     static InstrumentationScope CreateInstrumentationScope()
     {
-        var scope = new InstrumentationScope();
-
-        var scopeName = GetScopeName();
-        if (scopeName != null)
+        var scope = new InstrumentationScope
         {
-            scope.Name = scopeName;
-        }
-
-        var scopeVersion = GetScopeVersion();
-        if (scopeVersion != null)
-        {
-            scope.Version = scopeVersion;
-        }
+            Name = PackageIdentity.GetInstrumentationScopeName(),
+            Version = PackageIdentity.GetInstrumentationScopeVersion()
+        };
 
         return scope;
     }
 
-    static ResourceLogs CreateResourceLogs(IDictionary<string, object>? resourceAttributes)
+    static ResourceLogs CreateResourceLogs(IReadOnlyDictionary<string, object> resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -92,24 +72,18 @@ static class RequestTemplateFactory
         return scopeLogs;
     }
 
-    static RepeatedField<KeyValue> ToResourceAttributes(IDictionary<string, object>? resourceAttributes)
+    static RepeatedField<KeyValue> ToResourceAttributes(IReadOnlyDictionary<string, object> resourceAttributes)
     {
         var attributes = new RepeatedField<KeyValue>();
-        if (resourceAttributes != null)
+        foreach (var entry in resourceAttributes)
         {
-            foreach (var entry in resourceAttributes)
+            var v = PrimitiveConversions.ToOpenTelemetryPrimitive(entry.Value);
+            var kv = new KeyValue
             {
-                var v = PrimitiveConversions.ToOpenTelemetryPrimitive(entry.Value);
-                if (v != null)
-                {
-                    var kv = new KeyValue
-                    {
-                        Value = v,
-                        Key = entry.Key
-                    };
-                    attributes.Add(kv);
-                }
-            }
+                Value = v,
+                Key = entry.Key
+            };
+            attributes.Add(kv);
         }
         return attributes;
     }

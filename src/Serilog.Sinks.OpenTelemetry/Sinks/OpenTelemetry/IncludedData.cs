@@ -49,5 +49,11 @@ public enum IncludedData
     /// Include <c>SpanId</c> from <see cref="Activity.Current"/> as a top-level field. Supported on .NET 6.0 and greater only.
     /// </summary>
     /// <remarks>See also https://opentelemetry.io/docs/reference/specification/logs/data-model/#field-spanid.</remarks>
-    SpanIdField = 8
+    SpanIdField = 8,
+    
+    /// <summary>
+    /// Include default values for resource attributes marked as "required" in the OpenTelemetry spec. This currently
+    /// means <c>service.name</c> if not supplied, along with the <c>telemetry.sdk.*</c> group of attributes.
+    /// </summary>
+    SpecRequiredResourceAttributes = 16,
 }
