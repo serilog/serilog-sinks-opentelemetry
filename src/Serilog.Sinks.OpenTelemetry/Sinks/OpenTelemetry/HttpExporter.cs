@@ -39,16 +39,13 @@ sealed class HttpExporter : IExporter, IDisposable
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
-    public HttpExporter(string endpoint, IDictionary<string, string>? headers, HttpMessageHandler? httpMessageHandler = null)
+    public HttpExporter(string endpoint, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
     {
         _client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
         _client.BaseAddress = new Uri(endpoint);
-        if (headers != null)
+        foreach (var header in headers)
         {
-            foreach (var header in headers)
-            {
-                _client.DefaultRequestHeaders.Add(header.Key, header.Value);
-            }
+            _client.DefaultRequestHeaders.Add(header.Key, header.Value);
         }
     }
 

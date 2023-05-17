@@ -43,7 +43,7 @@ sealed class GrpcExporter : IExporter, IDisposable
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
-    public GrpcExporter(string endpoint, IDictionary<string, string>? headers,
+    public GrpcExporter(string endpoint, IReadOnlyDictionary<string, string> headers,
         HttpMessageHandler? httpMessageHandler = null)
     {
         var grpcChannelOptions = new GrpcChannelOptions();
@@ -55,14 +55,11 @@ sealed class GrpcExporter : IExporter, IDisposable
         
         _channel = GrpcChannel.ForAddress(endpoint, grpcChannelOptions);
         _client = new LogsService.LogsServiceClient(_channel);
+
         _headers = new Metadata();
-        
-        if (headers != null)
+        foreach (var header in headers)
         {
-            foreach (var header in headers)
-            {
-                _headers.Add(header.Key, header.Value);
-            }
+            _headers.Add(header.Key, header.Value);
         }
     }
 

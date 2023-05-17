@@ -15,7 +15,6 @@
 using System.Diagnostics;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -28,7 +27,8 @@ public class OpenTelemetrySinkOptions
     internal const OtlpProtocol DefaultProtocol = OtlpProtocol.GrpcProtobuf;
 
     const IncludedData DefaultIncludedData = IncludedData.MessageTemplateTextAttribute |
-                                             IncludedData.TraceIdField | IncludedData.SpanIdField;
+                                             IncludedData.TraceIdField | IncludedData.SpanIdField |
+                                             IncludedData.SpecRequiredResourceAttributes;
 
     /// <summary>
     /// The full URL of the OTLP exporter endpoint.
@@ -78,23 +78,4 @@ public class OpenTelemetrySinkOptions
     /// to be changed at runtime.
     /// </summary>
     public LoggingLevelSwitch? LevelSwitch { get; set; }
-}
-
-/// <summary>
-/// Options type for controlling batching behavior.
-/// </summary>
-public class BatchedOpenTelemetrySinkOptions : OpenTelemetrySinkOptions
-{
-    const int DefaultBatchSizeLimit = 1000, DefaultPeriodSeconds = 2, DefaultQueueLimit = 100000;
-
-    /// <summary>
-    /// Options that control the sending of asynchronous log batches. When <c>null</c> a batch size of 1 is used.
-    /// </summary>
-    public PeriodicBatchingSinkOptions BatchingOptions { get; } = new()
-    {
-        EagerlyEmitFirstEvent = true,
-        BatchSizeLimit = DefaultBatchSizeLimit,
-        Period = TimeSpan.FromSeconds(DefaultPeriodSeconds),
-        QueueLimit = DefaultQueueLimit
-    };
 }

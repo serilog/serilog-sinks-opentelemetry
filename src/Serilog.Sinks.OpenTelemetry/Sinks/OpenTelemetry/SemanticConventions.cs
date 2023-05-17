@@ -3,7 +3,7 @@
 /// <summary>
 /// Well-known attribute names.
 /// </summary>
-/// <remarks>See also https://opentelemetry.io/docs/reference/specification/logs/semantic_conventions/.</remarks>
+/// <remarks>See also https://opentelemetry.io/docs/specs/otel/logs/semantic_conventions/.</remarks>
 static class SemanticConventions
 {
     /// <summary>
@@ -30,4 +30,24 @@ static class SemanticConventions
     /// A https://messagetemplates.org template, hashed using MD5 and encoded as a 128-bit hexadecimal value.
     /// </summary>
     public const string AttributeMessageTemplateMD5Hash = "message_template.hash.md5";
+
+    /// <summary>
+    /// OpenTelemetry standard service name resource attribute.
+    /// </summary>
+    public const string AttributeServiceName = "service.name";
+
+    /// <summary>
+    /// OpenTelemetry standard SDK name attribute.
+    /// </summary>
+    public const string AttributeTelemetrySdkName = "telemetry.sdk.name";
+
+    /// <summary>
+    /// OpenTelemetry standard SDK language attribute.
+    /// </summary>
+    public const string AttributeTelemetrySdkLanguage = "telemetry.sdk.language";
+
+    /// <summary>
+    /// OpenTelemetry standard SDK version attribute.
+    /// </summary>
+    public const string AttributeTelemetrySdkVersion = "telemetry.sdk.version";
 }
