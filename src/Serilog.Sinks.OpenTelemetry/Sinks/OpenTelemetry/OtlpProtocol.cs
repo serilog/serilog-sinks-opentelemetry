@@ -22,7 +22,7 @@ public enum OtlpProtocol
     /// <summary>
     /// Sends OpenTelemetry data encoded as a protobuf message over gRPC.
     /// </summary>
-    GrpcProtobuf,
+    Grpc,
 
     /// <summary>
     /// Posts OpenTelemetry data encoded as a protobuf message over HTTP.

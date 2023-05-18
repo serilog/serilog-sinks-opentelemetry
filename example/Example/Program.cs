@@ -41,12 +41,12 @@ static class Program
         var source = new ActivitySource("test.example", "1.0.0");
 
         // Create the loggers to send to gRPC and to HTTP.
-        var grpcLogger = GetLogger(OtlpProtocol.GrpcProtobuf);
+        var grpcLogger = GetLogger(OtlpProtocol.Grpc);
         var httpLogger = GetLogger(OtlpProtocol.HttpProtobuf);
 
         using (source.StartActivity("grpc-loop"))
         {
-            SendLogs(grpcLogger, "grpc/protobuf");
+            SendLogs(grpcLogger, "grpc");
         }
 
         using (source.StartActivity("http-loop"))
@@ -80,8 +80,9 @@ static class Program
 
     static ILogger GetLogger(OtlpProtocol protocol)
     {
-        var port = protocol == OtlpProtocol.HttpProtobuf ? 4318 : 4317;
-        var endpoint = $"http://localhost:{port}/v1/logs";
+        var endpoint = protocol == OtlpProtocol.HttpProtobuf ?
+            "http://localhost:4318/v1/logs" :
+            "http://localhost:4317";
 
         return new LoggerConfiguration()
             .MinimumLevel.Information()
