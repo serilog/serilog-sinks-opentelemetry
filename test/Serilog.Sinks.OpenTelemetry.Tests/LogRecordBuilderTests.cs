@@ -81,6 +81,7 @@ public class LogRecordBuilderTests
         LogRecordBuilder.ProcessTimestamp(logRecord, logEvent);
 
         Assert.Equal(nowNano, logRecord.TimeUnixNano);
+        Assert.Equal(nowNano, logRecord.ObservedTimeUnixNano);
     }
 
     [Fact]

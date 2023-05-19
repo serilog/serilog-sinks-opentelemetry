@@ -67,6 +67,7 @@ static class LogRecordBuilder
     public static void ProcessTimestamp(LogRecord logRecord, LogEvent logEvent)
     {
         logRecord.TimeUnixNano = PrimitiveConversions.ToUnixNano(logEvent.Timestamp);
+        logRecord.ObservedTimeUnixNano = logRecord.TimeUnixNano;
     }
 
     public static void ProcessException(LogRecord logRecord, LogEvent logEvent)
