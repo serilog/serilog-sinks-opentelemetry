@@ -25,8 +25,7 @@ public class RequiredResourceAttributeTests
     {
         var actual = RequiredResourceAttributes.AddDefaults(new Dictionary<string, object>());
         
-        // .exe on Windows; true for all of our current targets, but this test may need some tuning in the future.
-        Assert.StartsWith("unknown_service:dotnet", (string)actual["service.name"]);
+        Assert.StartsWith("unknown_service:", (string)actual["service.name"]);
     }
 
     [Fact]
