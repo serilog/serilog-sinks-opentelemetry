@@ -24,14 +24,14 @@ foreach ($src in Get-ChildItem src/*) {
 	Write-Output "build: Packaging project in $src"
 
     & dotnet build -c Release --version-suffix=$buildSuffix
-    if($LASTEXITCODE -ne 0) { exit 1 }
+    if($LASTEXITCODE -ne 0) { throw "Failed" }
 
     if($suffix) {
         & dotnet pack -c Release --include-source --no-build -o ../../artifacts --version-suffix=$suffix
     } else {
         & dotnet pack -c Release --include-source --no-build -o ../../artifacts
     }
-    if($LASTEXITCODE -ne 0) { exit 1 }
+    if($LASTEXITCODE -ne 0) { throw "Failed" }
 
     Pop-Location
 }
@@ -42,7 +42,7 @@ foreach ($test in Get-ChildItem test/*.Tests) {
 	Write-Output "build: Testing project in $test"
 
     & dotnet test -c Release
-    if($LASTEXITCODE -ne 0) { exit 3 }
+    if($LASTEXITCODE -ne 0) { throw "Failed" }
 
     Pop-Location
 }
@@ -53,7 +53,7 @@ foreach ($test in ls test/*.PerformanceTests) {
 	Write-Output "build: Building performance test project in $test"
 
     & dotnet build -c Release
-    if($LASTEXITCODE -ne 0) { exit 2 }
+    if($LASTEXITCODE -ne 0) { throw "Failed" }
 
     Pop-Location
 }

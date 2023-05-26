@@ -149,17 +149,9 @@ static class PrimitiveConversions
         var kvList = new KeyValueList();
         map.KvlistValue = kvList;
 
-        // Per the OTLP protos, attribute keys MUST be unique.
-        var seen = new HashSet<string>();
-        
         foreach (var element in value.Elements)
         {
             var k = element.Key.Value?.ToString() ?? "null";
-            if (seen.Contains(k))
-                continue;
-
-            seen.Add(k);
-            
             var v = ToOpenTelemetryAnyValue(element.Value);
             kvList.Values.Add(new KeyValue
             {
@@ -189,9 +181,9 @@ static class PrimitiveConversions
         return value switch
         {
             ScalarValue scalar => ToOpenTelemetryScalar(scalar),
-            StructureValue map => ToOpenTelemetryMap(map),
-            SequenceValue array => ToOpenTelemetryArray(array),
-            DictionaryValue d => ToOpenTelemetryMap(d),
+            StructureValue structure => ToOpenTelemetryMap(structure),
+            SequenceValue sequence => ToOpenTelemetryArray(sequence),
+            DictionaryValue dictionary => ToOpenTelemetryMap(dictionary),
             _ => ToOpenTelemetryPrimitive(value.ToString()),
         };
     }
