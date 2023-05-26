@@ -120,8 +120,17 @@ static class PrimitiveConversions
         var map = new AnyValue();
         var kvList = new KeyValueList();
         map.KvlistValue = kvList;
+        
+        // Per the OTLP protos, attribute keys MUST be unique.
+        var seen = new HashSet<string>();
+        
         foreach (var prop in value.Properties)
         {
+            if (seen.Contains(prop.Name))
+                continue;
+
+            seen.Add(prop.Name);
+
             var v = ToOpenTelemetryAnyValue(prop.Value);
             var kv = new KeyValue
             {
@@ -134,29 +143,32 @@ static class PrimitiveConversions
         return map;
     }
 
-    public static AnyValue ToOpenTelemetryArray(DictionaryValue value)
+    public static AnyValue ToOpenTelemetryMap(DictionaryValue value)
     {
-        var array = new AnyValue();
-        var values = new ArrayValue();
-        array.ArrayValue = values;
+        var map = new AnyValue();
+        var kvList = new KeyValueList();
+        map.KvlistValue = kvList;
+
+        // Per the OTLP protos, attribute keys MUST be unique.
+        var seen = new HashSet<string>();
+        
         foreach (var element in value.Elements)
         {
-            var v = new AnyValue();
-            var kvList = new KeyValueList();
-            v.KvlistValue = kvList;
+            var k = element.Key.Value?.ToString() ?? "null";
+            if (seen.Contains(k))
+                continue;
+
+            seen.Add(k);
+            
+            var v = ToOpenTelemetryAnyValue(element.Value);
             kvList.Values.Add(new KeyValue
             {
-                Key = "Key",
-                Value = ToOpenTelemetryAnyValue(element.Key)
+                Key = k,
+                Value = v
             });
-            kvList.Values.Add(new KeyValue
-            {
-                Key = "Value",
-                Value = ToOpenTelemetryAnyValue(element.Value)
-            });
-            values.Values.Add(v);
         }
-        return array;
+        
+        return map;
     }
 
     public static AnyValue ToOpenTelemetryArray(SequenceValue value)
@@ -179,7 +191,7 @@ static class PrimitiveConversions
             ScalarValue scalar => ToOpenTelemetryScalar(scalar),
             StructureValue map => ToOpenTelemetryMap(map),
             SequenceValue array => ToOpenTelemetryArray(array),
-            DictionaryValue d => ToOpenTelemetryArray(d),
+            DictionaryValue d => ToOpenTelemetryMap(d),
             _ => ToOpenTelemetryPrimitive(value.ToString()),
         };
     }
