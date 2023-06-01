@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collector-config
+  labels:
+    application: collector
+data:
+  config.yaml: |
+    extensions:
+      basicauth/server:
+        htpasswd:
+          inline: |
+            user:abc123
+
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            auth:
+              authenticator: basicauth/server
+          http:
+            auth:
+              authenticator: basicauth/server
+
+    exporters:
+      logging:
+        verbosity: detailed
+        sampling_initial: 1
+        sampling_thereafter: 1
+
+    service:
+      extensions: [basicauth/server]
+      telemetry:
+        logs:
+          level: info
+        metrics:
+          level: none
+      pipelines:
+        logs:
+          receivers: [otlp]
+          exporters: [logging]
