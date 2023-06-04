@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Description>A Serilog sink that writes log events to an OpenTelemetry collector.</Description>
+		<Description>This Serilog sink transforms Serilog events into OpenTelemetry
+			logs and sends them to an OTLP (gRPC or HTTP) endpoint.</Description>
 		<VersionPrefix>1.0.1</VersionPrefix>
 		<Authors>Serilog Contributors</Authors>
 		<TargetFrameworks>net6.0;netstandard2.1;netstandard2.0;net462</TargetFrameworks>
