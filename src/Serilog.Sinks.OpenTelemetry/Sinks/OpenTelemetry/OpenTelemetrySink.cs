@@ -33,7 +33,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     public OpenTelemetrySink(
         IExporter exporter,
         IFormatProvider? formatProvider,
-        IDictionary<string, object>? resourceAttributes,
+        IReadOnlyDictionary<string, object> resourceAttributes,
         IncludedData includedData,
         ActivityContextCollector activityContextCollector,
         Func<IDisposable>? suppressInstrumentationScope)
@@ -43,6 +43,12 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
         _includedData = includedData;
         _activityContextCollector = activityContextCollector;
         _suppressInstrumentationScope = suppressInstrumentationScope;
+
+        if ((includedData & IncludedData.SpecRequiredResourceAttributes) == IncludedData.SpecRequiredResourceAttributes)
+        {
+            resourceAttributes = RequiredResourceAttributes.AddDefaults(resourceAttributes);
+        }
+
         _requestTemplate = RequestTemplateFactory.CreateRequestTemplate(resourceAttributes);
     }
 

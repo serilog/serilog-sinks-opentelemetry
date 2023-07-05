@@ -16,12 +16,12 @@ namespace Serilog.Sinks.OpenTelemetry.Transport;
 
 static class Exporter
 {
-    public static IExporter Create(string endpoint, OtlpProtocol protocol, IDictionary<string,string> headers, HttpMessageHandler? httpMessageHandler)
+    public static IExporter Create(string endpoint, OtlpProtocol protocol, IReadOnlyDictionary<string,string> headers, HttpMessageHandler? httpMessageHandler)
     {
         return protocol switch
         {
             OtlpProtocol.HttpProtobuf => new HttpProtobufExporter(endpoint, headers, httpMessageHandler),
-            OtlpProtocol.GrpcProtobuf => new GrpcExporter(endpoint, headers, httpMessageHandler),
+            OtlpProtocol.Grpc => new GrpcExporter(endpoint, headers, httpMessageHandler),
             _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
         };
     }

@@ -285,4 +285,37 @@ public class PrimitiveConversionsTests
         Assert.Equal(PrimitiveConversions.Md5Hash("alpha"), PrimitiveConversions.Md5Hash("alpha"));
         Assert.NotEqual(PrimitiveConversions.Md5Hash("alpha"), PrimitiveConversions.Md5Hash("beta"));
     }
+
+    [Fact]
+    public void DictionariesMapToMaps()
+    {
+        var dict = new DictionaryValue(new[]
+        {
+            new KeyValuePair<ScalarValue, LogEventPropertyValue>(new ScalarValue(0), new ScalarValue("test"))
+        });
+
+        var any = PrimitiveConversions.ToOpenTelemetryAnyValue(dict);
+
+        Assert.NotNull(any.KvlistValue);
+        var value = Assert.Single(any.KvlistValue.Values);
+        Assert.Equal("0", value.Key);
+        Assert.Equal("test", value.Value.StringValue);
+    }
+    
+    [Fact]
+    public void StructureKeysAreDeduplicated()
+    {
+        var structure = new StructureValue(new[]
+        {
+            new LogEventProperty("a", new ScalarValue("test")),
+            new LogEventProperty("a", new ScalarValue("test")),
+            new LogEventProperty("b", new ScalarValue("test"))
+        });
+
+        Assert.Equal(3, structure.Properties.Count);
+        
+        var any = PrimitiveConversions.ToOpenTelemetryAnyValue(structure);
+
+        Assert.Equal(2, any.KvlistValue.Values.Count);
+    }
 }

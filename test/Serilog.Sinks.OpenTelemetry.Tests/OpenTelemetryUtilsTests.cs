@@ -27,7 +27,7 @@ public class RequestTemplateFactoryTests
         var logEvent = Some.SerilogEvent();
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.None, new());
 
-        var requestTemplate = RequestTemplateFactory.CreateRequestTemplate(null);
+        var requestTemplate = RequestTemplateFactory.CreateRequestTemplate(new Dictionary<string, object>());
 
         var request = requestTemplate.Clone();
 

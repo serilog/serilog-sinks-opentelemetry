@@ -12,20 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Serilog.Sinks.PeriodicBatching;
+
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// Defines the OTLP protocol to use when sending OpenTelemetry data.
+/// Options type for controlling batching behavior.
 /// </summary>
-public enum OtlpProtocol
+public class BatchedOpenTelemetrySinkOptions : OpenTelemetrySinkOptions
 {
-    /// <summary>
-    /// Sends OpenTelemetry data encoded as a protobuf message over gRPC.
-    /// </summary>
-    Grpc,
+    const int DefaultBatchSizeLimit = 1000, DefaultPeriodSeconds = 2, DefaultQueueLimit = 100000;
 
     /// <summary>
-    /// Posts OpenTelemetry data encoded as a protobuf message over HTTP.
+    /// Options that control the sending of asynchronous log batches. When <c>null</c> a batch size of 1 is used.
     /// </summary>
-    HttpProtobuf
+    public PeriodicBatchingSinkOptions BatchingOptions { get; } = new()
+    {
+        EagerlyEmitFirstEvent = true,
+        BatchSizeLimit = DefaultBatchSizeLimit,
+        Period = TimeSpan.FromSeconds(DefaultPeriodSeconds),
+        QueueLimit = DefaultQueueLimit
+    };
 }

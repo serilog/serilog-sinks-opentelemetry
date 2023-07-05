@@ -42,7 +42,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         configure(options);
 
         var collector = new ActivityContextCollector();
-
         var openTelemetrySink = CreateOpenTelemetrySink(options, collector);
 
         ILogEventSink sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
@@ -97,7 +96,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         configure(options);
 
         var collector = new ActivityContextCollector();
-
         var openTelemetrySink = CreateOpenTelemetrySink(options, collector);
 
         var sink = new ActivityContextCollectorSink(collector, openTelemetrySink);
@@ -134,12 +132,12 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     
     static OpenTelemetrySink CreateOpenTelemetrySink(OpenTelemetrySinkOptions options, ActivityContextCollector collector)
     {
-        var exporter = Exporter.Create(options.Endpoint, options.Protocol, options.Headers, options.HttpMessageHandler);
+        var exporter = Exporter.Create(options.Endpoint, options.Protocol, new Dictionary<string, string>(options.Headers), options.HttpMessageHandler);
 
         var openTelemetrySink = new OpenTelemetrySink(
             exporter: exporter,
             formatProvider: options.FormatProvider,
-            resourceAttributes: options.ResourceAttributes,
+            resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
             includedData: options.IncludedData,
             activityContextCollector: collector,
             suppressInstrumentationScope: options.BeginSuppressInstrumentationScope);
