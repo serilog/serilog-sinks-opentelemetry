@@ -13,6 +13,7 @@
 		<RepositoryType>git</RepositoryType>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Serilog</RootNamespace>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
@@ -24,7 +25,8 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<None Include="..\..\assets\serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="" />
+		<None Include="../../assets/serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="/" />
+		<None Include="../../README.md" Pack="true" Visible="false" PackagePath="/" />
 		<PackageReference Include="Google.Protobuf" Version="3.21.11" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.50.0" />
 		<PackageReference Include="Serilog" Version="2.12.0" />
