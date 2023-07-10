@@ -27,13 +27,13 @@
 	<ItemGroup>
 		<None Include="../../assets/serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="/" />
 		<None Include="../../README.md" Pack="true" Visible="false" PackagePath="/" />
-		<PackageReference Include="Google.Protobuf" Version="3.21.11" />
-		<PackageReference Include="Grpc.Net.Client" Version="2.50.0" />
-		<PackageReference Include="Serilog" Version="2.12.0" />
+		<PackageReference Include="Google.Protobuf" Version="3.23.4" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.55.0" />
+		<PackageReference Include="Serilog" Version="3.0.1" />
 		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
 	</ItemGroup>
 	
 	<ItemGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.0" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
 	</ItemGroup>
 </Project>
