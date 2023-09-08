@@ -24,21 +24,43 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public class LogRecordBuilderTests
 {
-    [Fact]
-    public void TestProcessMessage()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void TestProcessMessage(bool includeFormattedMessage)
     {
         var logRecord = new LogRecord();
 
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: ""), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: ""), includeFormattedMessage, null);
         Assert.Null(logRecord.Body);
 
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: "\t\f "), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: "\t\f "), includeFormattedMessage, null);
         Assert.Null(logRecord.Body);
 
         const string message = "log message";
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: message), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: message), includeFormattedMessage, null);
         Assert.NotNull(logRecord.Body);
         Assert.Equal(message, logRecord.Body.StringValue);
+    }
+
+    [Fact]
+    public void TestProcessMessageUseFormattedMessage()
+    {
+        var logRecord = new LogRecord();
+
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(), true, null);
+        Assert.NotNull(logRecord.Body);
+        Assert.NotEqual(Some.TestMessageTemplate, logRecord.Body.StringValue);
+    }
+
+    [Fact]
+    public void TestProcessMessageUseMessageTemplate()
+    {
+        var logRecord = new LogRecord();
+
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(), false, null);
+        Assert.NotNull(logRecord.Body);
+        Assert.Equal(Some.TestMessageTemplate, logRecord.Body.StringValue);
     }
 
     [Fact]
@@ -121,7 +143,7 @@ public class LogRecordBuilderTests
     {
         var logEvent = Some.SerilogEvent(messageTemplate: Some.TestMessageTemplate);
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, true, new());
         
         var expectedHash = PrimitiveConversions.Md5Hash(Some.TestMessageTemplate);
         var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
@@ -133,7 +155,7 @@ public class LogRecordBuilderTests
     {
         var logEvent = Some.SerilogEvent(messageTemplate: Some.TestMessageTemplate);
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, true, new());
 
         var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateText, Value = new() { StringValue = Some.TestMessageTemplate }};
         Assert.Contains(expectedAttribute, logRecord.Attributes);
@@ -149,7 +171,7 @@ public class LogRecordBuilderTests
         var logEvent = Some.SerilogEvent();
         collector.CollectFor(logEvent);
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, true, collector);
 
         Assert.True(logRecord.TraceId.IsEmpty);
         Assert.True(logRecord.SpanId.IsEmpty);
@@ -175,7 +197,7 @@ public class LogRecordBuilderTests
         var logEvent = Some.SerilogEvent();
         collector.CollectFor(logEvent);
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, true, collector);
 
         Assert.Equal(logRecord.TraceId, PrimitiveConversions.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
         Assert.Equal(logRecord.SpanId, PrimitiveConversions.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));

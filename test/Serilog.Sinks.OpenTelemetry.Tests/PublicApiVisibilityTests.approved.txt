@@ -32,6 +32,7 @@ namespace Serilog.Sinks.OpenTelemetry
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }
         public System.Net.Http.HttpMessageHandler? HttpMessageHandler { get; set; }
+        public bool IncludeFormattedMessage { get; set; }
         public Serilog.Sinks.OpenTelemetry.IncludedData IncludedData { get; set; }
         public Serilog.Core.LoggingLevelSwitch? LevelSwitch { get; set; }
         public Serilog.Sinks.OpenTelemetry.OtlpProtocol Protocol { get; set; }

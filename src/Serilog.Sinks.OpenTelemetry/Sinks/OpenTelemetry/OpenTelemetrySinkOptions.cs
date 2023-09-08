@@ -78,4 +78,22 @@ public class OpenTelemetrySinkOptions
     /// to be changed at runtime.
     /// </summary>
     public LoggingLevelSwitch? LevelSwitch { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether or not formatted log message
+    /// should be included on log events. Default value: <see langword="true"/>.
+    /// </summary>
+    /// <remarks>
+    /// Note: When set to <see langword="false"/> message template will be set
+    /// on the log event body. When set to <see langword="false"/> this is
+    /// typically used in conjunction with disabling <see cref="IncludedData.MessageTemplateTextAttribute"/>.
+    /// <code>
+    /// .WriteTo.OpenTelemetry(options =>
+    /// {
+    ///     options.IncludeFormattedMessage = false;
+    ///     options.IncludedData &amp;= ~IncludedData.MessageTemplateTextAttribute;
+    /// })
+    /// </code>
+    /// </remarks>
+    public bool IncludeFormattedMessage { get; set; }
 }

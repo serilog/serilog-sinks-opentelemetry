@@ -49,6 +49,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
             headers: new Dictionary<string, string>(options.Headers),
             includedData: options.IncludedData,
+            includeFormattedMessage: options.IncludeFormattedMessage,
             httpMessageHandler: options.HttpMessageHandler,
             activityContextCollector: collector);
 
@@ -112,6 +113,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
             headers: new Dictionary<string, string>(options.Headers),
             includedData: options.IncludedData,
+            includeFormattedMessage: options.IncludeFormattedMessage,
             httpMessageHandler: options.HttpMessageHandler,
             activityContextCollector: collector);
 

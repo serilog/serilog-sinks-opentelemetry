@@ -22,13 +22,13 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 static class LogRecordBuilder
 {
-    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, ActivityContextCollector activityContextCollector)
+    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, bool includeFormattedMessage, ActivityContextCollector activityContextCollector)
     {
         var logRecord = new LogRecord();
 
         ProcessProperties(logRecord, logEvent);
         ProcessTimestamp(logRecord, logEvent);
-        ProcessMessage(logRecord, logEvent, formatProvider);
+        ProcessMessage(logRecord, logEvent, includeFormattedMessage, formatProvider);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
         ProcessIncludedFields(logRecord, logEvent, includedFields, activityContextCollector);
@@ -36,14 +36,23 @@ static class LogRecordBuilder
         return logRecord;
     }
 
-    public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IFormatProvider? formatProvider)
+    public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, bool includeFormattedMessage, IFormatProvider? formatProvider)
     {
         var renderedMessage = CleanMessageTemplateFormatter.Format(logEvent.MessageTemplate, logEvent.Properties, formatProvider);
-        if (renderedMessage.Trim() != "")
+
+        if (includeFormattedMessage && renderedMessage.Trim() != "")
         {
             logRecord.Body = new AnyValue
             {
                 StringValue = renderedMessage
+            };
+        }
+
+        if (!includeFormattedMessage && logEvent.MessageTemplate.Text.Trim() != "")
+        {
+            logRecord.Body = new AnyValue
+            {
+                StringValue = logEvent.MessageTemplate.Text
             };
         }
     }
