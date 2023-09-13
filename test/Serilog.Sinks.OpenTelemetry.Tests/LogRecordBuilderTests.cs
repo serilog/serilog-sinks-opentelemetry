@@ -29,14 +29,14 @@ public class LogRecordBuilderTests
     {
         var logRecord = new LogRecord();
 
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: ""), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: ""), OpenTelemetrySinkOptions.DefaultIncludedData, null);
         Assert.Null(logRecord.Body);
 
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: "\t\f "), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: "\t\f "), OpenTelemetrySinkOptions.DefaultIncludedData, null);
         Assert.Null(logRecord.Body);
 
         const string message = "log message";
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: message), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: message), OpenTelemetrySinkOptions.DefaultIncludedData, null);
         Assert.NotNull(logRecord.Body);
         Assert.Equal(message, logRecord.Body.StringValue);
     }
@@ -179,5 +179,13 @@ public class LogRecordBuilderTests
 
         Assert.Equal(logRecord.TraceId, PrimitiveConversions.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
         Assert.Equal(logRecord.SpanId, PrimitiveConversions.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));
+    }
+
+    [Fact]
+    public void IncludeTemplateBody()
+    {
+        var logRecord = LogRecordBuilder.ToLogRecord(Some.SerilogEvent(), null, IncludedData.TemplateBody, new());
+        Assert.NotNull(logRecord.Body);
+        Assert.Equal(Some.TestMessageTemplate, logRecord.Body.StringValue);
     }
 }
