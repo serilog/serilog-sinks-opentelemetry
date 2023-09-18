@@ -23,7 +23,21 @@ static class Some
     
     public const string TestMessageTemplate = "Message template {Variable}";
 
-    internal static LogEvent SerilogEvent(DateTimeOffset? timestamp = null, Exception? ex = null, string messageTemplate = TestMessageTemplate)
+    internal static LogEvent DefaultSerilogEvent()
+    {
+        return SerilogEvent(
+            TestMessageTemplate,
+            new List<LogEventProperty> { new("Variable", new ScalarValue(42)) },
+            DateTimeOffset.UtcNow,
+            null);
+    }
+
+    internal static LogEvent SerilogEvent(string messageTemplate, DateTimeOffset? timestamp = null, Exception? ex = null)
+    {
+        return SerilogEvent(messageTemplate, new List<LogEventProperty>(), timestamp, ex);
+    }
+
+	internal static LogEvent SerilogEvent(string messageTemplate, IEnumerable<LogEventProperty> properties, DateTimeOffset? timestamp = null, Exception? ex = null)
     {
         var ts = timestamp ?? DateTimeOffset.UtcNow;
         var parser = new MessageTemplateParser();
@@ -33,7 +47,7 @@ static class Some
             LogEventLevel.Warning,
             ex,
             template,
-            new List<LogEventProperty>{ new("Variable", new ScalarValue(42)) });
+            properties);
 
         return logEvent;
     }
