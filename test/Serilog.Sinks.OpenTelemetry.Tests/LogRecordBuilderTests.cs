@@ -29,14 +29,14 @@ public class LogRecordBuilderTests
     {
         var logRecord = new LogRecord();
 
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: ""), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: ""), OpenTelemetrySinkOptions.DefaultIncludedData, null);
         Assert.Null(logRecord.Body);
 
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: "\t\f "), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: "\t\f "), OpenTelemetrySinkOptions.DefaultIncludedData, null);
         Assert.Null(logRecord.Body);
 
         const string message = "log message";
-        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: message), null);
+        LogRecordBuilder.ProcessMessage(logRecord, Some.SerilogEvent(messageTemplate: message), OpenTelemetrySinkOptions.DefaultIncludedData, null);
         Assert.NotNull(logRecord.Body);
         Assert.Equal(message, logRecord.Body.StringValue);
     }
@@ -45,7 +45,7 @@ public class LogRecordBuilderTests
     public void TestProcessLevel()
     {
         var logRecord = new LogRecord();
-        var logEvent = Some.SerilogEvent();
+        var logEvent = Some.DefaultSerilogEvent();
 
         LogRecordBuilder.ProcessLevel(logRecord, logEvent);
 
@@ -57,7 +57,7 @@ public class LogRecordBuilderTests
     public void TestProcessProperties()
     {
         var logRecord = new LogRecord();
-        var logEvent = Some.SerilogEvent();
+        var logEvent = Some.DefaultSerilogEvent();
         
         var prop = new LogEventProperty("property_name", new ScalarValue("ok"));
         var propertyKeyValue = PrimitiveConversions.NewStringAttribute("property_name", "ok");
@@ -76,7 +76,7 @@ public class LogRecordBuilderTests
         var nowNano = PrimitiveConversions.ToUnixNano(now);
 
         var logRecord = new LogRecord();
-        var logEvent = Some.SerilogEvent(timestamp: now);
+        var logEvent = Some.SerilogEvent(Some.TestMessageTemplate, timestamp: now);
 
         LogRecordBuilder.ProcessTimestamp(logRecord, logEvent);
 
@@ -96,7 +96,7 @@ public class LogRecordBuilderTests
         catch (Exception ex)
         {
             var logRecord = new LogRecord();
-            var logEvent = Some.SerilogEvent(ex: ex);
+            var logEvent = Some.SerilogEvent(Some.TestMessageTemplate, ex: ex);
 
             LogRecordBuilder.ProcessException(logRecord, logEvent);
 
@@ -131,11 +131,14 @@ public class LogRecordBuilderTests
     [Fact]
     public void IncludeMessageTemplateText()
     {
-        var logEvent = Some.SerilogEvent(messageTemplate: Some.TestMessageTemplate);
+        var messageTemplate = "Hello, {Name}";
+        var properties = new List<LogEventProperty> { new("Name", new ScalarValue("World")) };
+
+        var logEvent = Some.SerilogEvent(messageTemplate, properties);
         
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new());
 
-        var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateText, Value = new() { StringValue = Some.TestMessageTemplate }};
+        var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateText, Value = new() { StringValue = messageTemplate } };
         Assert.Contains(expectedAttribute, logRecord.Attributes);
     }
     
@@ -146,7 +149,7 @@ public class LogRecordBuilderTests
 
         var collector = new ActivityContextCollector();
         
-        var logEvent = Some.SerilogEvent();
+        var logEvent = Some.DefaultSerilogEvent();
         collector.CollectFor(logEvent);
         
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
@@ -172,12 +175,23 @@ public class LogRecordBuilderTests
 
         var collector = new ActivityContextCollector();
         
-        var logEvent = Some.SerilogEvent();
+        var logEvent = Some.DefaultSerilogEvent();
         collector.CollectFor(logEvent);
         
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
 
         Assert.Equal(logRecord.TraceId, PrimitiveConversions.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
         Assert.Equal(logRecord.SpanId, PrimitiveConversions.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));
+    }
+
+    [Fact]
+    public void TemplateBodyIncludesMessageTemplateInBody()
+    {
+        var messageTemplate = "Hello, {Name}";
+        var properties = new List<LogEventProperty> { new("Name", new ScalarValue("World")) };
+
+        var logRecord = LogRecordBuilder.ToLogRecord(Some.SerilogEvent(messageTemplate, properties), null, IncludedData.TemplateBody, new());
+        Assert.NotNull(logRecord.Body);
+        Assert.Equal(messageTemplate, logRecord.Body.StringValue);
     }
 }

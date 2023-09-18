@@ -24,6 +24,7 @@ namespace Serilog.Sinks.OpenTelemetry
         TraceIdField = 4,
         SpanIdField = 8,
         SpecRequiredResourceAttributes = 16,
+        TemplateBody = 32,
     }
     public class OpenTelemetrySinkOptions
     {

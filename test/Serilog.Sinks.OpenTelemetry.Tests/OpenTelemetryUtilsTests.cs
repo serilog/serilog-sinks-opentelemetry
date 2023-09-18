@@ -24,7 +24,7 @@ public class RequestTemplateFactoryTests
     // request template to another.
     public void TestNoDuplicateLogs()
     {
-        var logEvent = Some.SerilogEvent();
+        var logEvent = Some.DefaultSerilogEvent();
         var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.None, new());
 
         var requestTemplate = RequestTemplateFactory.CreateRequestTemplate(new Dictionary<string, object>());

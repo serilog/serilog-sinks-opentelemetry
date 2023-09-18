@@ -28,7 +28,7 @@ static class LogRecordBuilder
 
         ProcessProperties(logRecord, logEvent);
         ProcessTimestamp(logRecord, logEvent);
-        ProcessMessage(logRecord, logEvent, formatProvider);
+        ProcessMessage(logRecord, logEvent, includedFields, formatProvider);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
         ProcessIncludedFields(logRecord, logEvent, includedFields, activityContextCollector);
@@ -36,14 +36,25 @@ static class LogRecordBuilder
         return logRecord;
     }
 
-    public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IFormatProvider? formatProvider)
+    public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, IFormatProvider? formatProvider)
     {
-        var renderedMessage = CleanMessageTemplateFormatter.Format(logEvent.MessageTemplate, logEvent.Properties, formatProvider);
-        if (renderedMessage.Trim() != "")
+        if (!includedFields.HasFlag(IncludedData.TemplateBody))
+        {
+            var renderedMessage = CleanMessageTemplateFormatter.Format(logEvent.MessageTemplate, logEvent.Properties, formatProvider);
+
+            if (renderedMessage.Trim() != "")
+            {
+                logRecord.Body = new AnyValue
+                {
+                    StringValue = renderedMessage
+                };
+            }
+        }
+        else if (includedFields.HasFlag(IncludedData.TemplateBody) && logEvent.MessageTemplate.Text.Trim() != "")
         {
             logRecord.Body = new AnyValue
             {
-                StringValue = renderedMessage
+                StringValue = logEvent.MessageTemplate.Text
             };
         }
     }
