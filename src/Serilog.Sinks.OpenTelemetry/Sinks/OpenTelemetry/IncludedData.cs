@@ -71,5 +71,10 @@ public enum IncludedData
     /// })
     /// </code>
     /// </remarks>
-    TemplateBody = 32
+    TemplateBody = 32,
+        
+    /// <summary>
+    /// Include pre-rendered values for any message template placeholders that use custom format specifiers, in <c>message_template.renderings</c>.
+    /// </summary>
+    MessageTemplateRenderingsAttribute = 64
 }

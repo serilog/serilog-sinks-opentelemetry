@@ -161,11 +161,9 @@ public class LogRecordBuilderTests
     [Fact]
     public void IncludeTraceIdAndSpanId()
     {
-        using var listener = new ActivityListener
-        {
-            ShouldListenTo = _ => true,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-        };
+        using var listener = new ActivityListener();
+        listener.ShouldListenTo = _ => true;
+        listener.Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData;
 
         ActivitySource.AddActivityListener(listener);
 
@@ -187,11 +185,59 @@ public class LogRecordBuilderTests
     [Fact]
     public void TemplateBodyIncludesMessageTemplateInBody()
     {
-        var messageTemplate = "Hello, {Name}";
+        const string messageTemplate = "Hello, {Name}";
         var properties = new List<LogEventProperty> { new("Name", new ScalarValue("World")) };
 
         var logRecord = LogRecordBuilder.ToLogRecord(Some.SerilogEvent(messageTemplate, properties), null, IncludedData.TemplateBody, new());
         Assert.NotNull(logRecord.Body);
         Assert.Equal(messageTemplate, logRecord.Body.StringValue);
+    }
+    
+    [Fact]
+    public void NoRenderingsIncludedWhenNoneInTemplate()
+    {
+        var logEvent = Some.SerilogEvent(messageTemplate: "Hello, {Name}", properties: new [] { new LogEventProperty("Name", new ScalarValue("World"))});
+        
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateRenderingsAttribute, new());
+        
+        Assert.DoesNotContain(SemanticConventions.AttributeMessageTemplateRenderings, logRecord.Attributes.Select(a => a.Key));
+    }
+    
+    [Fact]
+    public void RenderingsIncludedWhenPresentInTemplate()
+    {
+        var logEvent = Some.SerilogEvent(messageTemplate: "{First:0} {Second} {Third:0.00}", properties: new []
+        {
+            new LogEventProperty("First", new ScalarValue(123.456)),
+            new LogEventProperty("Second", new ScalarValue(234.567)),
+            new LogEventProperty("Third", new ScalarValue(345.678))
+        });
+        
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateRenderingsAttribute, new());
+        
+        var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateRenderings, Value = new()
+        {
+            ArrayValue = new ArrayValue {
+                Values =
+                {
+                    // Only values for tokens with format strings are included.
+                    new AnyValue{ StringValue = "123"},
+                    new AnyValue{ StringValue = "345.68"},
+                }
+            }
+        }};
+        Assert.Contains(expectedAttribute, logRecord.Attributes);
+    }
+    
+    [Fact]
+    public void RenderingsNotIncludedWhenIncludedDataDoesNotSpecifyThem()
+    {
+        var logEvent = Some.SerilogEvent(messageTemplate: "{First:0}", properties: new []
+        {
+            new LogEventProperty("First", new ScalarValue(123.456))
+        });
+        
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData, new());
+        Assert.DoesNotContain(SemanticConventions.AttributeMessageTemplateRenderings, logRecord.Attributes.Select(a => a.Key));
     }
 }

@@ -32,6 +32,11 @@ static class SemanticConventions
     public const string AttributeMessageTemplateMD5Hash = "message_template.hash.md5";
 
     /// <summary>
+    /// If any placeholders in the message template use custom format specifiers, an array containing a pre-rendered string for each such token.
+    /// </summary>
+    public const string AttributeMessageTemplateRenderings = "message_template.renderings";
+
+    /// <summary>
     /// OpenTelemetry standard service name resource attribute.
     /// </summary>
     public const string AttributeServiceName = "service.name";
