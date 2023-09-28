@@ -56,4 +56,25 @@ public enum IncludedData
     /// means <c>service.name</c> if not supplied, along with the <c>telemetry.sdk.*</c> group of attributes.
     /// </summary>
     SpecRequiredResourceAttributes = 16,
+
+    /// <summary>
+    /// Include the log event's message template in the OTLP <c>body</c> instead of the rendered messsage. For 
+    /// example, the string <c>Hello {Name}!</c>.
+    /// </summary>
+    /// <remarks>
+    /// Note: It is often desirable to remove <see cref="IncludedData.MessageTemplateTextAttribute"/> when using
+    /// <see cref="IncludedData.TemplateBody"/> but otherwise use defaults.
+    /// <code>
+    /// .WriteTo.OpenTelemetry(options =>
+    /// {
+    ///     options.IncludedData = (options.IncludedData | IncludedData.TemplateBody) &amp; ~IncludedData.MessageTemplateTextAttribute;
+    /// })
+    /// </code>
+    /// </remarks>
+    TemplateBody = 32,
+        
+    /// <summary>
+    /// Include pre-rendered values for any message template placeholders that use custom format specifiers, in <c>message_template.renderings</c>.
+    /// </summary>
+    MessageTemplateRenderingsAttribute = 64
 }

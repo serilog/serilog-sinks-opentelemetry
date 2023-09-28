@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// ReSharper disable PossibleMultipleEnumeration
+
+using System.Globalization;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
+using Serilog.Parsing;
 using Serilog.Sinks.OpenTelemetry.Formatting;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
@@ -28,7 +32,7 @@ static class LogRecordBuilder
 
         ProcessProperties(logRecord, logEvent);
         ProcessTimestamp(logRecord, logEvent);
-        ProcessMessage(logRecord, logEvent, formatProvider);
+        ProcessMessage(logRecord, logEvent, includedFields, formatProvider);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
         ProcessIncludedFields(logRecord, logEvent, includedFields, activityContextCollector);
@@ -36,14 +40,25 @@ static class LogRecordBuilder
         return logRecord;
     }
 
-    public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IFormatProvider? formatProvider)
+    public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, IFormatProvider? formatProvider)
     {
-        var renderedMessage = CleanMessageTemplateFormatter.Format(logEvent.MessageTemplate, logEvent.Properties, formatProvider);
-        if (renderedMessage.Trim() != "")
+        if (!includedFields.HasFlag(IncludedData.TemplateBody))
+        {
+            var renderedMessage = CleanMessageTemplateFormatter.Format(logEvent.MessageTemplate, logEvent.Properties, formatProvider);
+
+            if (renderedMessage.Trim() != "")
+            {
+                logRecord.Body = new AnyValue
+                {
+                    StringValue = renderedMessage
+                };
+            }
+        }
+        else if (includedFields.HasFlag(IncludedData.TemplateBody) && logEvent.MessageTemplate.Text.Trim() != "")
         {
             logRecord.Body = new AnyValue
             {
-                StringValue = renderedMessage
+                StringValue = logEvent.MessageTemplate.Text
             };
         }
     }
@@ -125,6 +140,30 @@ static class LogRecordBuilder
             {
                 StringValue = PrimitiveConversions.Md5Hash(logEvent.MessageTemplate.Text)
             }));
+        }
+
+        if ((includedFields & IncludedData.MessageTemplateRenderingsAttribute) != IncludedData.None)
+        {
+            var tokensWithFormat = logEvent.MessageTemplate.Tokens
+                .OfType<PropertyToken>()
+                .Where(pt => pt.Format != null);
+
+            // Better not to allocate an array in the 99.9% of cases where this is false
+            if (tokensWithFormat.Any())
+            {
+                var renderings = new ArrayValue();
+
+                foreach (var propertyToken in tokensWithFormat)
+                {
+                    var space = new StringWriter();
+                    propertyToken.Render(logEvent.Properties, space, CultureInfo.InvariantCulture);
+                    renderings.Values.Add(new AnyValue { StringValue = space.ToString() });
+                }
+                
+                logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(
+                    SemanticConventions.AttributeMessageTemplateRenderings,
+                    new AnyValue { ArrayValue = renderings }));
+            }
         }
     }
 }
