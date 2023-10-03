@@ -26,7 +26,6 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     readonly ExportLogsServiceRequest _requestTemplate;
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
-    readonly ActivityContextCollector _activityContextCollector;
 
     public OpenTelemetrySink(
        string endpoint,
@@ -35,8 +34,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
        IReadOnlyDictionary<string, object> resourceAttributes,
        IReadOnlyDictionary<string, string> headers,
        IncludedData includedData,
-       HttpMessageHandler? httpMessageHandler, 
-       ActivityContextCollector activityContextCollector) 
+       HttpMessageHandler? httpMessageHandler) 
     {
         _exporter = protocol switch
         {
@@ -47,7 +45,6 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 
         _formatProvider = formatProvider;
         _includedData = includedData;
-        _activityContextCollector = activityContextCollector;
 
         if ((includedData & IncludedData.SpecRequiredResourceAttributes) == IncludedData.SpecRequiredResourceAttributes)
         {
@@ -67,7 +64,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 
     void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
     {
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData, _activityContextCollector);
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData);
         request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
     }
 

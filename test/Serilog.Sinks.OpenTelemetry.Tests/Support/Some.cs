@@ -15,7 +15,7 @@
 using Serilog.Events;
 using Serilog.Parsing;
 
-namespace Serilog.Sinks.OpenTelemetry.Tests;
+namespace Serilog.Sinks.OpenTelemetry.Tests.Support;
 
 static class Some
 {
@@ -29,7 +29,7 @@ static class Some
             TestMessageTemplate,
             new List<LogEventProperty> { new("Variable", new ScalarValue(42)) },
             DateTimeOffset.UtcNow,
-            null);
+            ex: null);
     }
 
     internal static LogEvent SerilogEvent(string messageTemplate, DateTimeOffset? timestamp = null, Exception? ex = null)

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
+using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
