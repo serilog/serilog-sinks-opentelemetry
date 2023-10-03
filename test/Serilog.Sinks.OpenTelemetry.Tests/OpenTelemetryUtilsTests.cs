@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
+using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
@@ -25,7 +26,7 @@ public class RequestTemplateFactoryTests
     public void TestNoDuplicateLogs()
     {
         var logEvent = Some.DefaultSerilogEvent();
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.None, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.None);
 
         var requestTemplate = RequestTemplateFactory.CreateRequestTemplate(new Dictionary<string, object>());
 
