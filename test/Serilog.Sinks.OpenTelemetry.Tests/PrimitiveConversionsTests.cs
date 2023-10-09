@@ -42,12 +42,20 @@ public class PrimitiveConversionsTests
         var t0 = DateTimeOffset.UtcNow;
         var nanos = (ulong)t0.ToUnixTimeMilliseconds() * 1000000;
         var actual = PrimitiveConversions.ToUnixNano(t0);
-        Assert.Equal(nanos, PrimitiveConversions.ToUnixNano(t0));
+        Assert.Equal(nanos, actual);
 
         // later time has different (greater) value
         Thread.Sleep(1000);
         var t1 = DateTimeOffset.UtcNow;
         Assert.True(PrimitiveConversions.ToUnixNano(t1) > nanos);
+    }
+
+    [Fact]
+    public void UnixEpochTimePreservesResolution()
+    {
+        var tOneHundredNanos = new DateTimeOffset(1970, 1, 1, 0, 0, 0, 0, TimeSpan.Zero).AddTicks(1);
+        var actual = PrimitiveConversions.ToUnixNano(tOneHundredNanos);
+        Assert.Equal(100ul, actual);
     }
 
     [Fact]
@@ -63,7 +71,7 @@ public class PrimitiveConversionsTests
             {LogEventLevel.Fatal, SeverityNumber.Fatal},
         };
 
-        foreach ((var level, var severity) in data)
+        foreach (var (level, severity) in data)
         {
             Assert.Equal(severity, PrimitiveConversions.ToSeverityNumber(level));
         }
