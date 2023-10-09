@@ -41,7 +41,6 @@ static class PrimitiveConversions
         {
             LogEventLevel.Verbose => SeverityNumber.Trace,
             LogEventLevel.Debug => SeverityNumber.Debug,
-            LogEventLevel.Information => SeverityNumber.Info,
             LogEventLevel.Warning => SeverityNumber.Warn,
             LogEventLevel.Error => SeverityNumber.Error,
             LogEventLevel.Fatal => SeverityNumber.Fatal,

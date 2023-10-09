@@ -38,16 +38,9 @@ public class PrimitiveConversionsTests
     [Fact]
     public void TestToUnixNano()
     {
-        // current time has expected value
-        var t0 = DateTimeOffset.UtcNow;
-        var nanos = (ulong)t0.ToUnixTimeMilliseconds() * 1000000;
-        var actual = PrimitiveConversions.ToUnixNano(t0);
-        Assert.Equal(nanos, actual);
-
-        // later time has different (greater) value
-        Thread.Sleep(1000);
-        var t1 = DateTimeOffset.UtcNow;
-        Assert.True(PrimitiveConversions.ToUnixNano(t1) > nanos);
+        var t = DateTimeOffset.Parse("2023-10-09T07:00:38.7998331+00:00");
+        var actual = PrimitiveConversions.ToUnixNano(t);
+        Assert.Equal(1696834838799833100ul, actual);
     }
 
     [Fact]
