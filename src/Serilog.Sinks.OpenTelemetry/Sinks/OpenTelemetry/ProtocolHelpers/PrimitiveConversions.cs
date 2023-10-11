@@ -26,11 +26,13 @@ namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
 static class PrimitiveConversions
 {
-    const ulong MillisToNanos = 1000000;
-
-    public static ulong ToUnixNano(DateTimeOffset t)
+    static readonly DateTimeOffset UnixEpoch = new(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    
+    public static ulong ToUnixNano(DateTimeOffset dateTimeOffset)
     {
-        return (ulong)t.ToUnixTimeMilliseconds() * MillisToNanos;
+        if (dateTimeOffset < UnixEpoch) throw new ArgumentOutOfRangeException(nameof(dateTimeOffset));
+        var timeSinceEpoch = dateTimeOffset - UnixEpoch;
+        return (ulong)timeSinceEpoch.Ticks * 100;
     }
 
     public static SeverityNumber ToSeverityNumber(LogEventLevel level)
