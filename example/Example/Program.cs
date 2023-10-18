@@ -14,8 +14,6 @@
 
 // ReSharper disable ExplicitCallerInfoArgument
 
-#nullable enable
-
 using Serilog;
 using System.Diagnostics;
 using Serilog.Sinks.OpenTelemetry;
@@ -30,11 +28,9 @@ static class Program
     {
         // create an ActivitySource (that is listened to) for creating an Activity
         // to test the trace and span ID enricher
-        using var listener = new ActivityListener
-        {
-            ShouldListenTo = _ => true,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-        };
+        using var listener = new ActivityListener();
+        listener.ShouldListenTo = _ => true;
+        listener.Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData;
 
         ActivitySource.AddActivityListener(listener);
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
-using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
@@ -21,28 +21,23 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 public class RequestTemplateFactoryTests
 {
     [Fact]
-    // Ensure that logs are not carried over from one clone of the
-    // request template to another.
-    public void TestNoDuplicateLogs()
+    public void ResourceLogsAreClonedDeeply()
     {
-        var logEvent = Some.DefaultSerilogEvent();
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.None);
+        var template = RequestTemplateFactory.CreateResourceLogs(new Dictionary<string, object>());
 
-        var requestTemplate = RequestTemplateFactory.CreateRequestTemplate(new Dictionary<string, object>());
+        var request = template.Clone();
 
-        var request = requestTemplate.Clone();
-
-        var n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
+        var n = request.ScopeLogs.Count;
         Assert.Equal(0, n);
 
-        request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
+        request.ScopeLogs.Add(new ScopeLogs());
 
-        n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
+        n = request.ScopeLogs.Count;
         Assert.Equal(1, n);
+        
+        request = template.Clone();
 
-        request = requestTemplate.Clone();
-        n = request.ResourceLogs.ElementAt(0).ScopeLogs.ElementAt(0).LogRecords.Count;
-
+        n = request.ScopeLogs.Count;
         Assert.Equal(0, n);
     }
 }

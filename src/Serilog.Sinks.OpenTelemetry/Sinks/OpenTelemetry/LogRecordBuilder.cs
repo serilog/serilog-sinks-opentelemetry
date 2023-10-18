@@ -17,6 +17,7 @@
 using System.Globalization;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.OpenTelemetry.Formatting;
@@ -26,18 +27,18 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 static class LogRecordBuilder
 {
-    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields)
+    public static (LogRecord logRecord, string? scopeName) ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedData)
     {
         var logRecord = new LogRecord();
 
-        ProcessProperties(logRecord, logEvent);
+        ProcessProperties(logRecord, logEvent, includedData, out var scopeName);
         ProcessTimestamp(logRecord, logEvent);
-        ProcessMessage(logRecord, logEvent, includedFields, formatProvider);
+        ProcessMessage(logRecord, logEvent, includedData, formatProvider);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
-        ProcessIncludedFields(logRecord, logEvent, includedFields);
+        ProcessIncludedFields(logRecord, logEvent, includedData);
 
-        return logRecord;
+        return (logRecord, scopeName);
     }
 
     public static void ProcessMessage(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, IFormatProvider? formatProvider)
@@ -70,10 +71,20 @@ static class LogRecordBuilder
         logRecord.SeverityNumber = PrimitiveConversions.ToSeverityNumber(level);
     }
 
-    public static void ProcessProperties(LogRecord logRecord, LogEvent logEvent)
+    public static void ProcessProperties(LogRecord logRecord, LogEvent logEvent, IncludedData includedData, out string? scopeName)
     {
+        scopeName = null;
         foreach (var property in logEvent.Properties)
         {
+            if (property is { Key: Constants.SourceContextPropertyName, Value: ScalarValue { Value: string sourceContext } })
+            {
+                scopeName = sourceContext;
+                if ((includedData & IncludedData.SourceContextAttribute) != IncludedData.SourceContextAttribute)
+                {
+                    continue;
+                }
+            }
+
             var v = PrimitiveConversions.ToOpenTelemetryAnyValue(property.Value);
             logRecord.Attributes.Add(PrimitiveConversions.NewAttribute(property.Key, v));
         }
