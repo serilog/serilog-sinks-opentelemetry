@@ -15,7 +15,7 @@
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
-namespace Serilog.Sinks.OpenTelemetry;
+namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
 /// <summary>
 /// Implements an IExporter that sends OpenTelemetry Log requests

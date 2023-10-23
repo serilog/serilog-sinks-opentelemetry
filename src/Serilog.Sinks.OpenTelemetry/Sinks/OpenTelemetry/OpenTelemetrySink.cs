@@ -29,21 +29,12 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     readonly IncludedData _includedData;
 
     public OpenTelemetrySink(
-       string endpoint,
-       OtlpProtocol protocol,
-       IFormatProvider? formatProvider,
-       IReadOnlyDictionary<string, object> resourceAttributes,
-       IReadOnlyDictionary<string, string> headers,
-       IncludedData includedData,
-       HttpMessageHandler? httpMessageHandler) 
+        IExporter exporter,
+        IFormatProvider? formatProvider,
+        IReadOnlyDictionary<string, object> resourceAttributes,
+        IncludedData includedData)
     {
-        _exporter = protocol switch
-        {
-            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers, httpMessageHandler),
-            OtlpProtocol.Grpc => new GrpcExporter(endpoint, headers, httpMessageHandler),
-            _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
-        };
-
+        _exporter = exporter;
         _formatProvider = formatProvider;
         _includedData = includedData;
 
@@ -93,6 +84,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
                 if (!namedScopes.TryGetValue(scopeName, out var namedScope))
                 {
                     namedScope = RequestTemplateFactory.CreateScopeLogs(scopeName);
+                    namedScopes.Add(scopeName, namedScope);
                     resourceLogs.ScopeLogs.Add(namedScope);
                 }
                 
