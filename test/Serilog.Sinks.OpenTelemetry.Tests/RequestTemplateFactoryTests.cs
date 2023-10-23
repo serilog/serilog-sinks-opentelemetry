@@ -25,19 +25,19 @@ public class RequestTemplateFactoryTests
     {
         var template = RequestTemplateFactory.CreateResourceLogs(new Dictionary<string, object>());
 
-        var request = template.Clone();
+        var clone = template.Clone();
 
-        var n = request.ScopeLogs.Count;
+        var n = clone.ScopeLogs.Count;
         Assert.Equal(0, n);
 
-        request.ScopeLogs.Add(new ScopeLogs());
+        clone.ScopeLogs.Add(new ScopeLogs());
 
-        n = request.ScopeLogs.Count;
+        n = clone.ScopeLogs.Count;
         Assert.Equal(1, n);
         
-        request = template.Clone();
+        clone = template.Clone();
 
-        n = request.ScopeLogs.Count;
+        n = clone.ScopeLogs.Count;
         Assert.Equal(0, n);
     }
 }

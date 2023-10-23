@@ -16,6 +16,7 @@ using System.Diagnostics;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Serilog.Sinks.OpenTelemetry.Tests.Support;
@@ -226,5 +227,30 @@ public class LogRecordBuilderTests
         var (logRecord, _) = LogRecordBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData);
         
         Assert.DoesNotContain(SemanticConventions.AttributeMessageTemplateRenderings, logRecord.Attributes.Select(a => a.Key));
+    }
+
+    [Fact]
+    public void SourceContextIsInstrumentationScope()
+    {
+        var contextType = typeof(LogRecordBuilderTests);
+        var logEvent = CollectingSink.CollectSingle(log => log.ForContext(contextType).Information("Hello, world!"));
+        
+        var (logRecord, scopeName) = LogRecordBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData);
+        
+        Assert.Equal(contextType.FullName, scopeName);
+        Assert.DoesNotContain(Constants.SourceContextPropertyName, logRecord.Attributes.Select(a => a.Key));        
+    }
+
+    [Fact]
+    public void SourceContextCanBePreservedAsAttribute()
+    {
+        var contextType = typeof(LogRecordBuilderTests);
+        var logEvent = CollectingSink.CollectSingle(log => log.ForContext(contextType).Information("Hello, world!"));
+        
+        var (logRecord, scopeName) = LogRecordBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData | IncludedData.SourceContextAttribute);
+        
+        Assert.Equal(contextType.FullName, scopeName);
+        var ctx = Assert.Single(logRecord.Attributes.Where(a => a.Key == Constants.SourceContextPropertyName));
+        Assert.Equal(contextType.FullName, ctx.Value.StringValue);
     }
 }
