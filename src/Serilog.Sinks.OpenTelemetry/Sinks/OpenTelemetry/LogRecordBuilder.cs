@@ -26,7 +26,7 @@ namespace Serilog.Sinks.OpenTelemetry;
 
 static class LogRecordBuilder
 {
-    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields, ActivityContextCollector activityContextCollector)
+    public static LogRecord ToLogRecord(LogEvent logEvent, IFormatProvider? formatProvider, IncludedData includedFields)
     {
         var logRecord = new LogRecord();
 
@@ -35,7 +35,7 @@ static class LogRecordBuilder
         ProcessMessage(logRecord, logEvent, includedFields, formatProvider);
         ProcessLevel(logRecord, logEvent);
         ProcessException(logRecord, logEvent);
-        ProcessIncludedFields(logRecord, logEvent, includedFields, activityContextCollector);
+        ProcessIncludedFields(logRecord, logEvent, includedFields);
 
         return logRecord;
     }
@@ -106,24 +106,16 @@ static class LogRecordBuilder
         }
     }
 
-    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields, ActivityContextCollector activityContextCollector)
+    static void ProcessIncludedFields(LogRecord logRecord, LogEvent logEvent, IncludedData includedFields)
     {
-        if ((includedFields & (IncludedData.TraceIdField | IncludedData.SpanIdField)) != IncludedData.None)
+        if ((includedFields & IncludedData.TraceIdField) != IncludedData.None && logEvent.TraceId is {} traceId)
         {
-            var activityContext = activityContextCollector.GetFor(logEvent);
-            
-            if (activityContext is var (activityTraceId, activitySpanId))
-            {
-                if ((includedFields & IncludedData.TraceIdField) != IncludedData.None)
-                {
-                    logRecord.TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(activityTraceId.ToHexString());
-                }
+            logRecord.TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(traceId.ToHexString());
+        }
 
-                if ((includedFields & IncludedData.SpanIdField) != IncludedData.None)
-                {
-                    logRecord.SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(activitySpanId.ToHexString());
-                }
-            }
+        if ((includedFields & IncludedData.SpanIdField) != IncludedData.None && logEvent.SpanId is {} spanId)
+        {
+            logRecord.SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(spanId.ToHexString());
         }
 
         if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)

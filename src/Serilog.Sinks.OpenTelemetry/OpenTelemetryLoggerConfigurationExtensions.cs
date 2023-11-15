@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using Serilog.Configuration;
-using Serilog.Core;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -40,8 +39,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
-        var collector = new ActivityContextCollector();
-        
         var openTelemetrySink = new OpenTelemetrySink(
             endpoint: options.Endpoint,
             protocol: options.Protocol,
@@ -49,13 +46,10 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
             headers: new Dictionary<string, string>(options.Headers),
             includedData: options.IncludedData,
-            httpMessageHandler: options.HttpMessageHandler,
-            activityContextCollector: collector);
+            httpMessageHandler: options.HttpMessageHandler);
 
-        ILogEventSink sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
+        var sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
 
-        sink = new ActivityContextCollectorSink(collector, sink);
-        
         return loggerSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
 
@@ -103,20 +97,15 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         
         configure(options);
 
-        var collector = new ActivityContextCollector();
-        
-        var openTelemetrySink = new OpenTelemetrySink(
+        var sink = new OpenTelemetrySink(
             endpoint: options.Endpoint,
             protocol: options.Protocol,
             formatProvider: options.FormatProvider,
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
             headers: new Dictionary<string, string>(options.Headers),
             includedData: options.IncludedData,
-            httpMessageHandler: options.HttpMessageHandler,
-            activityContextCollector: collector);
+            httpMessageHandler: options.HttpMessageHandler);
 
-        var sink = new ActivityContextCollectorSink(collector, openTelemetrySink);
-        
         return loggerAuditSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
     

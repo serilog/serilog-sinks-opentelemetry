@@ -18,6 +18,7 @@ using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Trace;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
+using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
@@ -121,7 +122,7 @@ public class LogRecordBuilderTests
     {
         var logEvent = Some.SerilogEvent(messageTemplate: Some.TestMessageTemplate);
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateMD5HashAttribute);
         
         var expectedHash = PrimitiveConversions.Md5Hash(Some.TestMessageTemplate);
         var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateMD5Hash, Value = new() { StringValue = expectedHash }};
@@ -136,7 +137,7 @@ public class LogRecordBuilderTests
 
         var logEvent = Some.SerilogEvent(messageTemplate, properties);
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateTextAttribute);
 
         var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateText, Value = new() { StringValue = messageTemplate } };
         Assert.Contains(expectedAttribute, logRecord.Attributes);
@@ -147,12 +148,8 @@ public class LogRecordBuilderTests
     {
         Assert.Null(Activity.Current);
 
-        var collector = new ActivityContextCollector();
-        
         var logEvent = Some.DefaultSerilogEvent();
-        collector.CollectFor(logEvent);
-        
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField);
 
         Assert.True(logRecord.TraceId.IsEmpty);
         Assert.True(logRecord.SpanId.IsEmpty);
@@ -171,12 +168,9 @@ public class LogRecordBuilderTests
         using var activity = source.StartActivity();
         Assert.NotNull(Activity.Current);
 
-        var collector = new ActivityContextCollector();
+        var logEvent = CollectingSink.CollectSingle(log => log.Information("Hello, trace and span!"));
         
-        var logEvent = Some.DefaultSerilogEvent();
-        collector.CollectFor(logEvent);
-        
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField, collector);
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.TraceIdField | IncludedData.SpanIdField);
 
         Assert.Equal(logRecord.TraceId, PrimitiveConversions.ToOpenTelemetryTraceId(Activity.Current.TraceId.ToHexString()));
         Assert.Equal(logRecord.SpanId, PrimitiveConversions.ToOpenTelemetrySpanId(Activity.Current.SpanId.ToHexString()));
@@ -188,7 +182,7 @@ public class LogRecordBuilderTests
         const string messageTemplate = "Hello, {Name}";
         var properties = new List<LogEventProperty> { new("Name", new ScalarValue("World")) };
 
-        var logRecord = LogRecordBuilder.ToLogRecord(Some.SerilogEvent(messageTemplate, properties), null, IncludedData.TemplateBody, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(Some.SerilogEvent(messageTemplate, properties), null, IncludedData.TemplateBody);
         Assert.NotNull(logRecord.Body);
         Assert.Equal(messageTemplate, logRecord.Body.StringValue);
     }
@@ -198,7 +192,7 @@ public class LogRecordBuilderTests
     {
         var logEvent = Some.SerilogEvent(messageTemplate: "Hello, {Name}", properties: new [] { new LogEventProperty("Name", new ScalarValue("World"))});
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateRenderingsAttribute, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateRenderingsAttribute);
         
         Assert.DoesNotContain(SemanticConventions.AttributeMessageTemplateRenderings, logRecord.Attributes.Select(a => a.Key));
     }
@@ -206,14 +200,9 @@ public class LogRecordBuilderTests
     [Fact]
     public void RenderingsIncludedWhenPresentInTemplate()
     {
-        var logEvent = Some.SerilogEvent(messageTemplate: "{First:0} {Second} {Third:0.00}", properties: new []
-        {
-            new LogEventProperty("First", new ScalarValue(123.456)),
-            new LogEventProperty("Second", new ScalarValue(234.567)),
-            new LogEventProperty("Third", new ScalarValue(345.678))
-        });
+        var logEvent = CollectingSink.CollectSingle(log => log.Information("{First:0} {Second} {Third:0.00}", 123.456, 234.567, 345.678));
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateRenderingsAttribute, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, IncludedData.MessageTemplateRenderingsAttribute);
         
         var expectedAttribute = new KeyValue { Key = SemanticConventions.AttributeMessageTemplateRenderings, Value = new()
         {
@@ -232,12 +221,10 @@ public class LogRecordBuilderTests
     [Fact]
     public void RenderingsNotIncludedWhenIncludedDataDoesNotSpecifyThem()
     {
-        var logEvent = Some.SerilogEvent(messageTemplate: "{First:0}", properties: new []
-        {
-            new LogEventProperty("First", new ScalarValue(123.456))
-        });
+        var logEvent = CollectingSink.CollectSingle(log => log.Information("{First:0}", 123.456));
         
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData, new());
+        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData);
+        
         Assert.DoesNotContain(SemanticConventions.AttributeMessageTemplateRenderings, logRecord.Attributes.Select(a => a.Key));
     }
 }
