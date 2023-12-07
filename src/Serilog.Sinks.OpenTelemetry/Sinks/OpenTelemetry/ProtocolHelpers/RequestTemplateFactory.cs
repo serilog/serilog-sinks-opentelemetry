@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Reflection;
 using Google.Protobuf.Collections;
-using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
@@ -25,29 +23,20 @@ static class RequestTemplateFactory
 {
     const string OpenTelemetrySchemaUrl = "https://opentelemetry.io/schemas/v1.13.0";
     
-    public static ExportLogsServiceRequest CreateRequestTemplate(IReadOnlyDictionary<string, object> resourceAttributes)
+    public static ScopeLogs CreateScopeLogs(string? scopeName)
     {
-        var resourceLogs = CreateResourceLogs(resourceAttributes);
-        resourceLogs.ScopeLogs.Add(CreateEmptyScopeLogs());
-
-        var request = new ExportLogsServiceRequest();
-        request.ResourceLogs.Add(resourceLogs);
-
-        return request;
-    }
-    
-    static InstrumentationScope CreateInstrumentationScope()
-    {
-        var scope = new InstrumentationScope
+        var scope = scopeName != null ? new InstrumentationScope
         {
-            Name = PackageIdentity.GetInstrumentationScopeName(),
-            Version = PackageIdentity.GetInstrumentationScopeVersion()
-        };
+            Name = scopeName,
+        } : null;
 
-        return scope;
+        return new ScopeLogs
+        {
+            Scope = scope
+        };
     }
 
-    static ResourceLogs CreateResourceLogs(IReadOnlyDictionary<string, object> resourceAttributes)
+    public static ResourceLogs CreateResourceLogs(IReadOnlyDictionary<string, object> resourceAttributes)
     {
         var resourceLogs = new ResourceLogs();
 
@@ -59,17 +48,6 @@ static class RequestTemplateFactory
         resourceLogs.SchemaUrl = OpenTelemetrySchemaUrl;
 
         return resourceLogs;
-    }
-
-    static ScopeLogs CreateEmptyScopeLogs()
-    {
-        var scopeLogs = new ScopeLogs
-        {
-            Scope = CreateInstrumentationScope(),
-            SchemaUrl = OpenTelemetrySchemaUrl
-        };
-
-        return scopeLogs;
     }
 
     static RepeatedField<KeyValue> ToResourceAttributes(IReadOnlyDictionary<string, object> resourceAttributes)

@@ -18,21 +18,12 @@ namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
 static class PackageIdentity
 {
-    public static string GetInstrumentationScopeName()
-    {
-        return typeof(RequestTemplateFactory).Assembly.GetName().Name
-               // Best we know about this, if it occurs.
-               ?? throw new InvalidOperationException("Sink assembly name could not be retrieved.");
-    }
-
-    public static string GetInstrumentationScopeVersion()
+    public static string GetTelemetrySdkVersion()
     {
         return typeof(RequestTemplateFactory).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
     }
 
     public const string TelemetrySdkName = "serilog";
     
-    public static string GetTelemetrySdkVersion() => GetInstrumentationScopeVersion();
-
     public const string TelemetrySdkLanguage = "dotnet";
 }

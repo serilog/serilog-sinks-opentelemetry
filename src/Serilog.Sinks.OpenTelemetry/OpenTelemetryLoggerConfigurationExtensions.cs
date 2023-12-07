@@ -14,6 +14,7 @@
 
 using Serilog.Configuration;
 using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry.Exporters;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog;
@@ -39,14 +40,17 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
-        var openTelemetrySink = new OpenTelemetrySink(
+        var exporter = Exporter.Create(
             endpoint: options.Endpoint,
             protocol: options.Protocol,
+            headers: new Dictionary<string, string>(options.Headers),
+            httpMessageHandler: options.HttpMessageHandler);
+
+        var openTelemetrySink = new OpenTelemetrySink(
+            exporter: exporter,
             formatProvider: options.FormatProvider,
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-            headers: new Dictionary<string, string>(options.Headers),
-            includedData: options.IncludedData,
-            httpMessageHandler: options.HttpMessageHandler);
+            includedData: options.IncludedData);
 
         var sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
 
@@ -97,14 +101,17 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         
         configure(options);
 
-        var sink = new OpenTelemetrySink(
+        var exporter = Exporter.Create(
             endpoint: options.Endpoint,
             protocol: options.Protocol,
+            headers: new Dictionary<string, string>(options.Headers),
+            httpMessageHandler: options.HttpMessageHandler);
+
+        var sink = new OpenTelemetrySink(
+            exporter: exporter,
             formatProvider: options.FormatProvider,
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-            headers: new Dictionary<string, string>(options.Headers),
-            includedData: options.IncludedData,
-            httpMessageHandler: options.HttpMessageHandler);
+            includedData: options.IncludedData);
 
         return loggerAuditSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }

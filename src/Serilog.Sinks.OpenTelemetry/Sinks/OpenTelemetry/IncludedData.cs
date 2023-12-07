@@ -76,5 +76,11 @@ public enum IncludedData
     /// <summary>
     /// Include pre-rendered values for any message template placeholders that use custom format specifiers, in <c>message_template.renderings</c>.
     /// </summary>
-    MessageTemplateRenderingsAttribute = 64
+    MessageTemplateRenderingsAttribute = 64,
+    
+    /// <summary>
+    /// Preserve the value of the <c>SourceContext</c> property, in addition to using it as the OTLP <c>InstrumentationScope</c> name. If
+    /// not specified, the <c>SourceContext</c> property will be omitted from the individual log record attributes.
+    /// </summary>
+    SourceContextAttribute = 128
 }

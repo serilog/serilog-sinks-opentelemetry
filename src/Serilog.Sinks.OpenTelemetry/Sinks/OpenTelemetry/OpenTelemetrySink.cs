@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
+using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
@@ -23,26 +24,17 @@ namespace Serilog.Sinks.OpenTelemetry;
 class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
 {
     readonly IFormatProvider? _formatProvider;
-    readonly ExportLogsServiceRequest _requestTemplate;
+    readonly ResourceLogs _resourceLogsTemplate;
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
 
     public OpenTelemetrySink(
-       string endpoint,
-       OtlpProtocol protocol,
-       IFormatProvider? formatProvider,
-       IReadOnlyDictionary<string, object> resourceAttributes,
-       IReadOnlyDictionary<string, string> headers,
-       IncludedData includedData,
-       HttpMessageHandler? httpMessageHandler) 
+        IExporter exporter,
+        IFormatProvider? formatProvider,
+        IReadOnlyDictionary<string, object> resourceAttributes,
+        IncludedData includedData)
     {
-        _exporter = protocol switch
-        {
-            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers, httpMessageHandler),
-            OtlpProtocol.Grpc => new GrpcExporter(endpoint, headers, httpMessageHandler),
-            _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
-        };
-
+        _exporter = exporter;
         _formatProvider = formatProvider;
         _includedData = includedData;
 
@@ -51,7 +43,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
             resourceAttributes = RequiredResourceAttributes.AddDefaults(resourceAttributes);
         }
 
-        _requestTemplate = RequestTemplateFactory.CreateRequestTemplate(resourceAttributes);
+        _resourceLogsTemplate = RequestTemplateFactory.CreateResourceLogs(resourceAttributes);
     }
 
     /// <summary>
@@ -62,25 +54,47 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
         (_exporter as IDisposable)?.Dispose();
     }
 
-    void AddLogEventToRequest(LogEvent logEvent, ExportLogsServiceRequest request)
-    {
-        var logRecord = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData);
-        request.ResourceLogs[0].ScopeLogs[0].LogRecords.Add(logRecord);
-    }
-
     /// <summary>
     /// Transforms and sends the given batch of LogEvent objects
     /// to an OTLP endpoint.
     /// </summary>
     public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        var request = _requestTemplate.Clone();
+        var resourceLogs = _resourceLogsTemplate.Clone();
+        
+        var anonymousScope = (ScopeLogs?)null;
+        var namedScopes = (Dictionary<string, ScopeLogs>?)null;
 
         foreach (var logEvent in batch)
         {
-            AddLogEventToRequest(logEvent, request);
+            var (logRecord, scopeName) = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData);
+            if (scopeName == null)
+            {
+                if (anonymousScope == null)
+                {
+                    anonymousScope = RequestTemplateFactory.CreateScopeLogs(null);
+                    resourceLogs.ScopeLogs.Add(anonymousScope);
+                }
+                
+                anonymousScope.LogRecords.Add(logRecord);
+            }
+            else
+            {
+                namedScopes ??= new Dictionary<string, ScopeLogs>();
+                if (!namedScopes.TryGetValue(scopeName, out var namedScope))
+                {
+                    namedScope = RequestTemplateFactory.CreateScopeLogs(scopeName);
+                    namedScopes.Add(scopeName, namedScope);
+                    resourceLogs.ScopeLogs.Add(namedScope);
+                }
+                
+                namedScope.LogRecords.Add(logRecord);
+            }
         }
 
+        var request = new ExportLogsServiceRequest();
+        request.ResourceLogs.Add(resourceLogs);
+        
         return _exporter.ExportAsync(request);
     }
 
@@ -90,8 +104,13 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     /// </summary>
     public void Emit(LogEvent logEvent)
     {
-        var request = _requestTemplate.Clone();
-        AddLogEventToRequest(logEvent, request);
+        var (logRecord, scopeName) = LogRecordBuilder.ToLogRecord(logEvent, _formatProvider, _includedData);
+        var scopeLogs = RequestTemplateFactory.CreateScopeLogs(scopeName);
+        scopeLogs.LogRecords.Add(logRecord);
+        var resourceLogs = _resourceLogsTemplate.Clone();
+        resourceLogs.ScopeLogs.Add(scopeLogs);
+        var request = new ExportLogsServiceRequest();
+        request.ResourceLogs.Add(resourceLogs);
         _exporter.Export(request);
     }
 

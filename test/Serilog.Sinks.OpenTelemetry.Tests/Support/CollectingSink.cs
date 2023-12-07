@@ -15,9 +15,18 @@ class CollectingSink: ILogEventSink
 
     public static LogEvent CollectSingle(Action<ILogger> emitter)
     {
+        return Assert.Single(Collect(emitter));
+    }
+
+    public static IReadOnlyList<LogEvent> Collect(Action<ILogger> emitter)
+    {
         var sink = new CollectingSink();
-        var logger = new LoggerConfiguration().WriteTo.Sink(sink).CreateLogger();
-        emitter(logger);
-        return Assert.Single(sink._emitted);
+        var collector = new LoggerConfiguration()
+            .WriteTo.Sink(sink)
+            .CreateLogger();
+        
+        emitter(collector);
+
+        return sink._emitted;
     }
 }
