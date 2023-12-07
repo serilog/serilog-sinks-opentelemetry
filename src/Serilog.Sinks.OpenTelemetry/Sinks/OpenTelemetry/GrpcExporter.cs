@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Net.Http;
 using Grpc.Core;
 using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
@@ -51,7 +52,7 @@ sealed class GrpcExporter : IExporter, IDisposable
         {
             grpcChannelOptions.HttpClient = new HttpClient(httpMessageHandler);
             grpcChannelOptions.DisposeHttpClient = true;
-        };
+        }
         
         _channel = GrpcChannel.ForAddress(endpoint, grpcChannelOptions);
         _client = new LogsService.LogsServiceClient(_channel);
