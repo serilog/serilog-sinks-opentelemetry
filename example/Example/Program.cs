@@ -16,95 +16,81 @@
 
 using Serilog;
 using System.Diagnostics;
+using Serilog.Core;
 using Serilog.Sinks.OpenTelemetry;
 
-namespace Example;
+// Without activity listeners present, trace and span ids are not collected.
+using var listener = new ActivityListener();
+listener.ShouldListenTo = _ => true;
+listener.Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData;
+ActivitySource.AddActivityListener(listener);
 
-static class Program
+var source = new ActivitySource("test.example", "1.0.0");
+
+using (var grpcLogger = CreateLogger(OtlpProtocol.Grpc))
 {
-    static readonly Random Rand = new();
+    using var activity = source.StartActivity("grpc-loop");
+    SendLogs(grpcLogger, "grpc");
+}
 
-    static void Main()
+using (var httpLogger = CreateLogger(OtlpProtocol.HttpProtobuf))
+{
+    using var activity = source.StartActivity("http-loop");
+    SendLogs(httpLogger, "http/protobuf");
+}
+
+static void SendLogs(ILogger logger, string protocol)
+{
+    var position = new { Latitude = Random.Shared.Next(-90, 91), Longitude = Random.Shared.Next(0, 361) };
+    var elapsedMs = Random.Shared.Next(0, 101);
+    var roll = Random.Shared.Next(0, 7);
+
+    logger
+        .ForContext("Elapsed", elapsedMs)
+        .ForContext("Protocol", protocol)
+        .Information("The position is {@Position}", position);
+
+    try
     {
-        // create an ActivitySource (that is listened to) for creating an Activity
-        // to test the trace and span ID enricher
-        using var listener = new ActivityListener();
-        listener.ShouldListenTo = _ => true;
-        listener.Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData;
-
-        ActivitySource.AddActivityListener(listener);
-
-        var source = new ActivitySource("test.example", "1.0.0");
-
-        // Create the loggers to send to gRPC and to HTTP.
-        var grpcLogger = GetLogger(OtlpProtocol.Grpc);
-        var httpLogger = GetLogger(OtlpProtocol.HttpProtobuf);
-
-        using (source.StartActivity("grpc-loop"))
-        {
-            SendLogs(grpcLogger, "grpc");
-        }
-
-        using (source.StartActivity("http-loop"))
-        {
-            SendLogs(httpLogger, "http/protobuf");
-        }
-
-        Thread.Sleep(5000);
+        throw new Exception(protocol);
     }
-
-    static void SendLogs(ILogger logger, string protocol)
+    catch (Exception ex)
     {
-        var position = new { Latitude = Rand.Next(-90, 91), Longitude = Rand.Next(0, 361) };
-        var elapsedMs = Rand.Next(0, 101);
-        var roll = Rand.Next(0, 7);
-
-        logger
-            .ForContext("Elapsed", elapsedMs)
-            .ForContext("Protocol", protocol)
-            .Information("The position is {@Position}", position);
-
-        try
-        {
-            throw new Exception(protocol);
-        }
-        catch (Exception ex)
-        {
-            logger.ForContext("protocol", protocol).Error(ex, "Error on roll {Roll}", roll);
-        }
+        logger.ForContext("protocol", protocol).Error(ex, "Error on roll {Roll}", roll);
     }
+}
 
-    static ILogger GetLogger(OtlpProtocol protocol)
-    {
-        var endpoint = protocol == OtlpProtocol.HttpProtobuf ?
-            "http://localhost:4318/v1/logs" :
-            "http://localhost:4317";
+static Logger CreateLogger(OtlpProtocol protocol)
+{
+    var endpoint = protocol == OtlpProtocol.HttpProtobuf ?
+        "http://localhost:4318/v1/logs" :
+        "http://localhost:4317";
 
-        return new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .WriteTo.OpenTelemetry(options => {
-                options.Endpoint = endpoint;
-                options.Protocol = protocol;
-                options.IncludedData = 
-                    IncludedData.SpanIdField
-                    | IncludedData.TraceIdField
-                    | IncludedData.MessageTemplateTextAttribute
-                    | IncludedData.MessageTemplateMD5HashAttribute;
-                options.ResourceAttributes = new Dictionary<string, object>
-                {
-                    ["service.name"] = "test-logging-service",
-                    ["index"] = 10,
-                    ["flag"] = true,
-                    ["pi"] = 3.14
-                };
-                options.Headers = new Dictionary<string, string>
-                {
-                    ["Authorization"] = "Basic dXNlcjphYmMxMjM=", // user:abc123
-                };
-                options.BatchingOptions.BatchSizeLimit = 2;
-                options.BatchingOptions.Period = TimeSpan.FromSeconds(2);
-                options.BatchingOptions.QueueLimit = 10;
-            })
-            .CreateLogger();
-    }
+    return new LoggerConfiguration()
+        .WriteTo.OpenTelemetry(options => {
+            options.Endpoint = endpoint;
+            options.Protocol = protocol;
+            // Prevent tracing of outbound requests from the sink
+            options.HttpMessageHandler = new SocketsHttpHandler { ActivityHeadersPropagator = null };
+            options.IncludedData = 
+                IncludedData.SpanIdField
+                | IncludedData.TraceIdField
+                | IncludedData.MessageTemplateTextAttribute
+                | IncludedData.MessageTemplateMD5HashAttribute;
+            options.ResourceAttributes = new Dictionary<string, object>
+            {
+                ["service.name"] = "test-logging-service",
+                ["index"] = 10,
+                ["flag"] = true,
+                ["pi"] = 3.14
+            };
+            options.Headers = new Dictionary<string, string>
+            {
+                ["Authorization"] = "Basic dXNlcjphYmMxMjM=", // user:abc123
+            };
+            options.BatchingOptions.BatchSizeLimit = 2;
+            options.BatchingOptions.Period = TimeSpan.FromSeconds(2);
+            options.BatchingOptions.QueueLimit = 10;
+        })
+        .CreateLogger();
 }

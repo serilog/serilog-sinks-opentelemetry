@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Diagnostics;
+using System.Net.Http;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -36,7 +37,11 @@ public class OpenTelemetrySinkOptions
     public string Endpoint { get; set; } = DefaultEndpoint;
 
     /// <summary>
-    /// Custom HTTP message handler.
+    /// A custom HTTP message handler. To suppress tracing of HTTP requests from the sink, set the handler to
+    /// a <c>SocketsHttpHandler</c> with <c>null</c> <c>ActivityHeadersPropagator</c>:
+    /// <code>
+    /// options.HttpMessageHandler = new SocketsHttpHandler { ActivityHeadersPropagator = null };
+    /// </code>
     /// </summary>
     public HttpMessageHandler? HttpMessageHandler { get; set; }
 

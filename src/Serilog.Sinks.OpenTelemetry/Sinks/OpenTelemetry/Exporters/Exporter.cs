@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Net.Http;
+
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
 static class Exporter
