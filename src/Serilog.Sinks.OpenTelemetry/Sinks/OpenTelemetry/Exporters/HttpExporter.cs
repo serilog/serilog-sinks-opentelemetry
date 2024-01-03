@@ -59,11 +59,11 @@ sealed class HttpExporter : IExporter, IDisposable
     {
         var httpRequest = CreateHttpRequestMessage(request);
 
-#if NO_SYNC_HTTP_SEND
-        var response = _client.SendAsync(httpRequest).Result;
-#else
+#if FEATURE_SYNC_HTTP_SEND
         // We could consider using HttpCompletionOption.ResponseHeadersRead here.
         var response = _client.Send(httpRequest);
+#else
+        var response = _client.SendAsync(httpRequest).Result;
 #endif
         
         response.EnsureSuccessStatusCode();
