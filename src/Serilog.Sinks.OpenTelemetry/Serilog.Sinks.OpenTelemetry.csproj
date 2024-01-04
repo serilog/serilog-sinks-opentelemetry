@@ -23,13 +23,13 @@
 	<ItemGroup>
 		<None Include="../../assets/serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="/" />
 		<None Include="../../README.md" Pack="true" Visible="false" PackagePath="/" />
-		<PackageReference Include="Google.Protobuf" Version="3.23.4" />
-		<PackageReference Include="Grpc.Net.Client" Version="2.55.0" />
+		<PackageReference Include="Google.Protobuf" Version="3.25.1" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.60.0" />
 		<PackageReference Include="Serilog" Version="3.1.1" />
 		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="4.0.0-*" />
 	</ItemGroup>
 	
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
 	</ItemGroup>
 </Project>
