@@ -29,7 +29,7 @@
 		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="4.0.0-*" />
 	</ItemGroup>
 	
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462' ">
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'netstandard2.0' ">
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
 	</ItemGroup>
 </Project>
