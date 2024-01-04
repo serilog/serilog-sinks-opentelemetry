@@ -59,11 +59,18 @@ sealed class HttpExporter : IExporter, IDisposable
     {
         var httpRequest = CreateHttpRequestMessage(request);
 
-#if NO_SYNC_HTTP_SEND
-        var response = _client.SendAsync(httpRequest).Result;
-#else
-        // We could consider using HttpCompletionOption.ResponseHeadersRead here.
+#if FEATURE_SYNC_HTTP_SEND
+        // Used in audit mode; on later .NET platforms this can be done without the
+        // risk of deadlocks.
+        // FUTURE: We could consider using HttpCompletionOption.ResponseHeadersRead here, but
+        // would need to investigate any potential impacts on receivers.
         var response = _client.Send(httpRequest);
+#else
+        // Earlier .NET: some deadlock risk here. Necessary because in audit mode,
+        // exceptions need to propagate - otherwise we'd just fire-and-forget.
+        // No `ConfigureAwait(false)` because this only applies to async continuations: we're
+        // staying on the same thread, here.
+        var response = _client.SendAsync(httpRequest).Result;
 #endif
         
         response.EnsureSuccessStatusCode();

@@ -4,7 +4,7 @@
 			logs and sends them to an OTLP (gRPC or HTTP) endpoint.</Description>
 		<VersionPrefix>2.0.0</VersionPrefix>
 		<Authors>Serilog Contributors</Authors>
-		<TargetFrameworks>net6.0;netstandard2.1;netstandard2.0;net462</TargetFrameworks>
+		<TargetFrameworks>net462;netstandard2.0;net6.0</TargetFrameworks>
 		<PackageTags>serilog;sink;opentelemetry</PackageTags>
 		<PackageIcon>serilog-sink-nuget.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/serilog/serilog-sinks-opentelemetry</PackageProjectUrl>
@@ -17,11 +17,7 @@
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-		<DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY</DefineConstants>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
-		<DefineConstants>$(DefineConstants);NO_SYNC_HTTP_SEND</DefineConstants>
+		<DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND</DefineConstants>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -30,10 +26,10 @@
 		<PackageReference Include="Google.Protobuf" Version="3.25.1" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.60.0" />
 		<PackageReference Include="Serilog" Version="3.1.1" />
-		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
+		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="4.0.0-*" />
 	</ItemGroup>
 	
-	<ItemGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'netstandard2.0' ">
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
 	</ItemGroup>
 </Project>
