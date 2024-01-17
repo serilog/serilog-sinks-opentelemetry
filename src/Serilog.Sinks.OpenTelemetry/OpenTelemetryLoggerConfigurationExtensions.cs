@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Net.Http;
 using Serilog.Configuration;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.OpenTelemetry.Exporters;
@@ -25,6 +26,13 @@ namespace Serilog;
 /// </summary>
 public static class OpenTelemetryLoggerConfigurationExtensions
 {
+    static HttpMessageHandler? CreateDefaultHttpMessageHandler() =>
+#if FEATURE_SOCKETS_HTTP_HANDLER
+        new SocketsHttpHandler { ActivityHeadersPropagator = null };
+#else
+        null;
+#endif
+    
     /// <summary>
     /// Send log events to an OTLP exporter.
     /// </summary>
@@ -45,7 +53,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             endpoint: options.Endpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
-            httpMessageHandler: options.HttpMessageHandler);
+            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
 
         var openTelemetrySink = new OpenTelemetrySink(
             exporter: exporter,
@@ -117,7 +125,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             endpoint: options.Endpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
-            httpMessageHandler: options.HttpMessageHandler);
+            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
 
         var sink = new OpenTelemetrySink(
             exporter: exporter,
