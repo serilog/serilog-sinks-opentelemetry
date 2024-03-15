@@ -92,7 +92,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
-            options.IncludedData = (IncludedData)Enum.Parse(typeof(IncludedData), includedData);
+            options.IncludedData = includedData != null ? (IncludedData)Enum.Parse(typeof(IncludedData), includedData) : options.IncludedData;
             headers?.AddTo(options.Headers);
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
@@ -164,7 +164,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
-            options.IncludedData = (IncludedData)Enum.Parse(typeof(IncludedData), includedData);
+            options.IncludedData = includedData != null ? (IncludedData)Enum.Parse(typeof(IncludedData), includedData) : options.IncludedData;
             headers?.AddTo(options.Headers);
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
