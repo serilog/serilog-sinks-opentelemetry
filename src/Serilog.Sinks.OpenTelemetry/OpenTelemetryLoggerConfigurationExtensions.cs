@@ -84,7 +84,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         OtlpProtocol protocol = OpenTelemetrySinkOptions.DefaultProtocol,
         IDictionary<string, string>? headers = null,
         IDictionary<string, object>? resourceAttributes = null,
-        string includedData = null)
+        IncludedData? includedData = null)
     {
         if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
 
@@ -92,7 +92,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
-            options.IncludedData = includedData != null ? (IncludedData)Enum.Parse(typeof(IncludedData), includedData) : options.IncludedData;
+            options.IncludedData = includedData ?? options.IncludedData;
             headers?.AddTo(options.Headers);
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
@@ -156,7 +156,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         OtlpProtocol protocol = OpenTelemetrySinkOptions.DefaultProtocol,
         IDictionary<string, string>? headers = null,
         IDictionary<string, object>? resourceAttributes = null,
-        string includedData = null)
+        IncludedData? includedData = null)
     {
         if (loggerAuditSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerAuditSinkConfiguration));
 
@@ -164,7 +164,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
-            options.IncludedData = includedData != null ? (IncludedData)Enum.Parse(typeof(IncludedData), includedData) : options.IncludedData;
+            options.IncludedData = includedData ?? options.IncludedData;
             headers?.AddTo(options.Headers);
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
