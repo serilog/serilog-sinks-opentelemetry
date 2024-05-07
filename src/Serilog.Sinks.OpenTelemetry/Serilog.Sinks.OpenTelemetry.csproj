@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<Description>This Serilog sink transforms Serilog events into OpenTelemetry
 			logs and sends them to an OTLP (gRPC or HTTP) endpoint.</Description>
-		<VersionPrefix>2.0.1</VersionPrefix>
+		<VersionPrefix>3.0.0</VersionPrefix>
 		<Authors>Serilog Contributors</Authors>
 		<TargetFrameworks>net462;netstandard2.0;net6.0</TargetFrameworks>
 		<PackageTags>serilog;sink;opentelemetry</PackageTags>
@@ -14,6 +14,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Serilog</RootNamespace>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<LangVersion>12</LangVersion>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
@@ -25,11 +26,6 @@
 		<None Include="../../README.md" Pack="true" Visible="false" PackagePath="/" />
 		<PackageReference Include="Google.Protobuf" Version="3.25.1" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.60.0" />
-		<PackageReference Include="Serilog" Version="3.1.1" />
-		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="4.0.0-*" />
-	</ItemGroup>
-	
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' OR '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
+		<PackageReference Include="Serilog" Version="4.0.0-*" />
 	</ItemGroup>
 </Project>
