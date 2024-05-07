@@ -1,4 +1,4 @@
-﻿// Copyright © Serilog Contributors
+// Copyright © Serilog Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Reflection;
+namespace Serilog.Collections;
 
-namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
-
-static class PackageIdentity
+static class EnumerableExtensions
 {
-    public static string GetTelemetrySdkVersion()
+    public static void AddTo<T>(this IEnumerable<T> from, ICollection<T> to)
     {
-        return typeof(RequestTemplateFactory).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+        foreach (var item in from)
+        {
+            to.Add(item);
+        }
     }
-
-    public const string TelemetrySdkName = "serilog";
-    
-    public const string TelemetrySdkLanguage = "dotnet";
 }
