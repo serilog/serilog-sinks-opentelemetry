@@ -3,11 +3,11 @@
 This Serilog sink transforms Serilog log events into OpenTelemetry
 `LogRecord`s and sends them to an OTLP (gRPC or HTTP) endpoint.
 
-> [!TIP]
-> If you would like to capture and send OTLP trace data as well as logs, consider [SerilogTracing](https://github.com/serilog-tracing/serilog-tracing) instead of this sink. 
-
 The sink aims for full compliance with the OpenTelemetry Logs protocol. It
 does not depend on the OpenTelemetry SDK or .NET API.
+
+> [!TIP]
+> If you would like to capture and send OTLP trace data as well as logs, consider [SerilogTracing](https://github.com/serilog-tracing/serilog-tracing) instead of this sink. 
 
 OpenTelemetry supports attributes with scalar values, arrays, and maps.
 Serilog does as well. Consequently, the sink does a one-to-one
