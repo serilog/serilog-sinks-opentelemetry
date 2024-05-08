@@ -3,6 +3,9 @@
 This Serilog sink transforms Serilog events into OpenTelemetry
 `LogRecord`s and sends them to an OTLP (gRPC or HTTP) endpoint.
 
+> [!TIP]
+> If you would like to see timing and dependency information in Seq, [SerilogTracing](https://github.com/serilog-tracing/serilog-tracing) is a Serilog extension that supports both logs and traces.
+
 The sink aims for full compliance with the OpenTelemetry Logs protocol. It
 does not depend on the OpenTelemetry SDK or .NET API.
 
