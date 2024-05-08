@@ -1,10 +1,10 @@
 # Serilog.Sinks.OpenTelemetry [![Build status](https://ci.appveyor.com/api/projects/status/sqmrvw34pcuatwl5/branch/dev?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-opentelemetry/branch/dev) [![NuGet Version](https://img.shields.io/nuget/vpre/Serilog.Sinks.OpenTelemetry.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.OpenTelemetry/)
 
-This Serilog sink transforms Serilog events into OpenTelemetry
+This Serilog sink transforms Serilog log events into OpenTelemetry
 `LogRecord`s and sends them to an OTLP (gRPC or HTTP) endpoint.
 
 > [!TIP]
-> If you would like to see timing and dependency information in Seq, [SerilogTracing](https://github.com/serilog-tracing/serilog-tracing) is a Serilog extension that supports both logs and traces.
+> If you would like to capture and send OTLP trace data as well as logs, consider [SerilogTracing](https://github.com/serilog-tracing/serilog-tracing) instead of this sink. 
 
 The sink aims for full compliance with the OpenTelemetry Logs protocol. It
 does not depend on the OpenTelemetry SDK or .NET API.
