@@ -16,7 +16,6 @@ using System.Net.Http;
 using Serilog.Configuration;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.OpenTelemetry.Exporters;
-using Serilog.Sinks.PeriodicBatching;
 using Serilog.Collections;
 using Serilog.Core;
 using Serilog.Events;
@@ -63,9 +62,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
             includedData: options.IncludedData);
 
-        var sink = new PeriodicBatchingSink(openTelemetrySink, options.BatchingOptions);
-
-        return loggerSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
+        return loggerSinkConfiguration.Sink(openTelemetrySink, options.BatchingOptions, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
 
     /// <summary>

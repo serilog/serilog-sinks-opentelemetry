@@ -128,24 +128,20 @@ static class PrimitiveConversions
         
         foreach (var prop in value.Properties)
         {
-            if (seen.Contains(prop.Name))
-                continue;
-
-            seen.Add(prop.Name);
-
-            var v = ToOpenTelemetryAnyValue(prop.Value);
-            var kv = new KeyValue
+            if (seen.Add(prop.Name))
             {
-                Key = prop.Name,
-                Value = v
-            };
-            kvList.Values.Add(kv);
+                kvList.Values.Add(new KeyValue
+                {
+                    Key = prop.Name,
+                    Value = ToOpenTelemetryAnyValue(prop.Value)
+                });
+            }
         }
 
         return map;
     }
 
-    public static AnyValue ToOpenTelemetryMap(DictionaryValue value)
+    static AnyValue ToOpenTelemetryMap(DictionaryValue value)
     {
         var map = new AnyValue();
         var kvList = new KeyValueList();

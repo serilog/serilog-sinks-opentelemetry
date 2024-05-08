@@ -89,7 +89,7 @@ static Logger CreateLogger(OtlpProtocol protocol)
                 ["Authorization"] = "Basic dXNlcjphYmMxMjM=", // user:abc123
             };
             options.BatchingOptions.BatchSizeLimit = 700;
-            options.BatchingOptions.Period = TimeSpan.FromSeconds(1);
+            options.BatchingOptions.BufferingTimeLimit = TimeSpan.FromSeconds(1);
             options.BatchingOptions.QueueLimit = 10;
         })
         .CreateLogger();

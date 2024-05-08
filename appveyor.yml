@@ -2,7 +2,10 @@ version: '{build}'
 skip_tags: true
 image: Visual Studio 2022
 build_script:
-    - pwsh: ./Build.ps1
+    - pwsh: |
+        Invoke-WebRequest "https://dot.net/v1/dotnet-install.ps1" -OutFile "./dotnet-install.ps1"
+        ./dotnet-install.ps1 -JsonFile global.json -Architecture x64 -InstallDir 'C:\Program Files\dotnet'
+        ./Build.ps1
 artifacts:
     - path: artifacts/Serilog.*.nupkg
 deploy:

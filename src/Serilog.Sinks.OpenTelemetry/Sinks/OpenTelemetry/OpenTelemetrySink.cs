@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Serilog Contributors
+﻿// Copyright © Serilog Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Net.Http;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
-using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -59,7 +57,7 @@ class OpenTelemetrySink : IBatchedLogEventSink, ILogEventSink, IDisposable
     /// Transforms and sends the given batch of LogEvent objects
     /// to an OTLP endpoint.
     /// </summary>
-    public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
+    public Task EmitBatchAsync(IReadOnlyCollection<LogEvent> batch)
     {
         var resourceLogs = _resourceLogsTemplate.Clone();
         
