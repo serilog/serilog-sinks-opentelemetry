@@ -3,10 +3,9 @@
     public static class OpenTelemetryLoggerConfigurationExtensions
     {
         public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.OpenTelemetrySinkOptions> configure) { }
-        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.BatchedOpenTelemetrySinkOptions> configure) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.BatchedOpenTelemetrySinkOptions> configure, bool includeEnvironment = true) { }
         public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, string endpoint = "http://localhost:4317", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, string>? headers = null, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, Serilog.Sinks.OpenTelemetry.IncludedData? includedData = default) { }
         public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, string endpoint = "http://localhost:4317", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, string>? headers = null, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, Serilog.Sinks.OpenTelemetry.IncludedData? includedData = default, Serilog.Events.LogEventLevel restrictedToMinimumLevel = 0, Serilog.Core.LoggingLevelSwitch? levelSwitch = null) { }
-        public static Serilog.LoggerConfiguration OpenTelemetryEnvironment(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, Serilog.Events.LogEventLevel restrictedToMinimumLevel = 0, Serilog.Core.LoggingLevelSwitch? levelSwitch = null) { }
     }
 }
 namespace Serilog.Sinks.OpenTelemetry
