@@ -1,7 +1,16 @@
-﻿namespace Serilog.Helpers;
+﻿using Serilog.Sinks.OpenTelemetry;
 
-internal static class OpenTelemetryEnvironmentVariables
+namespace Serilog.Helpers;
+
+internal static class OpenTelemetryEnvironment
 {
+    public static void Configure(BatchedOpenTelemetrySinkOptions options)
+    {
+        options.Endpoint = Endpoint;
+        options.Headers = Headers;
+        options.ResourceAttributes = ResourceAttributes;
+    }
+
     public static string Endpoint
         => Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT") ?? throw new InvalidOperationException("OTEL_EXPORTER_OTLP_ENDPOINT was not found");
 

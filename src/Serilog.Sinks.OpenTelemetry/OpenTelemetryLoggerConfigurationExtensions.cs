@@ -34,7 +34,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
 #else
         null;
 #endif
-    
+
     /// <summary>
     /// Send log events to an OTLP exporter.
     /// </summary>
@@ -42,14 +42,21 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The `WriteTo` configuration object.
     /// </param>
     /// <param name="configure">The configuration callback.</param>
+    /// <param name="includeEnvironment">If true the configuration will be overridden with values from OTLP Exporter Configuration environment variables(https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/).</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
-        Action<BatchedOpenTelemetrySinkOptions> configure)
+        Action<BatchedOpenTelemetrySinkOptions> configure,
+        bool includeEnvironment = true)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
+
+        if (includeEnvironment)
+        {
+            OpenTelemetryEnvironment.Configure(options);
+        }
 
         var exporter = Exporter.Create(
             endpoint: options.Endpoint,
@@ -117,36 +124,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             headers?.AddTo(options.Headers);
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
-    }
-
-    /// <summary>
-    /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller. This method uses default environmental variable definitions(https://opentelemetry.io/docs/reference/specification/protocol/exporter/).
-    /// </summary>
-    /// <param name="loggerSinkConfiguration">
-    /// The `WriteTo` configuration object.
-    /// </param>
-    /// <param name="restrictedToMinimumLevel">
-    /// The minimum level for events passed through the sink. Ignored when <paramref name="levelSwitch"/> is specified.
-    /// </param>
-    /// <param name="levelSwitch">
-    /// A switch allowing the pass-through minimum level to be changed at runtime.
-    /// </param>
-    /// <returns>Logger configuration, allowing configuration to continue.</returns>
-    public static LoggerConfiguration OpenTelemetryEnvironment(
-        this LoggerSinkConfiguration loggerSinkConfiguration,
-        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-        LoggingLevelSwitch? levelSwitch = null)
-    {
-        if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
-
-        return OpenTelemetry(loggerSinkConfiguration,
-            OpenTelemetryEnvironmentVariables.Endpoint,
-            OpenTelemetrySinkOptions.DefaultProtocol,
-            OpenTelemetryEnvironmentVariables.Headers,
-            OpenTelemetryEnvironmentVariables.ResourceAttributes,
-            IncludedData.SpanIdField | IncludedData.TraceIdField,
-            restrictedToMinimumLevel,
-            levelSwitch);
     }
 
     /// <summary>
