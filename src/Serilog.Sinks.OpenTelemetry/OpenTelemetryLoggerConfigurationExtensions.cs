@@ -16,8 +16,8 @@ using Serilog.Collections;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Helpers;
 using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry.Configuration;
 using Serilog.Sinks.OpenTelemetry.Exporters;
 using System.Net.Http;
 
@@ -42,20 +42,20 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The `WriteTo` configuration object.
     /// </param>
     /// <param name="configure">The configuration callback.</param>
-    /// <param name="includeEnvironment">If true the configuration will be overridden with values from OTLP Exporter Configuration environment variables(https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/).</param>
+    /// <param name="ignoreEnvironment">If false the configuration will be overridden with values from <see href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/">OTLP Exporter Configuration environment variables</see>.</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
         Action<BatchedOpenTelemetrySinkOptions> configure,
-        bool includeEnvironment = true)
+        bool ignoreEnvironment = false)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
-        if (includeEnvironment)
+        if (!ignoreEnvironment)
         {
-            OpenTelemetryEnvironment.Configure(options);
+            OpenTelemetryEnvironment.Configure(options, Environment.GetEnvironmentVariable);
         }
 
         var exporter = Exporter.Create(

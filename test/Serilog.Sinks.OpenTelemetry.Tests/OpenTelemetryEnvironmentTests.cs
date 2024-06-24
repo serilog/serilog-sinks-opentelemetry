@@ -1,4 +1,4 @@
-﻿using Serilog.Helpers;
+﻿using Serilog.Sinks.OpenTelemetry.Configuration;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
@@ -10,87 +10,86 @@ public class OpenTelemetryEnvironmentTests
     {
         BatchedOpenTelemetrySinkOptions options = new();
         var endpoint = "http://localhost";
+        var protocol = OtlpProtocol.Grpc;
         var headers = "header1=1,header2=2";
         var resourceAttributes = "name1=1,name2=2";
-        Environment.SetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT", endpoint);
-        Environment.SetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS", headers);
-        Environment.SetEnvironmentVariable("OTEL_RESOURCE_ATTRIBUTES", resourceAttributes);
 
-        OpenTelemetryEnvironment.Configure(options);
+        OpenTelemetryEnvironment.Configure(options, GetEnvVar);
 
         Assert.Equal(endpoint, options.Endpoint);
+        Assert.Equal(protocol, options.Protocol);
         Assert.Collection(options.Headers,
             e => Assert.Equal(("header1", "1"), (e.Key, e.Value)),
             e => Assert.Equal(("header2", "2"), (e.Key, e.Value)));
         Assert.Collection(options.ResourceAttributes,
             e => Assert.Equal(("name1", "1"), (e.Key, e.Value)),
             e => Assert.Equal(("name2", "2"), (e.Key, e.Value)));
+
+        string? GetEnvVar(string name)
+             => name switch
+             {
+                 "OTEL_EXPORTER_OTLP_ENDPOINT" => endpoint,
+                 "OTEL_EXPORTER_OTLP_HEADERS" => headers,
+                 "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
+                 "OTEL_EXPORTER_OTLP_PROTOCOL" => "grpc",
+                 _ => null
+             };
     }
 
     [Fact]
-    public void EndpointIsObtainedIfWhenPresent()
+    public void ConfigureAppendPathToEndpointIfProtocolIsHttpProtobufAndEndpointDoesntEndsWithProperValue()
     {
+        BatchedOpenTelemetrySinkOptions options = new();
         var endpoint = "http://localhost";
-        Environment.SetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT", endpoint);
+        var protocol = OtlpProtocol.HttpProtobuf;
 
-        var actual = OpenTelemetryEnvironment.Endpoint;
+        OpenTelemetryEnvironment.Configure(options, GetEnvVar);
 
-        Assert.Equal(endpoint, actual);
+        Assert.Equal($"{endpoint}/v1/logs", options.Endpoint);
+        Assert.Equal(protocol, options.Protocol);
+
+        string? GetEnvVar(string name)
+             => name switch
+             {
+                 "OTEL_EXPORTER_OTLP_ENDPOINT" => endpoint,
+                 "OTEL_EXPORTER_OTLP_PROTOCOL" => "http/protobuf",
+                 _ => null
+             };
     }
 
     [Fact]
-    public void EndpointThrowsExceptionIfWhenNotPresent()
+    public void ConfigureThrowsIfHeaderEnvIsInvalidFormat()
     {
-        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Endpoint);
-
-        Assert.Equal("OTEL_EXPORTER_OTLP_ENDPOINT was not found", exception.Message);
-    }
-
-    [Fact]
-    public void HeadersIsObtainedIfWhenPresent()
-    {
-        var headers = "header1=1,header2=2";
-        Environment.SetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS", headers);
-
-        var actual = OpenTelemetryEnvironment.Headers;
-
-        Assert.Collection(actual,
-            e => Assert.Equal(("header1", "1"), (e.Key, e.Value)),
-            e => Assert.Equal(("header2", "2"), (e.Key, e.Value)));
-    }
-
-    [Fact]
-    public void HeadersThrowsExceptionIfWhenNotPresent()
-    {
+        BatchedOpenTelemetrySinkOptions options = new();
         var headers = "header1";
-        Environment.SetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS", headers);
 
-        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Headers);
+        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
 
-        Assert.Equal("Invalid header format: header1", exception.Message);
+        Assert.Equal("Invalid header format: header1 in OTEL_EXPORTER_OTLP_HEADERS environment variable.", exception.Message);
+
+        string? GetEnvVar(string name)
+             => name switch
+             {
+                 "OTEL_EXPORTER_OTLP_HEADERS" => headers,
+                 _ => null
+             };
     }
 
     [Fact]
-    public void ResourceAttributesIsObtainedIfWhenPresent()
+    public void ConfigureThrowsIfResourceAttributesEnvIsInvalidFormat()
     {
-        var headers = "header1=1,header2=2";
-        Environment.SetEnvironmentVariable("OTEL_RESOURCE_ATTRIBUTES", headers);
+        BatchedOpenTelemetrySinkOptions options = new();
+        var resourceAttributes = "resource1";
 
-        var actual = OpenTelemetryEnvironment.ResourceAttributes;
+        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
 
-        Assert.Collection(actual,
-            e => Assert.Equal(("header1", "1"), (e.Key, e.Value)),
-            e => Assert.Equal(("header2", "2"), (e.Key, e.Value)));
-    }
+        Assert.Equal("Invalid resourceAttributes format: resource1 in OTEL_RESOURCE_ATTRIBUTES environment variable.", exception.Message);
 
-    [Fact]
-    public void ResourceAttributesThrowsExceptionIfWhenNotPresent()
-    {
-        var headers = "header1";
-        Environment.SetEnvironmentVariable("OTEL_RESOURCE_ATTRIBUTES", headers);
-
-        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.ResourceAttributes);
-
-        Assert.Equal("Invalid resourceAttributes format: header1", exception.Message);
+        string? GetEnvVar(string name)
+             => name switch
+             {
+                 "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
+                 _ => null
+             };
     }
 }
