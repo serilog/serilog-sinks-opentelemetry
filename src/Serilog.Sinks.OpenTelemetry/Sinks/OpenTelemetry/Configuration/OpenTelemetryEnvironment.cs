@@ -46,7 +46,7 @@ static class OpenTelemetryEnvironment
         foreach (var part in config?.Split(',') ?? [])
         {
             if (part.Split('=') is { Length: 2 } parts)
-                headers.Add(parts[0], parts[1]);
+                headers[parts[0]] = parts[1];
             else
                 throw new InvalidOperationException($"Invalid header format `{part}` in {HeaderVarName} environment variable.");
         }
@@ -57,7 +57,7 @@ static class OpenTelemetryEnvironment
         foreach (var part in config?.Split(',') ?? [])
         {
             if (part.Split('=') is { Length: 2 } parts)
-                resourceAttributes.Add(parts[0], parts[1]);
+                resourceAttributes[parts[0]] = parts[1];
             else
                 throw new InvalidOperationException($"Invalid resource attributes format `{part}` in {ResourceAttributesVarName} environment variable.");
         }
