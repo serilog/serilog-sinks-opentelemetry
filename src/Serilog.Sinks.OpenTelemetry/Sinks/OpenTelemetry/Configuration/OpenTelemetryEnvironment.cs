@@ -1,51 +1,65 @@
-﻿namespace Serilog.Sinks.OpenTelemetry.Configuration;
+﻿// Copyright © Serilog Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+namespace Serilog.Sinks.OpenTelemetry.Configuration;
 
 static class OpenTelemetryEnvironment
 {
-    private const string PROTOCOL = "OTEL_EXPORTER_OTLP_PROTOCOL";
-    private const string ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT";
-    private const string HEADERS = "OTEL_EXPORTER_OTLP_HEADERS";
-    private const string RESOURCE_ATTRIBUTES = "OTEL_RESOURCE_ATTRIBUTES";
+    const string ProtocolVarName = "OTEL_EXPORTER_OTLP_PROTOCOL";
+    const string EndpointVarName = "OTEL_EXPORTER_OTLP_ENDPOINT";
+    const string HeaderVarName = "OTEL_EXPORTER_OTLP_HEADERS";
+    const string ResourceAttributesVarName = "OTEL_RESOURCE_ATTRIBUTES";
 
     public static void Configure(BatchedOpenTelemetrySinkOptions options, Func<string, string?> getEnvironmentVariable)
     {
-        options.Protocol = getEnvironmentVariable(PROTOCOL) switch
+        options.Protocol = getEnvironmentVariable(ProtocolVarName) switch
         {
             "http/protobuf" => OtlpProtocol.HttpProtobuf,
             "grpc" => OtlpProtocol.Grpc,
             _ => options.Protocol
         };
 
-        if (getEnvironmentVariable(ENDPOINT) is { Length: > 1 } endpoint)
+        if (getEnvironmentVariable(EndpointVarName) is { Length: > 1 } endpoint)
             options.Endpoint = endpoint;
 
         if (options.Protocol == OtlpProtocol.HttpProtobuf && !string.IsNullOrEmpty(options.Endpoint) && !options.Endpoint.EndsWith("/v1/logs"))
-            options.Endpoint = $"{options.Endpoint}/v1/logs";
+            options.Endpoint = $"{options.Endpoint.TrimEnd('/')}/v1/logs";
 
-        FillHeadersIfPresent(getEnvironmentVariable(HEADERS), options.Headers);
+        FillHeadersIfPresent(getEnvironmentVariable(HeaderVarName), options.Headers);
 
-        FillHeadersResourceAttributesIfPresent(getEnvironmentVariable(RESOURCE_ATTRIBUTES), options.ResourceAttributes);
+        FillHeadersResourceAttributesIfPresent(getEnvironmentVariable(ResourceAttributesVarName), options.ResourceAttributes);
     }
 
-    private static void FillHeadersIfPresent(string? config, IDictionary<string, string> headers)
+    static void FillHeadersIfPresent(string? config, IDictionary<string, string> headers)
     {
         foreach (var part in config?.Split(',') ?? [])
         {
             if (part.Split('=') is { Length: 2 } parts)
-                headers.Add(parts[0], parts[1]);
+                headers[parts[0]] = parts[1];
             else
-                throw new InvalidOperationException($"Invalid header format: {part} in {HEADERS} environment variable.");
+                throw new InvalidOperationException($"Invalid header format `{part}` in {HeaderVarName} environment variable.");
         }
     }
 
-    private static void FillHeadersResourceAttributesIfPresent(string? config, IDictionary<string, object> resourceAttributes)
+    static void FillHeadersResourceAttributesIfPresent(string? config, IDictionary<string, object> resourceAttributes)
     {
         foreach (var part in config?.Split(',') ?? [])
         {
             if (part.Split('=') is { Length: 2 } parts)
-                resourceAttributes.Add(parts[0], parts[1]);
+                resourceAttributes[parts[0]] = parts[1];
             else
-                throw new InvalidOperationException($"Invalid resourceAttributes format: {part} in {RESOURCE_ATTRIBUTES} environment variable.");
+                throw new InvalidOperationException($"Invalid resource attributes format `{part}` in {ResourceAttributesVarName} environment variable.");
         }
     }
 }

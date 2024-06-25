@@ -65,7 +65,7 @@ public class OpenTelemetryEnvironmentTests
 
         var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
 
-        Assert.Equal("Invalid header format: header1 in OTEL_EXPORTER_OTLP_HEADERS environment variable.", exception.Message);
+        Assert.Equal("Invalid header format `header1` in OTEL_EXPORTER_OTLP_HEADERS environment variable.", exception.Message);
 
         string? GetEnvVar(string name)
              => name switch
@@ -83,7 +83,7 @@ public class OpenTelemetryEnvironmentTests
 
         var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
 
-        Assert.Equal("Invalid resourceAttributes format: resource1 in OTEL_RESOURCE_ATTRIBUTES environment variable.", exception.Message);
+        Assert.Equal("Invalid resource attributes format `resource1` in OTEL_RESOURCE_ATTRIBUTES environment variable.", exception.Message);
 
         string? GetEnvVar(string name)
              => name switch
