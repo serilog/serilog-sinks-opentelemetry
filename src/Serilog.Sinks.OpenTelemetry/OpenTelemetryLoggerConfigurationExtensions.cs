@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// ReSharper disable once RedundantUsingDirective
+using System.Net.Http;
+
 using Serilog.Collections;
 using Serilog.Configuration;
 using Serilog.Core;
