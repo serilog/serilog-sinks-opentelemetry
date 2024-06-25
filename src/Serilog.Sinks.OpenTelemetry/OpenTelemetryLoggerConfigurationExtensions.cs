@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Net.Http;
-using Serilog.Configuration;
-using Serilog.Sinks.OpenTelemetry;
-using Serilog.Sinks.OpenTelemetry.Exporters;
 using Serilog.Collections;
+using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry.Configuration;
+using Serilog.Sinks.OpenTelemetry.Exporters;
+using System.Net.Http;
 
 namespace Serilog;
 
@@ -33,7 +34,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
 #else
         null;
 #endif
-    
+
     /// <summary>
     /// Send log events to an OTLP exporter.
     /// </summary>
@@ -41,14 +42,21 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The `WriteTo` configuration object.
     /// </param>
     /// <param name="configure">The configuration callback.</param>
+    /// <param name="ignoreEnvironment">If false the configuration will be overridden with values from <see href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/">OTLP Exporter Configuration environment variables</see>.</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
-        Action<BatchedOpenTelemetrySinkOptions> configure)
+        Action<BatchedOpenTelemetrySinkOptions> configure,
+        bool ignoreEnvironment = false)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
+
+        if (!ignoreEnvironment)
+        {
+            OpenTelemetryEnvironment.Configure(options, Environment.GetEnvironmentVariable);
+        }
 
         var exporter = Exporter.Create(
             endpoint: options.Endpoint,
@@ -117,7 +125,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
     }
-    
+
     /// <summary>
     /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller.
     /// </summary>
