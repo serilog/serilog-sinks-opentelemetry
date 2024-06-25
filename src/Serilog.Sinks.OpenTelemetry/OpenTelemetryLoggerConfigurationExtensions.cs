@@ -19,7 +19,7 @@ using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.OpenTelemetry.Configuration;
 using Serilog.Sinks.OpenTelemetry.Exporters;
-using System.Net.Http;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace Serilog;
 
@@ -28,6 +28,7 @@ namespace Serilog;
 /// </summary>
 public static class OpenTelemetryLoggerConfigurationExtensions
 {
+    // ReSharper disable once ReturnTypeCanBeNotNullable
     static HttpMessageHandler? CreateDefaultHttpMessageHandler() =>
 #if FEATURE_SOCKETS_HTTP_HANDLER
         new SocketsHttpHandler { ActivityHeadersPropagator = null };
