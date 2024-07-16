@@ -6,13 +6,14 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 public class OpenTelemetryEnvironmentTests
 {
     [Fact]
-    public void ConfigureFillOptionsWithEnvironmentVariablesValues()
+    public void ConfigureFillsOptionsWithEnvironmentVariableValues()
     {
         BatchedOpenTelemetrySinkOptions options = new();
         var endpoint = "http://localhost";
         var protocol = OtlpProtocol.Grpc;
         var headers = "header1=1,header2=2";
         var resourceAttributes = "name1=1,name2=2";
+        var serviceName = "my-service";
 
         OpenTelemetryEnvironment.Configure(options, GetEnvVar);
 
@@ -23,17 +24,40 @@ public class OpenTelemetryEnvironmentTests
             e => Assert.Equal(("header2", "2"), (e.Key, e.Value)));
         Assert.Collection(options.ResourceAttributes,
             e => Assert.Equal(("name1", "1"), (e.Key, e.Value)),
-            e => Assert.Equal(("name2", "2"), (e.Key, e.Value)));
+            e => Assert.Equal(("name2", "2"), (e.Key, e.Value)),
+            e => Assert.Equal(("service.name", serviceName), (e.Key, e.Value)));
+        return;
 
-        string? GetEnvVar(string name)
-             => name switch
-             {
-                 "OTEL_EXPORTER_OTLP_ENDPOINT" => endpoint,
-                 "OTEL_EXPORTER_OTLP_HEADERS" => headers,
-                 "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
-                 "OTEL_EXPORTER_OTLP_PROTOCOL" => "grpc",
-                 _ => null
-             };
+        string? GetEnvVar(string name) => name switch
+        {
+            "OTEL_EXPORTER_OTLP_ENDPOINT" => endpoint,
+            "OTEL_EXPORTER_OTLP_HEADERS" => headers,
+            "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
+            "OTEL_EXPORTER_OTLP_PROTOCOL" => "grpc",
+            "OTEL_SERVICE_NAME" => serviceName,
+            _ => null
+        };
+    }
+
+    [Fact]
+    public void ExplicitServiceNameOverridesResourceAttribute()
+    {
+        BatchedOpenTelemetrySinkOptions options = new();
+        var resourceAttributes = "service.name=other-service";
+        var serviceName = "my-service";
+
+        OpenTelemetryEnvironment.Configure(options, GetEnvVar);
+
+        Assert.Collection(options.ResourceAttributes,
+            e => Assert.Equal(("service.name", serviceName), (e.Key, e.Value)));
+        return;
+
+        string? GetEnvVar(string name) => name switch
+        {
+            "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
+            "OTEL_SERVICE_NAME" => serviceName,
+            _ => null
+        };
     }
 
     [Fact]
@@ -47,6 +71,7 @@ public class OpenTelemetryEnvironmentTests
 
         Assert.Equal($"{endpoint}/v1/logs", options.Endpoint);
         Assert.Equal(protocol, options.Protocol);
+        return;
 
         string? GetEnvVar(string name)
              => name switch
