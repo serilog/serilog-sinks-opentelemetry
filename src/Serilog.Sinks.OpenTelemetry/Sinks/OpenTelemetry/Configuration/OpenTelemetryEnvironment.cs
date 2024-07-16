@@ -20,6 +20,7 @@ static class OpenTelemetryEnvironment
     const string EndpointVarName = "OTEL_EXPORTER_OTLP_ENDPOINT";
     const string HeaderVarName = "OTEL_EXPORTER_OTLP_HEADERS";
     const string ResourceAttributesVarName = "OTEL_RESOURCE_ATTRIBUTES";
+    const string ServiceNameVarName = "OTEL_SERVICE_NAME";
 
     public static void Configure(BatchedOpenTelemetrySinkOptions options, Func<string, string?> getEnvironmentVariable)
     {
@@ -39,6 +40,11 @@ static class OpenTelemetryEnvironment
         FillHeadersIfPresent(getEnvironmentVariable(HeaderVarName), options.Headers);
 
         FillHeadersResourceAttributesIfPresent(getEnvironmentVariable(ResourceAttributesVarName), options.ResourceAttributes);
+
+        if (getEnvironmentVariable(ServiceNameVarName) is { Length: > 1 } serviceName)
+        {
+            options.ResourceAttributes[SemanticConventions.AttributeServiceName] = serviceName;
+        }
     }
 
     static void FillHeadersIfPresent(string? config, IDictionary<string, string> headers)
