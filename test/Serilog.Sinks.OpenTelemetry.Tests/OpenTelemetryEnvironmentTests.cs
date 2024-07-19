@@ -69,7 +69,7 @@ public class OpenTelemetryEnvironmentTests
 
         OpenTelemetryEnvironment.Configure(options, GetEnvVar);
 
-        Assert.Equal($"{endpoint}/v1/logs", options.Endpoint);
+        Assert.Equal(endpoint, options.Endpoint);
         Assert.Equal(protocol, options.Protocol);
         return;
 

@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Net.Http;
-
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
 static class Exporter
 {
     public static IExporter Create(
-        string endpoint,
+        string? logsEndpoint,
+        string? tracesEndpoint,
         OtlpProtocol protocol,
         IReadOnlyDictionary<string, string> headers,
         HttpMessageHandler? httpMessageHandler)
     {
         return protocol switch
         {
-            OtlpProtocol.HttpProtobuf => new HttpExporter(endpoint, headers, httpMessageHandler),
-            OtlpProtocol.Grpc => new GrpcExporter(endpoint, headers, httpMessageHandler),
+            OtlpProtocol.HttpProtobuf => new HttpExporter(logsEndpoint, tracesEndpoint, headers, httpMessageHandler),
+            OtlpProtocol.Grpc => new GrpcExporter(logsEndpoint, tracesEndpoint, headers, httpMessageHandler),
             _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
         };
     }

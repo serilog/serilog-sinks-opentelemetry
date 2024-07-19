@@ -31,15 +31,17 @@ namespace Serilog.Sinks.OpenTelemetry
     public class OpenTelemetrySinkOptions
     {
         public OpenTelemetrySinkOptions() { }
-        public string Endpoint { get; set; }
+        public string? Endpoint { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }
         public System.Net.Http.HttpMessageHandler? HttpMessageHandler { get; set; }
         public Serilog.Sinks.OpenTelemetry.IncludedData IncludedData { get; set; }
         public Serilog.Core.LoggingLevelSwitch? LevelSwitch { get; set; }
+        public string? LogsEndpoint { get; set; }
         public Serilog.Sinks.OpenTelemetry.OtlpProtocol Protocol { get; set; }
         public System.Collections.Generic.IDictionary<string, object> ResourceAttributes { get; set; }
         public Serilog.Events.LogEventLevel RestrictedToMinimumLevel { get; set; }
+        public string? TracesEndpoint { get; set; }
     }
     public enum OtlpProtocol
     {

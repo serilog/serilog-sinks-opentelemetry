@@ -34,9 +34,6 @@ static class OpenTelemetryEnvironment
         if (getEnvironmentVariable(EndpointVarName) is { Length: > 1 } endpoint)
             options.Endpoint = endpoint;
 
-        if (options.Protocol == OtlpProtocol.HttpProtobuf && !string.IsNullOrEmpty(options.Endpoint) && !options.Endpoint.EndsWith("/v1/logs"))
-            options.Endpoint = $"{options.Endpoint.TrimEnd('/')}/v1/logs";
-
         FillHeadersIfPresent(getEnvironmentVariable(HeaderVarName), options.Headers);
 
         FillHeadersResourceAttributesIfPresent(getEnvironmentVariable(ResourceAttributesVarName), options.ResourceAttributes);
