@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using System.Diagnostics;
-using System.Net.Http;
 using Serilog.Core;
 using Serilog.Events;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -31,11 +31,86 @@ public class OpenTelemetrySinkOptions
                                              IncludedData.TraceIdField | IncludedData.SpanIdField |
                                              IncludedData.SpecRequiredResourceAttributes;
 
-    /// <summary>
-    /// The full URL of the OTLP exporter endpoint.
-    /// </summary>
-    public string Endpoint { get; set; } = DefaultEndpoint;
+    string? _endpoint = DefaultEndpoint;
+    string? _logsEndpoint, _tracesEndpoint;
 
+    /// <summary>
+    /// The URL of the OTLP exporter endpoint. This should include full scheme, host, and port information. When the
+    /// protocol is <see cref="OtlpProtocol.HttpProtobuf"/>, this may also include path information, but the standard
+    /// OTLP path components <c>/v1/logs</c> and <c>/v1/traces</c> should not be specified, and will be trimmed if
+    /// present. Set this value to <c langword="null"/> and specify one of either <see cref="LogsEndpoint"/> or
+    /// <see cref="TracesEndpoint"/> if only a single signal is desired.
+    /// </summary>
+    public string? Endpoint
+    {
+        get => _endpoint;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _endpoint = null;
+                return;
+            }
+
+            var endpoint = value!.Trim().TrimEnd('/');
+            if (endpoint.EndsWith("/v1/logs"))
+                endpoint = endpoint.Substring(0, endpoint.Length - "/v1/logs".Length);
+            else if (endpoint.EndsWith("/v1/traces"))
+                endpoint = endpoint.Substring(0, endpoint.Length - "/v1/traces".Length);
+            _endpoint = endpoint;
+        }
+    }
+    
+    /// <summary>
+    /// Override the URL for the OTLP exporter logs endpoint. This should be a full URL, and if the protocol is
+    /// <see cref="OtlpProtocol.HttpProtobuf"/> this should include path components like <c>/v1/logs</c>. By default,
+    /// an endpoint will be computed from <see cref="Endpoint"/>.
+    /// </summary>
+    public string? LogsEndpoint
+    {
+        get => _logsEndpoint ??
+               (Protocol == OtlpProtocol.HttpProtobuf ?
+                   _endpoint != null ? $"{_endpoint}/v1/logs" : null :
+                   _endpoint);
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _logsEndpoint = null;
+                return;
+            }
+
+            _logsEndpoint = value!.Trim();
+        }
+    }
+
+    /// <summary>
+    /// Override the URL for the OTLP exporter traces endpoint. This should be a full URL, and if the protocol is
+    /// <see cref="OtlpProtocol.HttpProtobuf"/> this should include path components like <c>/v1/traces</c>. By default,
+    /// an endpoint will be computed from <see cref="Endpoint"/>.
+    /// </summary>
+    /// <remarks>Log events reaching the sink will be considered spans if they carry a <see cref="DateTime"/>
+    /// <c>SpanStartTimestamp</c> property. Additional <c>ParentSpanId</c> and <c>SpanKind</c> properties are
+    /// recognized. The SerilogTracing project can be used to generate spans, or these can be manually constructed
+    /// <see cref="LogEvent"/>s.</remarks>
+    public string? TracesEndpoint
+    {
+        get => _tracesEndpoint ??
+               (Protocol == OtlpProtocol.HttpProtobuf ?
+                   _endpoint != null ? $"{_endpoint}/v1/traces" : null :
+                   _endpoint);
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _tracesEndpoint = null;
+                return;
+            }
+
+            _tracesEndpoint = value!.Trim();
+        }
+    }
+    
     /// <summary>
     /// A custom HTTP message handler. To suppress tracing of HTTP requests from the sink, set the handler to
     /// a <c>SocketsHttpHandler</c> with <c>null</c> <c>ActivityHeadersPropagator</c>:

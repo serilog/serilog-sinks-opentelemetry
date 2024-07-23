@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Net.Http;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
+using OpenTelemetry.Proto.Collector.Trace.V1;
 
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
@@ -24,6 +24,8 @@ namespace Serilog.Sinks.OpenTelemetry.Exporters;
 /// </summary>
 sealed class HttpExporter : IExporter, IDisposable
 {
+    readonly string? _logsEndpoint;
+    readonly string? _tracesEndpoint;
     readonly HttpClient _client;
 
     /// <summary>
@@ -31,8 +33,11 @@ sealed class HttpExporter : IExporter, IDisposable
     /// ExportLogsServiceRequest to a OTLP/HTTP endpoint as a
     /// protobuf payload.
     /// </summary>
-    /// <param name="endpoint">
-    /// The full OTLP endpoint to which logs are sent.
+    /// <param name="logsEndpoint">
+    /// The full OTLP logs endpoint to which logs are sent.
+    /// </param>
+    /// <param name="tracesEndpoint">
+    /// The full OTLP traces endpoint to which logs are sent.
     /// </param>
     /// <param name="headers">
     /// A dictionary containing the request headers.
@@ -40,10 +45,11 @@ sealed class HttpExporter : IExporter, IDisposable
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
-    public HttpExporter(string endpoint, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
+    public HttpExporter(string? logsEndpoint, string? tracesEndpoint, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
     {
+        _logsEndpoint = logsEndpoint;
+        _tracesEndpoint = tracesEndpoint;
         _client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
-        _client.BaseAddress = new Uri(endpoint);
         foreach (var header in headers)
         {
             _client.DefaultRequestHeaders.Add(header.Key, header.Value);
@@ -57,7 +63,7 @@ sealed class HttpExporter : IExporter, IDisposable
 
     public void Export(ExportLogsServiceRequest request)
     {
-        var httpRequest = CreateHttpRequestMessage(request);
+        var httpRequest = CreateHttpRequestMessage(request, _logsEndpoint!);
 
 #if FEATURE_SYNC_HTTP_SEND
         // Used in audit mode; on later .NET platforms this can be done without the
@@ -72,7 +78,28 @@ sealed class HttpExporter : IExporter, IDisposable
         // staying on the same thread, here.
         var response = _client.SendAsync(httpRequest).Result;
 #endif
-        
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    public void Export(ExportTraceServiceRequest request)
+    {
+        var httpRequest = CreateHttpRequestMessage(request, _tracesEndpoint!);
+
+#if FEATURE_SYNC_HTTP_SEND
+        // Used in audit mode; on later .NET platforms this can be done without the
+        // risk of deadlocks.
+        // FUTURE: We could consider using HttpCompletionOption.ResponseHeadersRead here, but
+        // would need to investigate any potential impacts on receivers.
+        var response = _client.Send(httpRequest);
+#else
+        // Earlier .NET: some deadlock risk here. Necessary because in audit mode,
+        // exceptions need to propagate - otherwise we'd just fire-and-forget.
+        // No `ConfigureAwait(false)` because this only applies to async continuations: we're
+        // staying on the same thread, here.
+        var response = _client.SendAsync(httpRequest).Result;
+#endif
+
         response.EnsureSuccessStatusCode();
     }
 
@@ -82,15 +109,29 @@ sealed class HttpExporter : IExporter, IDisposable
     /// </summary>
     public async Task ExportAsync(ExportLogsServiceRequest request)
     {
-        var httpRequest = CreateHttpRequestMessage(request);
+        var httpRequest = CreateHttpRequestMessage(request, _logsEndpoint!);
 
         // We could consider using HttpCompletionOption.ResponseHeadersRead here.
         var response = await _client.SendAsync(httpRequest);
-        
+
         response.EnsureSuccessStatusCode();
     }
 
-    static HttpRequestMessage CreateHttpRequestMessage(ExportLogsServiceRequest request)
+    /// <summary>
+    /// Sends the given protobuf request containing OpenTelemetry spans
+    /// to an OTLP/HTTP endpoint.
+    /// </summary>
+    public async Task ExportAsync(ExportTraceServiceRequest request)
+    {
+        var httpRequest = CreateHttpRequestMessage(request, _tracesEndpoint!);
+
+        // We could consider using HttpCompletionOption.ResponseHeadersRead here.
+        var response = await _client.SendAsync(httpRequest);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    static HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
     {
         var dataSize = request.CalculateSize();
         var buffer = new byte[dataSize];
@@ -100,7 +141,7 @@ sealed class HttpExporter : IExporter, IDisposable
         var content = new ByteArrayContent(buffer, 0, dataSize);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "");
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
         httpRequest.Content = content;
         return httpRequest;
     }

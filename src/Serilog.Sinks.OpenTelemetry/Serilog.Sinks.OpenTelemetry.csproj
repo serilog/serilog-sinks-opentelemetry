@@ -30,7 +30,11 @@
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
         <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
     </PropertyGroup>
-    
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net462' ">
+        <Using Include="System.Net.Http" />
+    </ItemGroup>
+
     <ItemGroup>
         <None Include="../../assets/serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="/" />
         <None Include="../../README.md" Pack="true" Visible="false" PackagePath="/" />
