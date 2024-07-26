@@ -38,8 +38,9 @@ examples below.
 
 ## Configuration
 
-This sink supports two configuration styles: inline and options. The
-inline configuration looks like:
+This sink supports two configuration styles: inline and options.
+Inline configuration is appropriate for simple, local logging
+setups, and looks like:
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
@@ -49,10 +50,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 ```
 
-This configuration is appropriate only for simple, local logging 
-setups.
-
-More complicated use cases will need to use the options
+More complicated use cases need to use options-style
 configuration, which looks like:
 
 ```csharp
@@ -63,34 +61,27 @@ Log.Logger = new LoggerConfiguration()
         options.Protocol = OtlpProtocol.HttpProtobuf;
     })
     .CreateLogger();
-
 ```
 
 This supports the sink's full set of configuration options. See the
 `OpenTelemetrySinkOptions.cs` file for the full set of options. 
-Some of the more imporant parameters are discussed in the following
+Some of the more important parameters are discussed in the following
 sections.
 
 ### Endpoint and protocol
 
-The default endpoint is `http://localhost:4317`, which will send
-logs to an OpenTelemetry collector running on the same machine over
-the gRPC protocol. This is appropriate for testing or for using a 
-local OpenTelemetry collector as a proxy for a downstream logging service.
+The default endpoint and protocol are `http://localhost:4317` and `OtlpProtocol.Grpc`.
 
-In most production scenarios, you will want to set an endpoint. To do so,
-add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call.
+In most production scenarios, you'll need to set an endpoint and protocol to suit your
+deployment environment. To do so, add the `endpoint` argument to the `WriteTo.OpenTelemetry()` call.
 
-You may also want to set the protocol explicitly. The supported values
+You may also want to set the protocol. The supported values
 are:
 
 - `OtlpProtocol.Grpc`: Sends a protobuf representation of the 
    OpenTelemetry Logs over a gRPC connection (the default).
 - `OtlpProtocol.HttpProtobuf`: Sends a protobuf representation of the
    OpenTelemetry Logs over an HTTP connection.
-
-When the `OtlpProtocol.HttpProtobuf` option is specified, the endpoint
-URL **must** include the full path, for example `http://localhost:4318/v1/logs`.
 
 ### Resource attributes
 
@@ -125,6 +116,15 @@ Log.Logger = new LoggerConfiguration()
     })
     .CreateLogger();
 ```
+
+### Environment variable overrides
+
+The sink also recognizes a selection of the `OTEL_OTLP_EXPORTER_*` environment variables described in
+the [OpenTelemetry documentation](https://opentelemetry.io/docs/specs/otel/protocol/exporter/), and will
+override programmatic configuration with any environment variable values present at runtime.
+
+To switch off this behavior, pass `ignoreEnvironment: true` to the `WriteTo.OpenTelemetry()` configuration
+methods.
 
 ## Serilog `LogEvent` to OpenTelemetry log record mapping
 
@@ -164,6 +164,24 @@ Log.Logger = new LoggerConfiguration()
 
 The example shows the default value; `IncludedData.MessageTemplateMD5HashAttribute` can
 also be used to add the MD5 hash of the message template.
+
+## Sending traces through the sink
+
+Serilog `LogEvents` that carry a `SpanStartTimestamp` property of type `DateTime` will be
+recognized as spans by this sink, and sent using the appropriate OpenTelemetry endpoint
+and schema. The properties recognized by the sink match the ones emitted by
+[SerilogTracing](https://github.com/serilog-tracing/serilog-tracing).
+
+In addition to the field mapping performed for log records, events that represent trace
+spans can carry the special properties listed below.
+
+Serilog `LogEvent`               | OpenTelemetry `Span` | Comments                               |
+---------------------------------|----------------------|----------------------------------------| 
+`MessageTemplate`                | `Name`               |                                        |
+`Properties["ParentSpanId"]` | `ParentSpanId`       | Value must be of type `ActivitySpanId` |
+`Properties["SpanKind"]` | `Kind`               | Value must be of type `ActivityKind`   |
+`Properties["SpanStartTimestamp"]` | `StartTimeUnixNano`  | Value must be of type `DateTime`; .NET provides 100-nanosecond precision     |
+`Timestamp`                | `EndTimeUnixNano`    | .NET provides 100-nanosecond precision |
 
 ## Example
 
