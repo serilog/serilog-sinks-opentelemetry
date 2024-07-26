@@ -172,8 +172,6 @@ recognized as spans by this sink, and sent using the appropriate OpenTelemetry e
 and schema. The properties recognized by the sink match the ones emitted by
 [SerilogTracing](https://github.com/serilog-tracing/serilog-tracing).
 
-## Serilog `LogEvent` to OpenTelemetry span mapping
-
 In addition to the field mapping performed for log records, events that represent trace
 spans can carry the special properties listed below.
 
