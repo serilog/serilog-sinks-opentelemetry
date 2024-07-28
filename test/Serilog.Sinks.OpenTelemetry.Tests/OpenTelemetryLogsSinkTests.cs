@@ -1,12 +1,11 @@
 ﻿using OpenTelemetry.Proto.Collector.Logs.V1;
-using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
 
-public class OpenTelemetrySinkTests
+public class OpenTelemetryLogsSinkTests
 {
     [Fact]
     public async Task DefaultScopeIsNull()
@@ -21,7 +20,7 @@ public class OpenTelemetrySinkTests
     [Fact]
     public async Task SourceContextNameIsInstrumentationScope()
     {
-        var contextType = typeof(LogRecordBuilderTests);
+        var contextType = typeof(OtlpEventBuilderTests);
         var events = CollectingSink.Collect(log => log.ForContext(contextType).Information("Hello, world!"));
         var request = await ExportAsync(events);
         var resourceLogs = Assert.Single(request.ResourceLogs);
@@ -34,9 +33,9 @@ public class OpenTelemetrySinkTests
     {
         var events = CollectingSink.Collect(log =>
         {
-            log.ForContext(Constants.SourceContextPropertyName, "A").Information("Hello, world!");
-            log.ForContext(Constants.SourceContextPropertyName, "B").Information("Hello, world!");
-            log.ForContext(Constants.SourceContextPropertyName, "A").Information("Hello, world!");
+            log.ForContext(Core.Constants.SourceContextPropertyName, "A").Information("Hello, world!");
+            log.ForContext(Core.Constants.SourceContextPropertyName, "B").Information("Hello, world!");
+            log.ForContext(Core.Constants.SourceContextPropertyName, "A").Information("Hello, world!");
             log.Information("Hello, world!");
         });
         var request = await ExportAsync(events);
@@ -51,8 +50,8 @@ public class OpenTelemetrySinkTests
     static async Task<ExportLogsServiceRequest> ExportAsync(IReadOnlyCollection<LogEvent> events)
     {
         var exporter = new CollectingExporter();
-        var sink = new OpenTelemetrySink(exporter, null, new Dictionary<string, object>(), OpenTelemetrySinkOptions.DefaultIncludedData);
+        var sink = new OpenTelemetryLogsSink(exporter, null, new Dictionary<string, object>(), OpenTelemetrySinkOptions.DefaultIncludedData);
         await sink.EmitBatchAsync(events);
-        return Assert.Single(exporter.Requests);
+        return Assert.Single(exporter.ExportLogsServiceRequests);
     }
 }

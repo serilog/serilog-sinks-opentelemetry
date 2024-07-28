@@ -1,4 +1,5 @@
-﻿using Serilog.Core;
+﻿using System.Diagnostics;
+using Serilog.Core;
 using Serilog.Events;
 using Xunit;
 
@@ -23,6 +24,8 @@ class CollectingSink: ILogEventSink
         var sink = new CollectingSink();
         var collector = new LoggerConfiguration()
             .WriteTo.Sink(sink)
+            .Destructure.AsScalar<ActivityTraceId>()
+            .Destructure.AsScalar<ActivitySpanId>()
             .CreateLogger();
         
         emitter(collector);

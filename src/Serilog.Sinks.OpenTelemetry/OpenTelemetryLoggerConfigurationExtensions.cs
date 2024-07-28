@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// ReSharper disable once RedundantUsingDirective
 using System.Net.Http;
-using Serilog.Configuration;
-using Serilog.Sinks.OpenTelemetry;
-using Serilog.Sinks.OpenTelemetry.Exporters;
+
 using Serilog.Collections;
+using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry.Configuration;
+using Serilog.Sinks.OpenTelemetry.Exporters;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace Serilog;
 
@@ -27,13 +31,14 @@ namespace Serilog;
 /// </summary>
 public static class OpenTelemetryLoggerConfigurationExtensions
 {
+    // ReSharper disable once ReturnTypeCanBeNotNullable
     static HttpMessageHandler? CreateDefaultHttpMessageHandler() =>
 #if FEATURE_SOCKETS_HTTP_HANDLER
         new SocketsHttpHandler { ActivityHeadersPropagator = null };
 #else
         null;
 #endif
-    
+
     /// <summary>
     /// Send log events to an OTLP exporter.
     /// </summary>
@@ -41,28 +46,57 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// The `WriteTo` configuration object.
     /// </param>
     /// <param name="configure">The configuration callback.</param>
+    /// <param name="ignoreEnvironment">If false the configuration will be overridden with values
+    /// from the <see href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/">OTLP Exporter
+    /// Configuration environment variables</see>, if present.</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
-        Action<BatchedOpenTelemetrySinkOptions> configure)
+        Action<BatchedOpenTelemetrySinkOptions> configure,
+        bool ignoreEnvironment = false)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
+        if (!ignoreEnvironment)
+        {
+            OpenTelemetryEnvironment.Configure(options, Environment.GetEnvironmentVariable);
+        }
+
         var exporter = Exporter.Create(
-            endpoint: options.Endpoint,
+            logsEndpoint: options.LogsEndpoint,
+            tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
             httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
 
-        var openTelemetrySink = new OpenTelemetrySink(
-            exporter: exporter,
-            formatProvider: options.FormatProvider,
-            resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-            includedData: options.IncludedData);
+        ILogEventSink? logsSink = null, tracesSink = null;
 
-        return loggerSinkConfiguration.Sink(openTelemetrySink, options.BatchingOptions, options.RestrictedToMinimumLevel, options.LevelSwitch);
+        if (options.LogsEndpoint != null)
+        {
+            var openTelemetryLogsSink = new OpenTelemetryLogsSink(
+                exporter: exporter,
+                formatProvider: options.FormatProvider,
+                resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
+                includedData: options.IncludedData);
+
+            logsSink = LoggerSinkConfiguration.CreateSink(wt => wt.Sink(openTelemetryLogsSink, options.BatchingOptions));
+        }
+
+        if (options.TracesEndpoint != null)
+        {
+            var openTelemetryTracesSink = new OpenTelemetryTracesSink(
+                exporter: exporter,
+                resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
+                includedData: options.IncludedData);
+
+            tracesSink = LoggerSinkConfiguration.CreateSink(wt => wt.Sink(openTelemetryTracesSink, options.BatchingOptions));
+        }
+
+        var sink = new OpenTelemetrySink(exporter, logsSink, tracesSink);
+
+        return loggerSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }
 
     /// <summary>
@@ -117,7 +151,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             resourceAttributes?.AddTo(options.ResourceAttributes);
         });
     }
-    
+
     /// <summary>
     /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller.
     /// </summary>
@@ -132,20 +166,35 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new OpenTelemetrySinkOptions();
-        
         configure(options);
 
         var exporter = Exporter.Create(
-            endpoint: options.Endpoint,
+            logsEndpoint: options.LogsEndpoint,
+            tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
             httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
 
-        var sink = new OpenTelemetrySink(
-            exporter: exporter,
-            formatProvider: options.FormatProvider,
-            resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-            includedData: options.IncludedData);
+        ILogEventSink? logsSink = null, tracesSink = null;
+
+        if (options.LogsEndpoint != null)
+        {
+            logsSink = new OpenTelemetryLogsSink(
+                exporter: exporter,
+                formatProvider: options.FormatProvider,
+                resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
+                includedData: options.IncludedData);
+        }
+
+        if (options.TracesEndpoint != null)
+        {
+            tracesSink = new OpenTelemetryTracesSink(
+                exporter: exporter,
+                resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
+                includedData: options.IncludedData);
+        }
+
+        var sink = new OpenTelemetrySink(exporter, logsSink, tracesSink);
 
         return loggerAuditSinkConfiguration.Sink(sink, options.RestrictedToMinimumLevel, options.LevelSwitch);
     }

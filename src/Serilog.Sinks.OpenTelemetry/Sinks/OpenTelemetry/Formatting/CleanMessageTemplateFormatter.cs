@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#nullable enable
+
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Parsing;
@@ -27,7 +29,7 @@ namespace Serilog.Sinks.OpenTelemetry.Formatting;
 static class CleanMessageTemplateFormatter
 {
     static readonly JsonValueFormatter SharedJsonValueFormatter = new("$type");
-    
+
     public static string Format(MessageTemplate messageTemplate, IReadOnlyDictionary<string, LogEventPropertyValue> properties, IFormatProvider? formatProvider)
     {
         var output = new StringWriter();
@@ -37,20 +39,20 @@ static class CleanMessageTemplateFormatter
             switch (token)
             {
                 case TextToken tt:
-                {
-                    output.Write(tt.Text);
-                    break;
-                }
+                    {
+                        output.Write(tt.Text);
+                        break;
+                    }
                 case PropertyToken pt:
-                {
-                    RenderPropertyToken(properties, pt, output, formatProvider);
-                    break;
-                }
+                    {
+                        RenderPropertyToken(properties, pt, output, formatProvider);
+                        break;
+                    }
                 default:
-                {
-                    output.Write(token);
-                    break;
-                }
+                    {
+                        output.Write(token);
+                        break;
+                    }
             }
         }
 
