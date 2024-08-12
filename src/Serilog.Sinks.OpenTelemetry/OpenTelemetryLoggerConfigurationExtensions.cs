@@ -69,7 +69,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
-            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
+            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler(),
+            onBeginSuppressInstrumentation: options.OnBeginSuppressInstrumentation);
 
         ILogEventSink? logsSink = null, tracesSink = null;
 
@@ -173,7 +174,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
-            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
+            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler(),
+            onBeginSuppressInstrumentation: options.OnBeginSuppressInstrumentation);
 
         ILogEventSink? logsSink = null, tracesSink = null;
 

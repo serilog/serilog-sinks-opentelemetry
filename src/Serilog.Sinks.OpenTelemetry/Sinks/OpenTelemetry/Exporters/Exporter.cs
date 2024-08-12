@@ -21,13 +21,18 @@ static class Exporter
         string? tracesEndpoint,
         OtlpProtocol protocol,
         IReadOnlyDictionary<string, string> headers,
-        HttpMessageHandler? httpMessageHandler)
+        HttpMessageHandler? httpMessageHandler,
+        Func<IDisposable>? onBeginSuppressInstrumentation)
     {
-        return protocol switch
+        var exporter = protocol switch
         {
-            OtlpProtocol.HttpProtobuf => new HttpExporter(logsEndpoint, tracesEndpoint, headers, httpMessageHandler),
+            OtlpProtocol.HttpProtobuf => (IExporter)new HttpExporter(logsEndpoint, tracesEndpoint, headers, httpMessageHandler),
             OtlpProtocol.Grpc => new GrpcExporter(logsEndpoint, tracesEndpoint, headers, httpMessageHandler),
             _ => throw new NotSupportedException($"OTLP protocol {protocol} is unsupported.")
         };
+
+        return onBeginSuppressInstrumentation != null
+            ? new InstrumentationSuppressingExporter(exporter, onBeginSuppressInstrumentation)
+            : exporter;
     }
 }
