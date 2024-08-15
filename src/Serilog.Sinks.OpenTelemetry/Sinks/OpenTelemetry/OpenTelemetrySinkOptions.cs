@@ -167,5 +167,7 @@ public class OpenTelemetrySinkOptions
     /// <example>
     /// options.OnBeginSuppressInstrumentation = OpenTelemetry.SuppressInstrumentationScope.Begin;
     /// </example>
-    public Func<IDisposable>? OnBeginSuppressInstrumentation { get; set; }
+    /// <remarks>This callback accepts a <c langword="bool"/> in order to match the signature of the OpenTelemetry SDK method
+    /// that is typically assigned to it. The sink always provides the callback with the value <c langword="true" />.</remarks>
+    public Func<bool, IDisposable>? OnBeginSuppressInstrumentation { get; set; }
 }
