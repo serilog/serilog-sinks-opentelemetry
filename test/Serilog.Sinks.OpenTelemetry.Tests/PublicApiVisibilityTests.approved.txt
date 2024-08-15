@@ -38,7 +38,7 @@ namespace Serilog.Sinks.OpenTelemetry
         public Serilog.Sinks.OpenTelemetry.IncludedData IncludedData { get; set; }
         public Serilog.Core.LoggingLevelSwitch? LevelSwitch { get; set; }
         public string? LogsEndpoint { get; set; }
-        public System.Func<System.IDisposable>? OnBeginSuppressInstrumentation { get; set; }
+        public System.Func<bool, System.IDisposable>? OnBeginSuppressInstrumentation { get; set; }
         public Serilog.Sinks.OpenTelemetry.OtlpProtocol Protocol { get; set; }
         public System.Collections.Generic.IDictionary<string, object> ResourceAttributes { get; set; }
         public Serilog.Events.LogEventLevel RestrictedToMinimumLevel { get; set; }
