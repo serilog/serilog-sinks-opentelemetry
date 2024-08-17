@@ -54,14 +54,36 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         Action<BatchedOpenTelemetrySinkOptions> configure,
         bool ignoreEnvironment = false)
     {
+        if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
+
+        return loggerSinkConfiguration.OpenTelemetry(
+            configure,
+            ignoreEnvironment ? null : Environment.GetEnvironmentVariable
+        );
+    }
+
+    /// <summary>
+    /// Send log events to an OTLP exporter.
+    /// </summary>
+    /// <param name="loggerSinkConfiguration">
+    /// The `WriteTo` configuration object.
+    /// </param>
+    /// <param name="configure">The configuration callback.</param>
+    /// <param name="getConfigurationVariable">Provides <see href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/">OTLP Exporter
+    /// Configuration options</see> that will override values in configuration</param>
+    public static LoggerConfiguration OpenTelemetry(
+        this LoggerSinkConfiguration loggerSinkConfiguration,
+        Action<BatchedOpenTelemetrySinkOptions> configure,
+        Func<string, string?>? getConfigurationVariable)
+    {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
-        if (!ignoreEnvironment)
+        if (getConfigurationVariable != null)
         {
-            OpenTelemetryEnvironment.Configure(options, Environment.GetEnvironmentVariable);
+            OpenTelemetryEnvironment.Configure(options, getConfigurationVariable);
         }
 
         var exporter = Exporter.Create(

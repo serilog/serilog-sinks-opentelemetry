@@ -22,23 +22,23 @@ static class OpenTelemetryEnvironment
     const string ResourceAttributesVarName = "OTEL_RESOURCE_ATTRIBUTES";
     const string ServiceNameVarName = "OTEL_SERVICE_NAME";
 
-    public static void Configure(BatchedOpenTelemetrySinkOptions options, Func<string, string?> getEnvironmentVariable)
+    public static void Configure(BatchedOpenTelemetrySinkOptions options, Func<string, string?> getConfigurationVariable)
     {
-        options.Protocol = getEnvironmentVariable(ProtocolVarName) switch
+        options.Protocol = getConfigurationVariable(ProtocolVarName) switch
         {
             "http/protobuf" => OtlpProtocol.HttpProtobuf,
             "grpc" => OtlpProtocol.Grpc,
             _ => options.Protocol
         };
 
-        if (getEnvironmentVariable(EndpointVarName) is { Length: > 1 } endpoint)
+        if (getConfigurationVariable(EndpointVarName) is { Length: > 1 } endpoint)
             options.Endpoint = endpoint;
 
-        FillHeadersIfPresent(getEnvironmentVariable(HeaderVarName), options.Headers);
+        FillHeadersIfPresent(getConfigurationVariable(HeaderVarName), options.Headers);
 
-        FillHeadersResourceAttributesIfPresent(getEnvironmentVariable(ResourceAttributesVarName), options.ResourceAttributes);
+        FillHeadersResourceAttributesIfPresent(getConfigurationVariable(ResourceAttributesVarName), options.ResourceAttributes);
 
-        if (getEnvironmentVariable(ServiceNameVarName) is { Length: > 1 } serviceName)
+        if (getConfigurationVariable(ServiceNameVarName) is { Length: > 1 } serviceName)
         {
             options.ResourceAttributes[SemanticConventions.AttributeServiceName] = serviceName;
         }
