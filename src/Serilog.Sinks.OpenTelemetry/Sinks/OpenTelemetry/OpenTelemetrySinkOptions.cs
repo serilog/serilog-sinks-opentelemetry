@@ -158,4 +158,16 @@ public class OpenTelemetrySinkOptions
     /// to be changed at runtime.
     /// </summary>
     public LoggingLevelSwitch? LevelSwitch { get; set; }
+    
+    /// <summary>
+    /// A callback used by the sink before triggering behaviors that may themselves generate log or trace information.
+    /// Set this value to <c>OpenTelemetry.SuppressInstrumentationScope.Begin</c> when using this sink in applications
+    /// that instrument HTTP or gRPC requests using OpenTelemetry.
+    /// </summary>
+    /// <example>
+    /// options.OnBeginSuppressInstrumentation = OpenTelemetry.SuppressInstrumentationScope.Begin;
+    /// </example>
+    /// <remarks>This callback accepts a <c langword="bool"/> in order to match the signature of the OpenTelemetry SDK method
+    /// that is typically assigned to it. The sink always provides the callback with the value <c langword="true" />.</remarks>
+    public Func<bool, IDisposable>? OnBeginSuppressInstrumentation { get; set; }
 }

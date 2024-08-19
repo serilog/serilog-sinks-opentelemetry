@@ -183,6 +183,20 @@ Serilog `LogEvent`               | OpenTelemetry `Span` | Comments              
 `Properties["SpanStartTimestamp"]` | `StartTimeUnixNano`  | Value must be of type `DateTime`; .NET provides 100-nanosecond precision     |
 `Timestamp`                | `EndTimeUnixNano`    | .NET provides 100-nanosecond precision |
 
+## Suppressing other instrumentation
+
+If the sink is used in an application that also instruments HTTP or gRPC requests using the OpenTelemetry libraries,
+this can be suppressed for outbound requests made by the sink using `OnBeginSuppressInstrumentation`:
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.OnBeginSuppressInstrumentation =
+            OpenTelemetry.SuppressInstrumentationScope.Begin;
+        // ...
+```
+
 ## Example
 
 The `example/Example` subdirectory contains an example application that logs
