@@ -54,8 +54,6 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         Action<BatchedOpenTelemetrySinkOptions> configure,
         bool ignoreEnvironment = false)
     {
-        if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
-
         return loggerSinkConfiguration.OpenTelemetry(
             configure,
             ignoreEnvironment ? null : Environment.GetEnvironmentVariable
@@ -70,12 +68,13 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// </param>
     /// <param name="configure">The configuration callback.</param>
     /// <param name="getConfigurationVariable">Provides <see href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/">OTLP Exporter
-    /// Configuration options</see> that will override values in configuration</param>
+    /// Configuration variables</see> that will override other options when present.</param>
     public static LoggerConfiguration OpenTelemetry(
         this LoggerSinkConfiguration loggerSinkConfiguration,
         Action<BatchedOpenTelemetrySinkOptions> configure,
         Func<string, string?>? getConfigurationVariable)
     {
+        if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
