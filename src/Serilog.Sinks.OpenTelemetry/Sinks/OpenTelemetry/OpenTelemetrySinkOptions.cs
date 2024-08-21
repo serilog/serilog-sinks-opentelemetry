@@ -15,6 +15,7 @@
 using System.Diagnostics;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry.FileFallback;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Serilog.Sinks.OpenTelemetry;
@@ -170,4 +171,15 @@ public class OpenTelemetrySinkOptions
     /// <remarks>This callback accepts a <c langword="bool"/> in order to match the signature of the OpenTelemetry SDK method
     /// that is typically assigned to it. The sink always provides the callback with the value <c langword="true" />.</remarks>
     public Func<bool, IDisposable>? OnBeginSuppressInstrumentation { get; set; }
+
+    /// <summary>
+    /// Configures the file system fallback mechanism for logging.
+    /// When enabled, logs will be stored on the file system at the specified location
+    /// if the primary export to the logging destination fails. This provides a backup
+    /// logging mechanism to ensure logs are not lost in case of failure.
+    /// </summary>
+    /// <example>
+    /// options.ConcreteFileFallback = FileSystemFallback.ToPath("/var/logs/mylog.log");
+    /// </example>
+    public FileSystemFallback Fallback { get; set; } = default;
 }

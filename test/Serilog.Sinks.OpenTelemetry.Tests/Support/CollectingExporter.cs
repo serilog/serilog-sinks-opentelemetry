@@ -1,5 +1,6 @@
 ﻿using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
+using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests.Support;
 
@@ -9,29 +10,31 @@ class CollectingExporter: IExporter
     public List<ExportLogsServiceRequest> ExportLogsServiceRequests { get; } = new();
     public List<ExportTraceServiceRequest> ExportTraceServiceRequests { get; } = new();
     
-    public void Export(ExportLogsServiceRequest request)
+    public ExportResult Export(ExportLogsServiceRequest request)
     {
         if (!TestSuppressInstrumentationScope.IsSuppressed) InstrumentedRequestCount++;
         ExportLogsServiceRequests.Add(request);
+        return ExportResult.Success();
     }
 
-    public Task ExportAsync(ExportLogsServiceRequest request)
+    public Task<ExportResult> ExportAsync(ExportLogsServiceRequest request)
     {
         if (!TestSuppressInstrumentationScope.IsSuppressed) InstrumentedRequestCount++;
         Export(request);
-        return Task.CompletedTask;
+        return Task.FromResult(ExportResult.Success());
     }
 
-    public void Export(ExportTraceServiceRequest request)
+    public ExportResult Export(ExportTraceServiceRequest request)
     {
         if (!TestSuppressInstrumentationScope.IsSuppressed) InstrumentedRequestCount++;
         ExportTraceServiceRequests.Add(request);
+        return ExportResult.Success();
     }
 
-    public Task ExportAsync(ExportTraceServiceRequest request)
+    public Task<ExportResult> ExportAsync(ExportTraceServiceRequest request)
     {
         if (!TestSuppressInstrumentationScope.IsSuppressed) InstrumentedRequestCount++;
         Export(request);
-        return Task.CompletedTask;
+        return Task.FromResult(ExportResult.Success());
     }
 }

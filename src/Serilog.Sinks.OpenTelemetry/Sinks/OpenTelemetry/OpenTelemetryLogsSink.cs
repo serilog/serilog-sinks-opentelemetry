@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
+using Serilog.Sinks.OpenTelemetry.FileFallback;
 
 namespace Serilog.Sinks.OpenTelemetry;
+
 
 class OpenTelemetryLogsSink : IBatchedLogEventSink, ILogEventSink
 {
@@ -26,12 +29,14 @@ class OpenTelemetryLogsSink : IBatchedLogEventSink, ILogEventSink
     readonly ResourceLogs _resourceLogsTemplate;
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
+    readonly ConcreteFileFallback _fallback;
 
     public OpenTelemetryLogsSink(
         IExporter exporter,
         IFormatProvider? formatProvider,
         IReadOnlyDictionary<string, object> resourceAttributes,
-        IncludedData includedData)
+        IncludedData includedData,
+        ConcreteFileFallback fallback)
     {
         _exporter = exporter;
         _formatProvider = formatProvider;
@@ -43,6 +48,7 @@ class OpenTelemetryLogsSink : IBatchedLogEventSink, ILogEventSink
         }
 
         _resourceLogsTemplate = RequestTemplateFactory.CreateResourceLogs(resourceAttributes);
+        _fallback = fallback;
     }
 
     /// <summary>
@@ -85,7 +91,8 @@ class OpenTelemetryLogsSink : IBatchedLogEventSink, ILogEventSink
 
         var logsRequest = new ExportLogsServiceRequest();
         logsRequest.ResourceLogs.Add(resourceLogs);
-        return _exporter.ExportAsync(logsRequest);
+        var exportResult = _exporter.ExportAsync(logsRequest);
+        return _fallback.LogToFallBack(exportResult, logsRequest);
     }
 
     /// <summary>
@@ -101,7 +108,8 @@ class OpenTelemetryLogsSink : IBatchedLogEventSink, ILogEventSink
         resourceLogs.ScopeLogs.Add(scopeLogs);
         var request = new ExportLogsServiceRequest();
         request.ResourceLogs.Add(resourceLogs);
-        _exporter.Export(request);
+        var exportResult = _exporter.Export(request);
+        _fallback.LogToFallBack(exportResult, request);
     }
 
     /// <summary>

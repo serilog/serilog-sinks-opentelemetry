@@ -1,5 +1,6 @@
 ﻿using OpenTelemetry.Proto.Collector.Logs.V1;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry.FileFallback;
 using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
 
@@ -50,7 +51,7 @@ public class OpenTelemetryLogsSinkTests
     static async Task<ExportLogsServiceRequest> ExportAsync(IReadOnlyCollection<LogEvent> events)
     {
         var exporter = new CollectingExporter();
-        var sink = new OpenTelemetryLogsSink(exporter, null, new Dictionary<string, object>(), OpenTelemetrySinkOptions.DefaultIncludedData);
+        var sink = new OpenTelemetryLogsSink(exporter, null, new Dictionary<string, object>(), OpenTelemetrySinkOptions.DefaultIncludedData, new ConcreteFileFallback(default));
         await sink.EmitBatchAsync(events);
         return Assert.Single(exporter.ExportLogsServiceRequests);
     }

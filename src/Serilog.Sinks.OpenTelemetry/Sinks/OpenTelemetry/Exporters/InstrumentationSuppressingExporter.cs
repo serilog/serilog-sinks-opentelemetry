@@ -14,6 +14,7 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
+using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
 
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
@@ -31,35 +32,35 @@ sealed class InstrumentationSuppressingExporter : IExporter, IDisposable
         _onBeginSuppressInstrumentation = onBeginSuppressInstrumentation;
     }
 
-    public void Export(ExportLogsServiceRequest request)
+    public ExportResult Export(ExportLogsServiceRequest request)
     {
         using (_onBeginSuppressInstrumentation())
         {
-            _exporter.Export(request);
+            return _exporter.Export(request);
         }
     }
 
-    public async Task ExportAsync(ExportLogsServiceRequest request)
+    public async Task<ExportResult> ExportAsync(ExportLogsServiceRequest request)
     {
         using (_onBeginSuppressInstrumentation())
         {
-            await _exporter.ExportAsync(request);
+            return await _exporter.ExportAsync(request);
         }
     }
 
-    public void Export(ExportTraceServiceRequest request)
+    public ExportResult Export(ExportTraceServiceRequest request)
     {
         using (_onBeginSuppressInstrumentation())
         {
-            _exporter.Export(request);
+            return _exporter.Export(request);
         }
     }
 
-    public async Task ExportAsync(ExportTraceServiceRequest request)
+    public async Task<ExportResult> ExportAsync(ExportTraceServiceRequest request)
     {
         using (_onBeginSuppressInstrumentation())
         {
-            await _exporter.ExportAsync(request);
+            return await _exporter.ExportAsync(request);
         }
     }
 

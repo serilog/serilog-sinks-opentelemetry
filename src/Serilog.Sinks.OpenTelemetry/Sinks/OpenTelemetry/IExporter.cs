@@ -14,14 +14,15 @@
 
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
+using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
 interface IExporter
 {
-    void Export(ExportLogsServiceRequest request);
-    Task ExportAsync(ExportLogsServiceRequest request);
+    ExportResult Export(ExportLogsServiceRequest request);
+    Task<ExportResult> ExportAsync(ExportLogsServiceRequest request);
 
-    void Export(ExportTraceServiceRequest request);
-    Task ExportAsync(ExportTraceServiceRequest request);
+    ExportResult Export(ExportTraceServiceRequest request);
+    Task<ExportResult> ExportAsync(ExportTraceServiceRequest request);
 }

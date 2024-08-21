@@ -22,6 +22,8 @@ using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.OpenTelemetry.Configuration;
 using Serilog.Sinks.OpenTelemetry.Exporters;
+using Serilog.Sinks.OpenTelemetry.FileFallback;
+using static OpenTelemetry.Proto.Trace.V1.Span.Types;
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace Serilog;
@@ -96,6 +98,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
                 : null);
 
         ILogEventSink? logsSink = null, tracesSink = null;
+        ConcreteFileFallback fallback = new ConcreteFileFallback(options.Fallback);
 
         if (options.LogsEndpoint != null)
         {
@@ -103,7 +106,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
                 exporter: exporter,
                 formatProvider: options.FormatProvider,
                 resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-                includedData: options.IncludedData);
+                includedData: options.IncludedData,
+                fallback: fallback);
 
             logsSink = LoggerSinkConfiguration.CreateSink(wt => wt.Sink(openTelemetryLogsSink, options.BatchingOptions));
         }
@@ -113,7 +117,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             var openTelemetryTracesSink = new OpenTelemetryTracesSink(
                 exporter: exporter,
                 resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-                includedData: options.IncludedData);
+                includedData: options.IncludedData,
+                fallback: fallback);
 
             tracesSink = LoggerSinkConfiguration.CreateSink(wt => wt.Sink(openTelemetryTracesSink, options.BatchingOptions));
         }
@@ -203,6 +208,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
                 : null);
 
         ILogEventSink? logsSink = null, tracesSink = null;
+        ConcreteFileFallback fallback = new ConcreteFileFallback(options.Fallback);
 
         if (options.LogsEndpoint != null)
         {
@@ -210,7 +216,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
                 exporter: exporter,
                 formatProvider: options.FormatProvider,
                 resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-                includedData: options.IncludedData);
+                includedData: options.IncludedData,
+                fallback: fallback);
         }
 
         if (options.TracesEndpoint != null)
@@ -218,7 +225,8 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             tracesSink = new OpenTelemetryTracesSink(
                 exporter: exporter,
                 resourceAttributes: new Dictionary<string, object>(options.ResourceAttributes),
-                includedData: options.IncludedData);
+                includedData: options.IncludedData,
+                fallback: fallback);
         }
 
         var sink = new OpenTelemetrySink(exporter, logsSink, tracesSink);

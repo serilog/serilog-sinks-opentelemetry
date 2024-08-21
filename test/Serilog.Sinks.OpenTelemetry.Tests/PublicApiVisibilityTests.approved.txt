@@ -33,6 +33,7 @@ namespace Serilog.Sinks.OpenTelemetry
     {
         public OpenTelemetrySinkOptions() { }
         public string? Endpoint { get; set; }
+        public Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback Fallback { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }
         public System.Net.Http.HttpMessageHandler? HttpMessageHandler { get; set; }
@@ -49,5 +50,18 @@ namespace Serilog.Sinks.OpenTelemetry
     {
         Grpc = 0,
         HttpProtobuf = 1,
+    }
+}
+namespace Serilog.Sinks.OpenTelemetry.FileFallback
+{
+    public struct FileSystemFallback
+    {
+        public static readonly Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback None;
+        public static Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback ToPath(string path, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat = 0) { }
+    }
+    public enum LogFormat
+    {
+        NDJson = 0,
+        Protobuf = 1,
     }
 }

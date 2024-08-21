@@ -16,6 +16,8 @@ using OpenTelemetry.Proto.Collector.Trace.V1;
 using OpenTelemetry.Proto.Trace.V1;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
+using Serilog.Sinks.OpenTelemetry.FileFallback;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
 namespace Serilog.Sinks.OpenTelemetry;
@@ -25,15 +27,17 @@ class OpenTelemetryTracesSink : IBatchedLogEventSink, ILogEventSink
     readonly ResourceSpans _resourceSpansTemplate;
     readonly IExporter _exporter;
     readonly IncludedData _includedData;
+    private readonly ConcreteFileFallback _fallback;
 
     public OpenTelemetryTracesSink(
         IExporter exporter,
         IReadOnlyDictionary<string, object> resourceAttributes,
-        IncludedData includedData)
+        IncludedData includedData,
+        ConcreteFileFallback fallback)
     {
         _exporter = exporter;
         _includedData = includedData;
-
+        _fallback = fallback;
         if ((includedData & IncludedData.SpecRequiredResourceAttributes) == IncludedData.SpecRequiredResourceAttributes)
         {
             resourceAttributes = RequiredResourceAttributes.AddDefaults(resourceAttributes);
@@ -81,7 +85,8 @@ class OpenTelemetryTracesSink : IBatchedLogEventSink, ILogEventSink
 
         var spansRequest = new ExportTraceServiceRequest();
         spansRequest.ResourceSpans.Add(resourceSpans);
-        return _exporter.ExportAsync(spansRequest);
+        var exportResult = _exporter.ExportAsync(spansRequest);
+        return _fallback.LogToFallBack(exportResult, spansRequest);
     }
 
     /// <summary>
@@ -97,7 +102,8 @@ class OpenTelemetryTracesSink : IBatchedLogEventSink, ILogEventSink
         resourceSpans.ScopeSpans.Add(scopeSpans);
         var request = new ExportTraceServiceRequest();
         request.ResourceSpans.Add(resourceSpans);
-        _exporter.Export(request);
+        var exportResult = _exporter.Export(request);
+        _fallback.LogToFallBack(exportResult, request);
     }
 
     /// <summary>

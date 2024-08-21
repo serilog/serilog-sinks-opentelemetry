@@ -15,6 +15,7 @@
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
+using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
 
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
@@ -61,74 +62,36 @@ sealed class HttpExporter : IExporter, IDisposable
         _client.Dispose();
     }
 
-    public void Export(ExportLogsServiceRequest request)
+    public ExportResult Export(ExportLogsServiceRequest request)
     {
-        var httpRequest = CreateHttpRequestMessage(request, _logsEndpoint!);
-
-#if FEATURE_SYNC_HTTP_SEND
-        // Used in audit mode; on later .NET platforms this can be done without the
-        // risk of deadlocks.
-        // FUTURE: We could consider using HttpCompletionOption.ResponseHeadersRead here, but
-        // would need to investigate any potential impacts on receivers.
-        var response = _client.Send(httpRequest);
-#else
-        // Earlier .NET: some deadlock risk here. Necessary because in audit mode,
-        // exceptions need to propagate - otherwise we'd just fire-and-forget.
-        // No `ConfigureAwait(false)` because this only applies to async continuations: we're
-        // staying on the same thread, here.
-        var response = _client.SendAsync(httpRequest).Result;
-#endif
-
-        response.EnsureSuccessStatusCode();
+        var exportAction = () => this.SendRequest(request, _logsEndpoint!);
+        return exportAction.ToExportResult();
     }
 
-    public void Export(ExportTraceServiceRequest request)
+    public ExportResult Export(ExportTraceServiceRequest request)
     {
-        var httpRequest = CreateHttpRequestMessage(request, _tracesEndpoint!);
-
-#if FEATURE_SYNC_HTTP_SEND
-        // Used in audit mode; on later .NET platforms this can be done without the
-        // risk of deadlocks.
-        // FUTURE: We could consider using HttpCompletionOption.ResponseHeadersRead here, but
-        // would need to investigate any potential impacts on receivers.
-        var response = _client.Send(httpRequest);
-#else
-        // Earlier .NET: some deadlock risk here. Necessary because in audit mode,
-        // exceptions need to propagate - otherwise we'd just fire-and-forget.
-        // No `ConfigureAwait(false)` because this only applies to async continuations: we're
-        // staying on the same thread, here.
-        var response = _client.SendAsync(httpRequest).Result;
-#endif
-
-        response.EnsureSuccessStatusCode();
+        var exportAction = () => this.SendRequest(request, _tracesEndpoint!);
+        return exportAction.ToExportResult();
     }
 
     /// <summary>
     /// Sends the given protobuf request containing OpenTelemetry logs
     /// to an OTLP/HTTP endpoint.
     /// </summary>
-    public async Task ExportAsync(ExportLogsServiceRequest request)
+    public Task<ExportResult> ExportAsync(ExportLogsServiceRequest request)
     {
-        var httpRequest = CreateHttpRequestMessage(request, _logsEndpoint!);
-
-        // We could consider using HttpCompletionOption.ResponseHeadersRead here.
-        var response = await _client.SendAsync(httpRequest);
-
-        response.EnsureSuccessStatusCode();
+        var sendAction = () => this.SendRequestAsync(request, _logsEndpoint!);
+        return sendAction.ToExportResult();
     }
 
     /// <summary>
     /// Sends the given protobuf request containing OpenTelemetry spans
     /// to an OTLP/HTTP endpoint.
     /// </summary>
-    public async Task ExportAsync(ExportTraceServiceRequest request)
+    public Task<ExportResult> ExportAsync(ExportTraceServiceRequest request)
     {
-        var httpRequest = CreateHttpRequestMessage(request, _tracesEndpoint!);
-
-        // We could consider using HttpCompletionOption.ResponseHeadersRead here.
-        var response = await _client.SendAsync(httpRequest);
-
-        response.EnsureSuccessStatusCode();
+        var sendAction = () => this.SendRequestAsync(request, _tracesEndpoint!);
+        return sendAction.ToExportResult();
     }
 
     static HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
@@ -144,5 +107,36 @@ sealed class HttpExporter : IExporter, IDisposable
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
         httpRequest.Content = content;
         return httpRequest;
+    }
+
+    private HttpResponseMessage SendRequest(IMessage request, string endpoint)
+    {
+        var httpRequest = CreateHttpRequestMessage(request, endpoint!);
+
+#if FEATURE_SYNC_HTTP_SEND
+        // Used in audit mode; on later .NET platforms this can be done without the
+        // risk of deadlocks.
+        // FUTURE: We could consider using HttpCompletionOption.ResponseHeadersRead here, but
+        // would need to investigate any potential impacts on receivers.
+        var response = _client.Send(httpRequest);
+#else
+        // Earlier .NET: some deadlock risk here. Necessary because in audit mode,
+        // exceptions need to propagate - otherwise we'd just fire-and-forget.
+        // No `ConfigureAwait(false)` because this only applies to async continuations: we're
+        // staying on the same thread, here.
+        var response = _client.SendAsync(httpRequest).Result;
+#endif
+        response.EnsureSuccessStatusCode();
+        return response;
+    }
+
+    private async Task<HttpResponseMessage> SendRequestAsync(IMessage request, string endpoint)
+    {
+        var httpRequest = CreateHttpRequestMessage(request, endpoint!);
+
+        var response = await _client.SendAsync(httpRequest);
+
+        response.EnsureSuccessStatusCode();
+        return response;
     }
 }
