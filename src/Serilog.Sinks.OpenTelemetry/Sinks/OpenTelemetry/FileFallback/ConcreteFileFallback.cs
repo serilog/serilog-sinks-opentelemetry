@@ -56,6 +56,7 @@ namespace Serilog.Sinks.OpenTelemetry.FileFallback
                 Logger = new LoggerConfiguration()
                     .MinimumLevel.Verbose()
                     .WriteTo.File(
+                        shared: true,
                         formatter: new OtlpFormatter(),
                         path: fallback.Path,
                         rollingInterval: RollingInterval.Day)

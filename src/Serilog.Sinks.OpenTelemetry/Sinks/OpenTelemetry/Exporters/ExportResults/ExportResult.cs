@@ -18,7 +18,7 @@ namespace Serilog.Sinks.OpenTelemetry.Exporters.ExportResults
 
         public readonly bool IsFailure => Exception is not null || !_isSuccess;
 
-        public static ExportResult Success() => new();
+        public static ExportResult Success() => new() { _isSuccess = true };
 
         public static ExportResult Failure() => new() { _isSuccess = false };
 
