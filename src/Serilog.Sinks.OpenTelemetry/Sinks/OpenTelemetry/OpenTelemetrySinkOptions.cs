@@ -177,9 +177,24 @@ public class OpenTelemetrySinkOptions
     /// When enabled, logs will be stored on the file system at the specified location
     /// if the primary export to the logging destination fails. This provides a backup
     /// logging mechanism to ensure logs are not lost in case of failure.
+    /// 
+    /// Defaults to logging <see cref="LogFormat.NDJson"/> to file.
     /// </summary>
     /// <example>
-    /// options.ConcreteFileFallback = FileSystemFallback.ToPath("/var/logs/mylog.log");
+    /// options.LogsFallback = FileSystemFallback.ToPath("/var/logs/mylog.log", LogFormat.Protobuf);
     /// </example>
-    public FileSystemFallback Fallback { get; set; } = default;
+    public FileSystemFallback LogsFallback { get; set; } = default;
+
+    /// <summary>
+    /// Configures the file system fallback mechanism for traces.
+    /// When enabled, logs will be stored on the file system at the specified location
+    /// if the primary export to the traces destination fails. This provides a backup
+    /// logging mechanism to ensure traces are not lost in case of failure.
+    /// 
+    /// Defaults to logging <see cref="LogFormat.NDJson"/> to file.
+    /// </summary>
+    /// <example>
+    /// options.TracesFallback = FileSystemFallback.ToPath("/var/logs/mylog.log", LogFormat.Protobuf);
+    /// </example>
+    public FileSystemFallback TracesFallback { get; set; } = default;
 }
