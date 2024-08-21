@@ -1,4 +1,5 @@
 ﻿using OpenTelemetry.Proto.Collector.Logs.V1;
+using OpenTelemetry.Proto.Logs.V1;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.FileFallback;
 using Serilog.Sinks.OpenTelemetry.Tests.Support;

@@ -17,6 +17,7 @@ using Grpc.Net.Client;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
 using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
+using static Serilog.Sinks.OpenTelemetry.Exporters.ExportResults.ExportResultExtensions;
 
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
@@ -87,26 +88,26 @@ sealed class GrpcExporter : IExporter, IDisposable
     public ExportResult Export(ExportLogsServiceRequest request)
     {
         var exportAction = () => _logsClient?.Export(request, _headers);
-        return exportAction.ToExportResult();
+        return exportAction.ToExportResult(LogSuccessEvaluator);
     }
 
     public Task<ExportResult> ExportAsync(ExportLogsServiceRequest request)
     {
         var exportAction = () => _logsClient?.ExportAsync(request, _headers).ResponseAsync
             ?? Task.FromResult(new ExportLogsServiceResponse());
-        return exportAction.ToExportResult();
+        return exportAction.ToExportResult(LogSuccessEvaluator);
     }
 
     public ExportResult Export(ExportTraceServiceRequest request)
     {
         var exportAction = () => _tracesClient?.Export(request, _headers);
-        return exportAction.ToExportResult();
+        return exportAction.ToExportResult(TraceSuccessEvaluator);
     }
 
     public Task<ExportResult> ExportAsync(ExportTraceServiceRequest request)
     {
         var exportAction = () => _tracesClient?.ExportAsync(request, _headers).ResponseAsync
             ?? Task.FromResult(new ExportTraceServiceResponse());
-        return exportAction.ToExportResult();
+        return exportAction.ToExportResult(TraceSuccessEvaluator);
     }
 }

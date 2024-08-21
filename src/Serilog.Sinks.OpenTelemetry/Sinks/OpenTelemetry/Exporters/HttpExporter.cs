@@ -16,6 +16,7 @@ using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
 using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
+using static Serilog.Sinks.OpenTelemetry.Exporters.ExportResults.ExportResultExtensions;
 
 namespace Serilog.Sinks.OpenTelemetry.Exporters;
 
@@ -65,13 +66,13 @@ sealed class HttpExporter : IExporter, IDisposable
     public ExportResult Export(ExportLogsServiceRequest request)
     {
         var exportAction = () => this.SendRequest(request, _logsEndpoint!);
-        return exportAction.ToExportResult();
+        return exportAction.ToExportResult(HttpSuccessEvaluator);
     }
 
     public ExportResult Export(ExportTraceServiceRequest request)
     {
         var exportAction = () => this.SendRequest(request, _tracesEndpoint!);
-        return exportAction.ToExportResult();
+        return exportAction.ToExportResult(HttpSuccessEvaluator);
     }
 
     /// <summary>
@@ -81,7 +82,7 @@ sealed class HttpExporter : IExporter, IDisposable
     public Task<ExportResult> ExportAsync(ExportLogsServiceRequest request)
     {
         var sendAction = () => this.SendRequestAsync(request, _logsEndpoint!);
-        return sendAction.ToExportResult();
+        return sendAction.ToExportResult(HttpSuccessEvaluator);
     }
 
     /// <summary>
@@ -91,7 +92,7 @@ sealed class HttpExporter : IExporter, IDisposable
     public Task<ExportResult> ExportAsync(ExportTraceServiceRequest request)
     {
         var sendAction = () => this.SendRequestAsync(request, _tracesEndpoint!);
-        return sendAction.ToExportResult();
+        return sendAction.ToExportResult(HttpSuccessEvaluator);
     }
 
     static HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)

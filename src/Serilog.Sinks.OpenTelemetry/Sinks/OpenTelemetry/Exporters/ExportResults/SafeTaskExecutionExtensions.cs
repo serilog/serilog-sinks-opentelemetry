@@ -1,4 +1,6 @@
-﻿namespace Serilog.Sinks.OpenTelemetry.Exporters.ExportResults
+﻿using System.Runtime.ExceptionServices;
+
+namespace Serilog.Sinks.OpenTelemetry.Exporters.ExportResults
 {
     internal static class SafeTaskExecutionExtensions
     {
@@ -9,7 +11,7 @@
         /// </summary>
         public static async Task<Out> SafeExecutionAsync<In, Out>(this Func<Task<In>> responseTask,
             Func<In, Out> onSuccess,
-            Func<Exception, Out> onError)
+            Func<ExceptionDispatchInfo, Out> onError)
         {
             try
             {
@@ -17,7 +19,7 @@
             }
             catch (Exception ex)
             {
-                return onError(ex);
+                return onError(ExceptionDispatchInfo.Capture(ex));
             }
         }
 
@@ -26,7 +28,7 @@
         /// </summary>
         public static Out SafeExecution<In, Out>(this Func<In> responseTask,
             Func<In, Out> onSuccess,
-            Func<Exception, Out> onError)
+            Func<ExceptionDispatchInfo, Out> onError)
         {
             try
             {
@@ -34,7 +36,7 @@
             }
             catch (Exception ex)
             {
-                return onError(ex);
+                return onError(ExceptionDispatchInfo.Capture(ex));
             }
         }
     }

@@ -3,6 +3,7 @@ using OpenTelemetry.Proto.Collector.Trace.V1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace Serilog.Sinks.OpenTelemetry.Exporters.ExportResults
     {
         private bool _isSuccess;
 
-        internal Exception? Exception { get; private set; }
+        internal ExceptionDispatchInfo? Exception { get; private set; }
 
         public readonly bool IsSuccess => Exception is null && _isSuccess;
 
@@ -26,14 +27,14 @@ namespace Serilog.Sinks.OpenTelemetry.Exporters.ExportResults
 
         public static Task<ExportResult> FailureTask() => Task.FromResult(Failure());
 
-        public ExportResult WithException(Exception ex) => this with { Exception = ex };
+        public ExportResult WithException(ExceptionDispatchInfo? ex) => this with
+        {
+            Exception = ex
+        };
 
         public void Rethrow()
         {
-            if(Exception is not null)
-            {
-                throw Exception;
-            }
+            Exception?.Throw();
         }
     }
 }

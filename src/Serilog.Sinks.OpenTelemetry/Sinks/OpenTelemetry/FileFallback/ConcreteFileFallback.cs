@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Serilog.Sinks.OpenTelemetry.FileFallback
 {
-    internal class ConcreteFileFallback
+    internal class ConcreteFileFallback : IDisposable
     {
         private readonly FormattedLogger? _logger;
 
@@ -72,6 +72,10 @@ namespace Serilog.Sinks.OpenTelemetry.FileFallback
             _ => throw new NotImplementedException(),
         };
 
+        public void Dispose()
+        {
+            _logger?.Logger.Dispose();
+        }
 
         private record struct FormattedLogger
         {
