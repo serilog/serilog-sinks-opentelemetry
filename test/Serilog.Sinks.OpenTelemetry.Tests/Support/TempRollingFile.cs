@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Serilog.Sinks.OpenTelemetry.Tests.Support
+﻿namespace Serilog.Sinks.OpenTelemetry.Tests.Support
 {
     internal class TempRollingFile
     {

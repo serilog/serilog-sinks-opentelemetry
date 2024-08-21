@@ -13,8 +13,6 @@
 // limitations under the License.
 
 // ReSharper disable once RedundantUsingDirective
-using System.Net.Http;
-
 using Serilog.Collections;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -23,7 +21,6 @@ using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.OpenTelemetry.Configuration;
 using Serilog.Sinks.OpenTelemetry.Exporters;
 using Serilog.Sinks.OpenTelemetry.FileFallback;
-using static OpenTelemetry.Proto.Trace.V1.Span.Types;
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace Serilog;

@@ -16,7 +16,6 @@ using OpenTelemetry.Proto.Collector.Trace.V1;
 using OpenTelemetry.Proto.Trace.V1;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
 using Serilog.Sinks.OpenTelemetry.FileFallback;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 

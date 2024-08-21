@@ -1,11 +1,4 @@
-﻿using OpenTelemetry.Proto.Collector.Logs.V1;
-using OpenTelemetry.Proto.Collector.Trace.V1;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.ExceptionServices;
 
 namespace Serilog.Sinks.OpenTelemetry.Exporters.ExportResults
 {

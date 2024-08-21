@@ -1,13 +1,7 @@
 ﻿using Google.Protobuf;
 using Serilog.Core;
 using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
-using Serilog.Sinks.OpenTelemetry.FileFallback;
 using Serilog.Sinks.OpenTelemetry.FileFallback.Formatters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Serilog.Sinks.OpenTelemetry.FileFallback
 {

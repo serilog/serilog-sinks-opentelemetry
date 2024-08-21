@@ -1,7 +1,6 @@
 ﻿using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
 using Serilog.Sinks.OpenTelemetry.Exporters.ExportResults;
-using System.Runtime.ExceptionServices;
 using static Serilog.Sinks.OpenTelemetry.Exporters.ExportResults.ExportResultExtensions;
 
 namespace Serilog.Sinks.OpenTelemetry.Tests.Support;
