@@ -204,11 +204,11 @@ the otlp requests in the original form they would be sent to your OTLP endpoint.
 and can be configured on a per-sink basis if you need different fallbacks for traces and logs, or a unified fallback if these
 sinks can be unified.
 
-Support is exposed for logging the OTLP messages as Newline delimited JSON or as delimited protobuf messages using.
+Support is exposed for logging the OTLP messages as Newline delimited JSON or as delimited protobuf messages using the `LogFormat` switch.
 
 Configuration is achievied using the fluent options configuration exposed with the `opts.FallbackWith(...)` api. The individual
 fallback sinks can be configured using the `FallbackWith(Action<FallbackConfigurationOptions> config)` api for granular control,
-or using the `FallbackWith(Action<FileSinkOptions> fileSink, LogFormat logFormat)` api.
+or using the `FallbackWith(Action<FileSinkOptions> fileSink, LogFormat logFormat)` api for unified fallbacks.
 
 ### Example using one fallback:
 
