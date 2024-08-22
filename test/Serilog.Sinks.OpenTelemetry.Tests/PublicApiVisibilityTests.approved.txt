@@ -5,8 +5,8 @@ namespace Serilog
         public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.OpenTelemetrySinkOptions> configure) { }
         public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.BatchedOpenTelemetrySinkOptions> configure, bool ignoreEnvironment = false) { }
         public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, System.Action<Serilog.Sinks.OpenTelemetry.BatchedOpenTelemetrySinkOptions> configure, System.Func<string, string?>? getConfigurationVariable) { }
-        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, string endpoint = "http://localhost:4317", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, string>? headers = null, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, Serilog.Sinks.OpenTelemetry.IncludedData? includedData = default) { }
-        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, string endpoint = "http://localhost:4317", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, string>? headers = null, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, Serilog.Sinks.OpenTelemetry.IncludedData? includedData = default, Serilog.Events.LogEventLevel restrictedToMinimumLevel = 0, Serilog.Core.LoggingLevelSwitch? levelSwitch = null) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerAuditSinkConfiguration loggerAuditSinkConfiguration, string endpoint = "http://localhost:4317", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, string>? headers = null, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, Serilog.Sinks.OpenTelemetry.IncludedData? includedData = default, Serilog.Sinks.OpenTelemetry.FileFallback.FallbackConfigurationOptions? fallbackOptions = null) { }
+        public static Serilog.LoggerConfiguration OpenTelemetry(this Serilog.Configuration.LoggerSinkConfiguration loggerSinkConfiguration, string endpoint = "http://localhost:4317", Serilog.Sinks.OpenTelemetry.OtlpProtocol protocol = 0, System.Collections.Generic.IDictionary<string, string>? headers = null, System.Collections.Generic.IDictionary<string, object>? resourceAttributes = null, Serilog.Sinks.OpenTelemetry.IncludedData? includedData = default, Serilog.Events.LogEventLevel restrictedToMinimumLevel = 0, Serilog.Core.LoggingLevelSwitch? levelSwitch = null, Serilog.Sinks.OpenTelemetry.FileFallback.FallbackConfigurationOptions? fallbackOptions = null) { }
     }
 }
 namespace Serilog.Sinks.OpenTelemetry
@@ -39,13 +39,13 @@ namespace Serilog.Sinks.OpenTelemetry
         public Serilog.Sinks.OpenTelemetry.IncludedData IncludedData { get; set; }
         public Serilog.Core.LoggingLevelSwitch? LevelSwitch { get; set; }
         public string? LogsEndpoint { get; set; }
-        public Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback LogsFallback { get; set; }
         public System.Func<bool, System.IDisposable>? OnBeginSuppressInstrumentation { get; set; }
         public Serilog.Sinks.OpenTelemetry.OtlpProtocol Protocol { get; set; }
         public System.Collections.Generic.IDictionary<string, object> ResourceAttributes { get; set; }
         public Serilog.Events.LogEventLevel RestrictedToMinimumLevel { get; set; }
         public string? TracesEndpoint { get; set; }
-        public Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback TracesFallback { get; set; }
+        public void FallbackWith(System.Action<Serilog.Sinks.OpenTelemetry.FileFallback.FallbackConfigurationOptions> configure) { }
+        public void FallbackWith(System.Action<Serilog.Sinks.OpenTelemetry.FileFallback.FileSinkOptions> fileSinkOptions, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat) { }
     }
     public enum OtlpProtocol
     {
@@ -55,10 +55,31 @@ namespace Serilog.Sinks.OpenTelemetry
 }
 namespace Serilog.Sinks.OpenTelemetry.FileFallback
 {
+    public class FallbackConfigurationOptions
+    {
+        public FallbackConfigurationOptions() { }
+        public Serilog.Sinks.OpenTelemetry.FileFallback.FallbackConfigurationOptions ToFile(System.Action<Serilog.Sinks.OpenTelemetry.FileFallback.FileSinkOptions> fileSinkOptions, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat = 0) { }
+        public Serilog.Sinks.OpenTelemetry.FileFallback.FallbackConfigurationOptions ToLogFile(System.Action<Serilog.Sinks.OpenTelemetry.FileFallback.FileSinkOptions> fileSinkOptions, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat = 0) { }
+        public Serilog.Sinks.OpenTelemetry.FileFallback.FallbackConfigurationOptions ToTraceFile(System.Action<Serilog.Sinks.OpenTelemetry.FileFallback.FileSinkOptions> fileSinkOptions, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat = 0) { }
+    }
+    public class FileSinkOptions
+    {
+        public FileSinkOptions() { }
+        public bool Buffered { get; set; }
+        public long? FileSizeLimitBytes { get; set; }
+        public System.TimeSpan? FlushToDiskInterval { get; set; }
+        public Serilog.Sinks.File.FileLifecycleHooks? Hooks { get; set; }
+        public string Path { get; set; }
+        public int? RetainedFileCountLimit { get; set; }
+        public System.TimeSpan? RetainedFileTimeLimit { get; set; }
+        public bool RollOnFileSizeLimit { get; set; }
+        public Serilog.RollingInterval RollingInterval { get; set; }
+        public bool Shared { get; set; }
+    }
     public struct FileSystemFallback
     {
         public static readonly Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback None;
-        public static Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback ToPath(string path, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat = 0) { }
+        public static Serilog.Sinks.OpenTelemetry.FileFallback.FileSystemFallback Configure(System.Action<Serilog.Sinks.OpenTelemetry.FileFallback.FileSinkOptions> configuration, Serilog.Sinks.OpenTelemetry.FileFallback.LogFormat logFormat = 0) { }
     }
     public enum LogFormat
     {

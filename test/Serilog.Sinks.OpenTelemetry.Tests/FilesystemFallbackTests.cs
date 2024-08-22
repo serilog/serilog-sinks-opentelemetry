@@ -32,10 +32,11 @@ public class FilesystemFallbackTests
 
     private List<ExportLogsServiceRequest> JsonReader(string path)
     {
-        if(!Path.Exists(path))
+        if(!System.IO.File.Exists(path))
         {
             return new ();
         }
+
         using var reader = new StreamReader(path);
         var logs = new List<ExportLogsServiceRequest>();
         string? line = null;
@@ -113,7 +114,14 @@ public class FilesystemFallbackTests
 
     static async Task ExportFallbackAsync(IReadOnlyCollection<LogEvent> events, LogFormat logFormat, string path, IExporter exporter)
     {
-        using var fileFallback = new ConcreteFileFallback(FileSystemFallback.ToPath(path, logFormat));
+        using var fileFallback = new ConcreteFileFallback(FileSystemFallback.Configure(
+                    fs =>
+                    {
+                        fs.Path = path;
+                        fs.RollingInterval = RollingInterval.Day;
+                        fs.Shared = true;
+                    },
+                    logFormat));
         var sink = new OpenTelemetryLogsSink(exporter,
             null,
             new Dictionary<string, object>(),

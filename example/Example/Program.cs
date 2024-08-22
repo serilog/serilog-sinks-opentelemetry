@@ -18,6 +18,7 @@ using Serilog;
 using System.Diagnostics;
 using Serilog.Core;
 using Serilog.Sinks.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry.FileFallback;
 
 // Without activity listeners present, trace and span ids are not collected.
 using var listener = new ActivityListener();
@@ -67,12 +68,13 @@ static Logger CreateLogger(OtlpProtocol protocol)
         "http://localhost:4317";
 
     return new LoggerConfiguration()
-        .WriteTo.OpenTelemetry(options => {
+        .WriteTo.OpenTelemetry(options =>
+        {
             options.Endpoint = endpoint;
             options.Protocol = protocol;
             // Prevent tracing of outbound requests from the sink
             options.HttpMessageHandler = new SocketsHttpHandler { ActivityHeadersPropagator = null };
-            options.IncludedData = 
+            options.IncludedData =
                 IncludedData.SpanIdField
                 | IncludedData.TraceIdField
                 | IncludedData.MessageTemplateTextAttribute
@@ -91,6 +93,13 @@ static Logger CreateLogger(OtlpProtocol protocol)
             options.BatchingOptions.BatchSizeLimit = 700;
             options.BatchingOptions.BufferingTimeLimit = TimeSpan.FromSeconds(1);
             options.BatchingOptions.QueueLimit = 10;
+            options.FallbackWith(
+                fs =>
+                {
+                    fs.Path = "/var/mylog.log";
+                },
+                LogFormat.Protobuf);
         })
         .CreateLogger();
+
 }

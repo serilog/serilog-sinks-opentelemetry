@@ -172,29 +172,38 @@ public class OpenTelemetrySinkOptions
     /// that is typically assigned to it. The sink always provides the callback with the value <c langword="true" />.</remarks>
     public Func<bool, IDisposable>? OnBeginSuppressInstrumentation { get; set; }
 
-    /// <summary>
-    /// Configures the file system fallback mechanism for logging.
-    /// When enabled, logs will be stored on the file system at the specified location
-    /// if the primary export to the logging destination fails. This provides a backup
-    /// logging mechanism to ensure logs are not lost in case of failure.
-    /// 
-    /// Defaults to logging <see cref="LogFormat.NDJson"/> to file.
-    /// </summary>
-    /// <example>
-    /// options.LogsFallback = FileSystemFallback.ToPath("/var/logs/mylog.log", LogFormat.Protobuf);
-    /// </example>
-    public FileSystemFallback LogsFallback { get; set; } = default;
+    internal FallbackConfigurationOptions Fallback { get; set; } = new();
 
     /// <summary>
-    /// Configures the file system fallback mechanism for traces.
-    /// When enabled, logs will be stored on the file system at the specified location
-    /// if the primary export to the traces destination fails. This provides a backup
-    /// logging mechanism to ensure traces are not lost in case of failure.
-    /// 
-    /// Defaults to logging <see cref="LogFormat.NDJson"/> to file.
+    /// Configures the fallback options for the OpenTelemetry sink. Can be used with either a Fallback for both
+    /// sinks or a separate one for each of the Log and Trace endpoints.
+    /// If no fallback is configured, the OpenTelemetry sink will graciously discard
+    /// failed messages.
     /// </summary>
-    /// <example>
-    /// options.TracesFallback = FileSystemFallback.ToPath("/var/logs/mylog.log", LogFormat.Protobuf);
-    /// </example>
-    public FileSystemFallback TracesFallback { get; set; } = default;
+    /// <param name="configure">
+    /// An action that configures the fallback options.
+    /// </param>
+    public void FallbackWith(Action<FallbackConfigurationOptions> configure)
+    {
+        configure(Fallback);
+    }
+
+    /// <summary>
+    /// Configures the fallback options for the OpenTelemetry sink. If granular control
+    /// is required for configuring the Logs and Traces fallbacks separately,
+    /// use <see cref="FallbackWith(Action{FallbackConfigurationOptions})"/> instead.
+    /// If no fallback is configured, the OpenTelemetry sink will graciously discard
+    /// failed messages.
+    /// </summary>
+    /// <param name="fileSinkOptions">
+    /// The file sink configuration for the OpenTelemetry fallback.
+    /// </param>
+    /// <param name="logFormat">
+    /// The format that the fallback logs will be written in.
+    /// See <see cref="LogFormat"/> for available formats.
+    /// </param>
+    public void FallbackWith(Action<FileSinkOptions> fileSinkOptions, LogFormat logFormat)
+    {
+        Fallback.ToFile(fileSinkOptions, logFormat);
+    }
 }

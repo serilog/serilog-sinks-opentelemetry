@@ -197,10 +197,50 @@ Log.Logger = new LoggerConfiguration()
         // ...
 ```
 
+## Fallbacks for resilience
+
+If resilient logging is required, this sink provides a highly configurable file system fallback API that allows you to capture
+the otlp requests in the original form they would be sent to your OTLP endpoint. This supports both the HTTP and gRPC protocols
+and can be configured on a per-sink basis if you need different fallbacks for traces and logs, or a unified fallback if these
+sinks can be unified.
+
+Support is exposed for logging the OTLP messages as Newline delimited JSON or as delimited protobuf messages using.
+
+Configuration is achievied using the fluent options configuration exposed with the `opts.FallbackWith(...)` api. The individual
+fallback sinks can be configured using the `FallbackWith(Action<FallbackConfigurationOptions> config)` api for granular control,
+or using the `FallbackWith(Action<FileSinkOptions> fileSink, LogFormat logFormat)` api.
+
+### Example using one fallback:
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.FallbackWith(
+            fs =>
+            {
+                fs.Path = "/var/logs/mylog.log";
+            },
+            LogFormat.Protobuf);
+        // ...
+```
+
+### Example using separate fallbacks:
+
+```csharp
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.OpenTelemetry(options =>
+    {
+        options.FallbackWith(fb =>
+            fb.ToLogFile(fs => fs.Path = "/var/logs/mylog.log")
+                .ToTraceFile(fs => fs.Path = "/var/logs/mytrace.log"));
+        // ...
+```
+
 ## Example
 
 The `example/Example` subdirectory contains an example application that logs
-to a local [OpenTelemetry collector](https://opentelemetry.io/docs/collector/).
+to a local [OpenTelemetry collector](https://opentelemetry.io/docs/collector/) using a file fallback profile.
 See the README in that directory for instructions on how to run the example.
 
 _Copyright &copy; Serilog Contributors - Provided under the [Apache License, Version 2.0](http://apache.org/licenses/LICENSE-2.0.html)._

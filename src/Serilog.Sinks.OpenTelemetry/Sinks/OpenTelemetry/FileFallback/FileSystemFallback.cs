@@ -20,7 +20,7 @@ namespace Serilog.Sinks.OpenTelemetry.FileFallback
     /// </summary>
     public struct FileSystemFallback
     {
-        internal string Path { get; private set; }
+        internal FileSinkOptions FileOptions { get; private set; }
 
         internal bool IsEnabled { get; private set; }
 
@@ -30,14 +30,23 @@ namespace Serilog.Sinks.OpenTelemetry.FileFallback
         /// Enables the file system fallback and sets the path where logs will be stored 
         /// in case of failure to export to the primary logging destination. 
         /// </summary>
-        /// <param name="path">The file path where logs will be stored during fallback. 
-        /// This should be a valid path on the local file system.</param>
+        /// <param name="configuration">The configuration action to configure
+        /// the file sink used as a fallback.</param>
         /// <param name="logFormat">The format in which the fallback logs will be written,
         /// See <see cref="LogFormat"/> for available formats.</param>
         /// <returns>A configured <see cref="FileSystemFallback"/> instance with fallback enabled 
         /// and the specified file path.</returns>
-        public static FileSystemFallback ToPath(string path, LogFormat logFormat = LogFormat.NDJson)
-            => new() { Path = path, IsEnabled = true, LogFormat = logFormat };
+        public static FileSystemFallback Configure(Action<FileSinkOptions> configuration, LogFormat logFormat = LogFormat.NDJson)
+        {
+            var options = new FileSinkOptions();
+            configuration(options);
+            return new FileSystemFallback
+            {
+                FileOptions = options,
+                IsEnabled = true,
+                LogFormat = logFormat
+            };
+        }
 
         /// <summary>
         /// Disables the file system fallback.
