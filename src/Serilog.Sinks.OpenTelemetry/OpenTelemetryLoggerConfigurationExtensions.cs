@@ -43,7 +43,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// Send log events to an OTLP exporter.
     /// </summary>
     /// <param name="loggerSinkConfiguration">
-    /// The `WriteTo` configuration object.
+    /// The <c>WriteTo</c> configuration object.
     /// </param>
     /// <param name="configure">The configuration callback.</param>
     /// <param name="ignoreEnvironment">If false the configuration will be overridden with values
@@ -54,14 +54,35 @@ public static class OpenTelemetryLoggerConfigurationExtensions
         Action<BatchedOpenTelemetrySinkOptions> configure,
         bool ignoreEnvironment = false)
     {
+        return loggerSinkConfiguration.OpenTelemetry(
+            configure,
+            ignoreEnvironment ? null : Environment.GetEnvironmentVariable
+        );
+    }
+
+    /// <summary>
+    /// Send log events to an OTLP exporter.
+    /// </summary>
+    /// <param name="loggerSinkConfiguration">
+    /// The `WriteTo` configuration object.
+    /// </param>
+    /// <param name="configure">The configuration callback.</param>
+    /// <param name="getConfigurationVariable">Provides <see href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/">OTLP Exporter
+    /// Configuration variables</see> that will override other options when present.</param>
+    public static LoggerConfiguration OpenTelemetry(
+        this LoggerSinkConfiguration loggerSinkConfiguration,
+        Action<BatchedOpenTelemetrySinkOptions> configure,
+        Func<string, string?>? getConfigurationVariable)
+    {
+        if (loggerSinkConfiguration == null) throw new ArgumentNullException(nameof(loggerSinkConfiguration));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         var options = new BatchedOpenTelemetrySinkOptions();
         configure(options);
 
-        if (!ignoreEnvironment)
+        if (getConfigurationVariable != null)
         {
-            OpenTelemetryEnvironment.Configure(options, Environment.GetEnvironmentVariable);
+            OpenTelemetryEnvironment.Configure(options, getConfigurationVariable);
         }
 
         var exporter = Exporter.Create(
@@ -69,7 +90,10 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
-            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
+            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler(),
+            onBeginSuppressInstrumentation: options.OnBeginSuppressInstrumentation != null ?
+                () => options.OnBeginSuppressInstrumentation(true)
+                : null);
 
         ILogEventSink? logsSink = null, tracesSink = null;
 
@@ -103,7 +127,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// Send log events to an OTLP exporter.
     /// </summary>
     /// <param name="loggerSinkConfiguration">
-    /// The `WriteTo` configuration object.
+    /// The <c>WriteTo</c> configuration object.
     /// </param>
     /// <param name="endpoint">
     /// The full URL of the OTLP exporter endpoint.
@@ -156,7 +180,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
     /// Audit to an OTLP exporter, waiting for each event to be acknowledged, and propagating errors to the caller.
     /// </summary>
     /// <param name="loggerAuditSinkConfiguration">
-    /// The `AuditTo` configuration object.
+    /// The <c>AuditTo</c> configuration object.
     /// </param>
     /// <param name="configure">The configuration callback.</param>
     public static LoggerConfiguration OpenTelemetry(
@@ -173,7 +197,10 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
             headers: new Dictionary<string, string>(options.Headers),
-            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler());
+            httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler(),
+            onBeginSuppressInstrumentation: options.OnBeginSuppressInstrumentation != null ?
+                () => options.OnBeginSuppressInstrumentation(true)
+                : null);
 
         ILogEventSink? logsSink = null, tracesSink = null;
 
