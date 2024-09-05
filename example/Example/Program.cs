@@ -63,7 +63,7 @@ static void SendLogs(ILogger logger, string protocol)
 static Logger CreateLogger(OtlpProtocol protocol)
 {
     var endpoint = protocol == OtlpProtocol.HttpProtobuf ?
-        "http://localhost:4318/v1/logs" :
+        "http://localhost:4318" :
         "http://localhost:4317";
 
     return new LoggerConfiguration()

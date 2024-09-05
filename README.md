@@ -45,7 +45,7 @@ setups, and looks like:
 ```csharp
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(
-        endpoint: "http://127.0.0.1:4318/v1/logs",
+        endpoint: "http://127.0.0.1:4318",
         protocol: OtlpProtocol.HttpProtobuf)
     .CreateLogger();
 ```
@@ -57,7 +57,7 @@ configuration, which looks like:
 Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
-        options.Endpoint = "http://127.0.0.1:4318/v1/logs";
+        options.Endpoint = "http://127.0.0.1:4318";
         options.Protocol = OtlpProtocol.HttpProtobuf;
     })
     .CreateLogger();
