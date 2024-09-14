@@ -1,9 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT'">net471;net462</TargetFrameworks>
+    <!-- Policy is to trim TFM-specific builds to `netstandard2.0`, `net6.0`,
+        all active LTS versions, and optionally the latest RTM version, when releasing new
+        major Serilog versions. -->
+    <TargetFrameworks>$(TargetFrameworks);net8.0;net6.0</TargetFrameworks>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <IsPackable>False</IsPackable>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

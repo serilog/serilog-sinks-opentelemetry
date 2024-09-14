@@ -64,8 +64,10 @@ public class PrimitiveConversionsTests
             {LogEventLevel.Fatal, SeverityNumber.Fatal},
         };
 
-        foreach (var (level, severity) in data)
+        foreach (var kvp in data)
         {
+            var severity = kvp.Value;
+            var level = kvp.Key;
             Assert.Equal(severity, PrimitiveConversions.ToSeverityNumber(level));
         }
     }
@@ -266,8 +268,10 @@ public class PrimitiveConversionsTests
             ["\"123\""] = "123",
         };
 
-        foreach (var (input, expected) in tests)
+        foreach (var kvp in tests)
         {
+            var input = kvp.Key;
+            var expected = kvp.Value;
             Assert.Equal(expected, PrimitiveConversions.OnlyHexDigits(input));
         }
     }

@@ -161,7 +161,9 @@ public class OtlpEventBuilderTests
         using var listener = new ActivityListener();
         listener.ShouldListenTo = _ => true;
         listener.Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData;
-
+        #if NETFRAMEWORK
+        Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+        #endif
         ActivitySource.AddActivityListener(listener);
 
         var source = new ActivitySource("test.activity", "1.0.0");

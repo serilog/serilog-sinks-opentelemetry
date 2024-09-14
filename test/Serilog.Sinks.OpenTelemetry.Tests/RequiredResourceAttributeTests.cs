@@ -2,6 +2,8 @@
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Serilog.Sinks.OpenTelemetry.Tests.Support;
 using Xunit;
+#if NETFRAMEWORK
+#endif
 
 namespace Serilog.Sinks.OpenTelemetry.Tests;
 
@@ -36,6 +38,6 @@ public class RequiredResourceAttributeTests
         Assert.Equal("serilog", actual["telemetry.sdk.name"]);
         Assert.Equal("dotnet", actual["telemetry.sdk.language"]);
         // First character of the version is always expected to be numeric.
-        Assert.True(int.TryParse(((string)actual["telemetry.sdk.version"])[..1], NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
+        Assert.True(int.TryParse(((string)actual["telemetry.sdk.version"])[0].ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
     }
 }
