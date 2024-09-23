@@ -18,13 +18,13 @@ static class BaggageFormat
             // key and value and a trailing semicolon, but this is disallowed by the OTel spec. We're pretty loose with
             // validation, here, but could tighten up handling of invalid values in the future.
 
-            var comma = listMember.IndexOf(',');
-            if (comma == -1) RejectInvalidListMember(listMember, environmentVariableName);
+            var eq = listMember.IndexOf('=');
+            if (eq == -1) RejectInvalidListMember(listMember, environmentVariableName);
 
-            var key = listMember.Substring(0, comma).Trim();
+            var key = listMember.Substring(0, eq).Trim();
             if (string.IsNullOrEmpty(key)) RejectInvalidListMember(listMember, environmentVariableName);
 
-            var escapedValue = comma == listMember.Length - 1 ? "" : listMember.Substring(comma + 1).Trim();
+            var escapedValue = eq == listMember.Length - 1 ? "" : listMember.Substring(eq + 1).Trim();
             var value = Uri.UnescapeDataString(escapedValue);
 
             yield return (key, value);
