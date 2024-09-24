@@ -46,23 +46,19 @@ static class OpenTelemetryEnvironment
 
     static void FillHeadersIfPresent(string? config, IDictionary<string, string> headers)
     {
-        foreach (var part in config?.Split(',') ?? [])
+        if (config == null) return;
+        foreach (var (key, value) in BaggageFormat.DecodeBaggageString(config, HeaderVarName))
         {
-            if (part.Split('=') is { Length: 2 } parts)
-                headers[parts[0]] = parts[1];
-            else
-                throw new InvalidOperationException($"Invalid header format `{part}` in {HeaderVarName} environment variable.");
+            headers[key] = value;
         }
     }
 
     static void FillHeadersResourceAttributesIfPresent(string? config, IDictionary<string, object> resourceAttributes)
     {
-        foreach (var part in config?.Split(',') ?? [])
+        if (config == null) return;
+        foreach (var (key, value) in BaggageFormat.DecodeBaggageString(config, ResourceAttributesVarName))
         {
-            if (part.Split('=') is { Length: 2 } parts)
-                resourceAttributes[parts[0]] = parts[1];
-            else
-                throw new InvalidOperationException($"Invalid resource attributes format `{part}` in {ResourceAttributesVarName} environment variable.");
+            resourceAttributes[key] = value;
         }
     }
 }
