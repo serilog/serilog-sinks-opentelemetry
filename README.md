@@ -203,4 +203,10 @@ The `example/Example` subdirectory contains an example application that logs
 to a local [OpenTelemetry collector](https://opentelemetry.io/docs/collector/).
 See the README in that directory for instructions on how to run the example.
 
+## .NET Framework Activity Traces
+
+In .NET 5 and later versions, the `Activity.DefaultIdFormat` is `ActivityIdFormat.W3C`. In previous versions, the default format is `ActivityIdFormat.Hierarchical`.
+To make use of the **Activity**'s traces and spans, you should set the global `Activity.DefaultIdFormat` to `ActivityIdFormat.W3C` in .NET Framework environments.
+Read more: [Default ActivityIdFormat is W3C](https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/default-activityidformat-changed)
+
 _Copyright &copy; Serilog Contributors - Provided under the [Apache License, Version 2.0](http://apache.org/licenses/LICENSE-2.0.html)._
