@@ -15,6 +15,8 @@ public class BaggageFormatTests
         { "abc= def ", [("abc", "def")] },
         { "abc=def,ghi=jkl", [("abc", "def"), ("ghi", "jkl")] },
         { "a=1%202", [("a", "1 2")] },
+        { "a=b=c,d=e", [("a", "b=c"), ("d", "e")] },
+        { "a=%2C,b=c", [("a", ","), ("b", "c")] }
     };
     
     [Theory, MemberData(nameof(Cases))]
