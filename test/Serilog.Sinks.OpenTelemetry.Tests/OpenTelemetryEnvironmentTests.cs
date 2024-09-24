@@ -88,9 +88,9 @@ public class OpenTelemetryEnvironmentTests
         BatchedOpenTelemetrySinkOptions options = new();
         var headers = "header1";
 
-        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
+        var exception = Assert.Throws<ArgumentException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
 
-        Assert.Equal("Invalid item format `header1` in OTEL_EXPORTER_OTLP_HEADERS environment variable.", exception.Message);
+        Assert.StartsWith("Invalid item format `header1` in OTEL_EXPORTER_OTLP_HEADERS environment variable.", exception.Message);
 
         string? GetEnvVar(string name)
              => name switch
@@ -106,9 +106,9 @@ public class OpenTelemetryEnvironmentTests
         BatchedOpenTelemetrySinkOptions options = new();
         var resourceAttributes = "resource1";
 
-        var exception = Assert.Throws<InvalidOperationException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
+        var exception = Assert.Throws<ArgumentException>(() => OpenTelemetryEnvironment.Configure(options, GetEnvVar));
 
-        Assert.Equal("Invalid item format `resource1` in OTEL_RESOURCE_ATTRIBUTES environment variable.", exception.Message);
+        Assert.StartsWith("Invalid item format `resource1` in OTEL_RESOURCE_ATTRIBUTES environment variable.", exception.Message);
 
         string? GetEnvVar(string name)
              => name switch

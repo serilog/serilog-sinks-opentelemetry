@@ -12,6 +12,8 @@ static class BaggageFormat
         // See: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#specifying-resource-information-via-an-environment-variable
         // See: https://www.w3.org/TR/baggage/#header-content
         
+        if (string.IsNullOrWhiteSpace(baggageString)) yield break;
+        
         foreach (var listMember in baggageString.Split(','))
         {
             // The baggage spec allows list members to carry additional key-value pair metadata after the initial
@@ -19,10 +21,10 @@ static class BaggageFormat
             // validation, here, but could tighten up handling of invalid values in the future.
 
             var eq = listMember.IndexOf('=');
-            if (eq == -1) RejectInvalidListMember(listMember, environmentVariableName);
+            if (eq == -1) RejectInvalidListMember(listMember, environmentVariableName, nameof(baggageString));
 
             var key = listMember.Substring(0, eq).Trim();
-            if (string.IsNullOrEmpty(key)) RejectInvalidListMember(listMember, environmentVariableName);
+            if (string.IsNullOrEmpty(key)) RejectInvalidListMember(listMember, environmentVariableName, nameof(baggageString));
 
             var escapedValue = eq == listMember.Length - 1 ? "" : listMember.Substring(eq + 1).Trim();
             var value = Uri.UnescapeDataString(escapedValue);
@@ -31,8 +33,8 @@ static class BaggageFormat
         }
     }
 
-    static void RejectInvalidListMember(string listMember, string environmentVariableName)
+    static void RejectInvalidListMember(string listMember, string environmentVariableName, string paramName)
     {
-        throw new InvalidOperationException($"Invalid item format `{listMember}` in {environmentVariableName} environment variable.");
+        throw new ArgumentException($"Invalid item format `{listMember}` in {environmentVariableName} environment variable.", paramName);
     }
 }
