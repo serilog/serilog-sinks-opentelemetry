@@ -12,22 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Diagnostics;
-using System.Globalization;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Trace.V1;
-using Serilog.Debugging;
 using Serilog.Events;
+using System.Diagnostics;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
 static class PrimitiveConversions
 {
+    static class HexUtilities
+    {
+        internal static char ToCharLower(int value)
+        {
+            value = value & 0xF;
+            value = value + '0';
+
+            if (value > '9')
+            {
+                value = value + ('a' - ('9' + 1)); // correct the range to get 'a' to 'f'
+            }
+
+            return (char)value;
+        }
+
+        internal static int ToDigit(char c)
+        {
+            if (c >= '0' && c <= '9')
+            {
+                return c - '0';
+            }
+
+            if (c >= 'a' && c <= 'f')
+            {
+                return c - 'a' + 10;
+            }
+
+            if (c >= 'A' && c <= 'F')
+            {
+                return c - 'A' + 10;
+            }
+
+            return -1;
+        }
+
+        internal static bool IsHexChar(char c)
+        {
+            return ((uint)(c - '0') <= 9) || // numeric
+                    ((uint)(c - 'A') <= 5) || // A-F
+                    ((uint)(c - 'a') <= 5); // a-f
+        }
+    }
+
     static readonly DateTimeOffset UnixEpoch = new(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     public static ulong ToUnixNano(DateTimeOffset dateTimeOffset)
@@ -222,20 +263,13 @@ static class PrimitiveConversions
 
         for (int i = 0; i < s.Length; i++) 
         {
-            if (IsHexChar(s[i]))
+            if (HexUtilities.IsHexChar(s[i]))
             {
                 span[position++] = s[i];
             }
         }
 
         return span.Slice(0, position).ToString();
-    }
-
-    private static bool IsHexChar(char c)
-    {
-        return ((uint)(c - '0') <= 9) || // numeric
-                ((uint)(c - 'A') <= 5) || // A-F
-                ((uint)(c - 'a') <= 5); // a-f
     }
 
     static byte[] StringToByteArray(string s)
@@ -251,8 +285,8 @@ static class PrimitiveConversions
         var bytes = new byte[nChars / 2];
         for (int i = 0; i < bytes.Length; i++)
         {
-            int highNibble = GetHexDigit(hexSpan[i * 2]);
-            int lowNibble = GetHexDigit(hexSpan[i * 2 + 1]);
+            int highNibble = HexUtilities.ToDigit(hexSpan[i * 2]);
+            int lowNibble = HexUtilities.ToDigit(hexSpan[i * 2 + 1]);
 
             bytes[i] = (byte)((highNibble << 4) | lowNibble);
         }
@@ -271,46 +305,14 @@ static class PrimitiveConversions
         for (int i = 0; i < hash.Length; i++)
         {
             byte b = hash[i];
-            resultChars[i * 2] = GetHexValueLowerChar(b >> 4);
-            resultChars[i * 2 + 1] = GetHexValueLowerChar(b);
+            resultChars[i * 2] = HexUtilities.ToCharLower(b >> 4);
+            resultChars[i * 2 + 1] = HexUtilities.ToCharLower(b);
         }
 
 
         return new string(resultChars);
     }
 
-    private static char GetHexValueLowerChar(int value)
-    {
-        value = value & 0xF;
-        value = value + '0';
-
-        if (value > '9')
-        {
-            value = value + ('a' - ('9' + 1)); // correct the range to get 'a' to 'f'
-        }
-
-        return (char)value;
-    }
-
-    private static int GetHexDigit(char c)
-    {
-        if (c >= '0' && c <= '9')
-        {
-            return c - '0';
-        }
-
-        if (c >= 'a' && c <= 'f')
-        {
-            return c - 'a' + 10;
-        }
-
-        if (c >= 'A' && c <= 'F')
-        {
-            return c - 'A' + 10;
-        }
-
-        return -1;
-    }
 
     public static Span.Types.SpanKind ToOpenTelemetrySpanKind(ActivityKind kind)
     {
