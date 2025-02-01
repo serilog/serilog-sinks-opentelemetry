@@ -211,33 +211,105 @@ static class PrimitiveConversions
 
     internal static string OnlyHexDigits(string s)
     {
-        try
+        if (string.IsNullOrEmpty(s))
         {
-            return Regex.Replace(s, @"[^0-9a-fA-F]", "", RegexOptions.None, TimeSpan.FromSeconds(1.5));
-        }
-        catch (RegexMatchTimeoutException)
-        {
-            SelfLog.WriteLine("Regular expression matching timed out over {0}", s);
             return string.Empty;
         }
+
+        // further optimization: stackalloc on small strings or ArrayPool<char> renting?
+        Span<char> span = new char[s.Length];
+        int position = 0;
+
+        for (int i = 0; i < s.Length; i++) 
+        {
+            if (IsHexChar(s[i]))
+            {
+                span[position++] = s[i];
+            }
+        }
+
+        return span.Slice(0, position).ToString();
+    }
+
+    private static bool IsHexChar(char c)
+    {
+        return ((uint)(c - '0') <= 9) || // numeric
+                ((uint)(c - 'A') <= 5) || // A-F
+                ((uint)(c - 'a') <= 5); // a-f
     }
 
     static byte[] StringToByteArray(string s)
     {
         var hex = OnlyHexDigits(s);
         var nChars = hex.Length;
+        if (nChars % 2 != 0)
+        {
+            hex = $"0{hex}";
+        }
+        ReadOnlySpan<char> hexSpan = hex.AsSpan();
+
         var bytes = new byte[nChars / 2];
-        for (var i = 0; i < nChars; i += 2)
-            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            int highNibble = GetHexDigit(hexSpan[i * 2]);
+            int lowNibble = GetHexDigit(hexSpan[i * 2 + 1]);
+
+            bytes[i] = (byte)((highNibble << 4) | lowNibble);
+        }
+
         return bytes;
     }
 
+    public static readonly MD5 MD5 = MD5.Create();
     public static string Md5Hash(string s)
     {
-        using var md5 = MD5.Create();
-        md5.Initialize();
-        var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
-        return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
+        var hash = MD5.ComputeHash(Encoding.UTF8.GetBytes(s));
+
+        var hexStringLen = hash.Length * 2;
+        var resultChars = new char[hexStringLen];
+
+        for (int i = 0; i < hash.Length; i++)
+        {
+            byte b = hash[i];
+            resultChars[i * 2] = GetHexValueLowerChar(b >> 4);
+            resultChars[i * 2 + 1] = GetHexValueLowerChar(b);
+        }
+
+
+        return new string(resultChars);
+    }
+
+    private static char GetHexValueLowerChar(int value)
+    {
+        value = value & 0xF;
+        value = value + '0';
+
+        if (value > '9')
+        {
+            value = value + ('a' - ('9' + 1)); // correct the range to get 'a' to 'f'
+        }
+
+        return (char)value;
+    }
+
+    private static int GetHexDigit(char c)
+    {
+        if (c >= '0' && c <= '9')
+        {
+            return c - '0';
+        }
+
+        if (c >= 'a' && c <= 'f')
+        {
+            return c - 'a' + 10;
+        }
+
+        if (c >= 'A' && c <= 'F')
+        {
+            return c - 'A' + 10;
+        }
+
+        return -1;
     }
 
     public static Span.Types.SpanKind ToOpenTelemetrySpanKind(ActivityKind kind)
