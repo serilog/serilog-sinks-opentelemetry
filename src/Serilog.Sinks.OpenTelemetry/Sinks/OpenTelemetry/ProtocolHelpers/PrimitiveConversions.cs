@@ -211,6 +211,7 @@ static class PrimitiveConversions
 
     internal static string OnlyHexDigits(string s)
     {
+        if (string.IsNullOrEmpty(s)) return string.Empty;
         try
         {
             return Regex.Replace(s, @"[^0-9a-fA-F]", "", RegexOptions.None, TimeSpan.FromSeconds(1.5));
@@ -225,6 +226,8 @@ static class PrimitiveConversions
     static byte[] StringToByteArray(string s)
     {
         var hex = OnlyHexDigits(s);
+        if (hex.Length % 2 != 0)
+            hex = $"0{hex}";// Pad with a leading zero
         var nChars = hex.Length;
         var bytes = new byte[nChars / 2];
         for (var i = 0; i < nChars; i += 2)
@@ -234,10 +237,12 @@ static class PrimitiveConversions
 
     public static string Md5Hash(string s)
     {
-        using var md5 = MD5.Create();
-        md5.Initialize();
+        using var md5 = MD5.Create(); 
         var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
-        return string.Join(string.Empty, Array.ConvertAll(hash, x => x.ToString("x2")));
+        var sb = new StringBuilder(hash.Length * 2);
+        foreach (byte b in hash)
+            sb.Append(b.ToString("x2"));
+        string hexHash = sb.ToString();
     }
 
     public static Span.Types.SpanKind ToOpenTelemetrySpanKind(ActivityKind kind)
