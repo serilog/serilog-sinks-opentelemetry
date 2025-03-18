@@ -136,7 +136,7 @@ static class PrimitiveConversions
         return ToOpenTelemetryPrimitive(scalar.Value);
     }
 
-    public static AnyValue ToOpenTelemetryMap(StructureValue value)
+    public static AnyValue ToOpenTelemetryMap(StructureValue value, IncludedData includedData)
     {
         var map = new AnyValue();
         var kvList = new KeyValueList();
@@ -145,14 +145,27 @@ static class PrimitiveConversions
         // Per the OTLP protos, attribute keys MUST be unique.
         var seen = new HashSet<string>();
 
+        if ((includedData & IncludedData.StructureValueTypeTags) == IncludedData.StructureValueTypeTags && !string.IsNullOrEmpty(value.TypeTag))
+        {
+            kvList.Values.Add(new KeyValue
+            {
+                Key = "$type",
+                Value = new()
+                {
+                    StringValue = value.TypeTag
+                }
+            });
+        }
+
         foreach (var prop in value.Properties)
         {
-            if (seen.Contains(prop.Name))
+            if (!seen.Add(prop.Name))
+            {
+                // Already present
                 continue;
+            }
 
-            seen.Add(prop.Name);
-
-            var v = ToOpenTelemetryAnyValue(prop.Value);
+            var v = ToOpenTelemetryAnyValue(prop.Value, includedData);
             var kv = new KeyValue
             {
                 Key = prop.Name,
@@ -164,7 +177,7 @@ static class PrimitiveConversions
         return map;
     }
 
-    public static AnyValue ToOpenTelemetryMap(DictionaryValue value)
+    public static AnyValue ToOpenTelemetryMap(DictionaryValue value, IncludedData includedData)
     {
         var map = new AnyValue();
         var kvList = new KeyValueList();
@@ -173,7 +186,7 @@ static class PrimitiveConversions
         foreach (var element in value.Elements)
         {
             var k = element.Key.Value?.ToString() ?? "null";
-            var v = ToOpenTelemetryAnyValue(element.Value);
+            var v = ToOpenTelemetryAnyValue(element.Value, includedData);
             kvList.Values.Add(new KeyValue
             {
                 Key = k,
@@ -184,27 +197,27 @@ static class PrimitiveConversions
         return map;
     }
 
-    public static AnyValue ToOpenTelemetryArray(SequenceValue value)
+    public static AnyValue ToOpenTelemetryArray(SequenceValue value, IncludedData includedData)
     {
         var array = new AnyValue();
         var values = new ArrayValue();
         array.ArrayValue = values;
         foreach (var element in value.Elements)
         {
-            var v = ToOpenTelemetryAnyValue(element);
+            var v = ToOpenTelemetryAnyValue(element, includedData);
             values.Values.Add(v);
         }
         return array;
     }
 
-    internal static AnyValue ToOpenTelemetryAnyValue(LogEventPropertyValue value)
+    internal static AnyValue ToOpenTelemetryAnyValue(LogEventPropertyValue value, IncludedData includedData)
     {
         return value switch
         {
             ScalarValue scalar => ToOpenTelemetryScalar(scalar),
-            StructureValue structure => ToOpenTelemetryMap(structure),
-            SequenceValue sequence => ToOpenTelemetryArray(sequence),
-            DictionaryValue dictionary => ToOpenTelemetryMap(dictionary),
+            StructureValue structure => ToOpenTelemetryMap(structure, includedData),
+            SequenceValue sequence => ToOpenTelemetryArray(sequence, includedData),
+            DictionaryValue dictionary => ToOpenTelemetryMap(dictionary, includedData),
             _ => ToOpenTelemetryPrimitive(value.ToString()),
         };
     }
@@ -213,7 +226,7 @@ static class PrimitiveConversions
     {
         try
         {
-            return Regex.Replace(s, @"[^0-9a-fA-F]", "", RegexOptions.None, TimeSpan.FromSeconds(1.5));
+            return Regex.Replace(s, "[^0-9a-fA-F]", "", RegexOptions.None, TimeSpan.FromSeconds(1.5));
         }
         catch (RegexMatchTimeoutException)
         {

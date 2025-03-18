@@ -23,14 +23,14 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 
 public class PrimitiveConversionsTests
 {
-    public static byte[] GetRandomBytes(int size) {
+    static byte[] GetRandomBytes(int size) {
         var bytes = new byte[size];
         var rnd = new Random();
         rnd.NextBytes(bytes);
         return bytes;
     }
 
-    public static string ByteArrayToString(byte[] bytes)
+    static string ByteArrayToString(byte[] bytes)
     {
         return BitConverter.ToString(bytes).Replace("-","").ToLower();
     }
@@ -51,25 +51,16 @@ public class PrimitiveConversionsTests
         Assert.Equal(100ul, actual);
     }
 
-    [Fact]
-    public void TestToSeverityNumber()
+    [Theory]
+    [InlineData(LogEventLevel.Verbose, SeverityNumber.Trace)]
+    [InlineData(LogEventLevel.Debug, SeverityNumber.Debug)]
+    [InlineData(LogEventLevel.Information, SeverityNumber.Info)]
+    [InlineData(LogEventLevel.Warning, SeverityNumber.Warn)]
+    [InlineData(LogEventLevel.Error, SeverityNumber.Error)]
+    [InlineData(LogEventLevel.Fatal, SeverityNumber.Fatal)]
+    public void TestToSeverityNumber(LogEventLevel level, Enum expectedSeverityNumber)
     {
-        var data = new Dictionary<LogEventLevel, SeverityNumber>
-        {
-            {LogEventLevel.Verbose, SeverityNumber.Trace},
-            {LogEventLevel.Debug, SeverityNumber.Debug},
-            {LogEventLevel.Information, SeverityNumber.Info},
-            {LogEventLevel.Warning, SeverityNumber.Warn},
-            {LogEventLevel.Error, SeverityNumber.Error},
-            {LogEventLevel.Fatal, SeverityNumber.Fatal},
-        };
-
-        foreach (var kvp in data)
-        {
-            var severity = kvp.Value;
-            var level = kvp.Key;
-            Assert.Equal(severity, PrimitiveConversions.ToSeverityNumber(level));
-        }
+        Assert.Equal((SeverityNumber)expectedSeverityNumber, PrimitiveConversions.ToSeverityNumber(level));
     }
 
     [Fact]
@@ -114,22 +105,22 @@ public class PrimitiveConversionsTests
         Assert.Equal(openTelemetrySpanIdFromScalar?.ToByteArray(), expectedBytes);
     }
 
-    [Fact]
-    public void TestToOpenTelemetryTraceIdAndSpanIdNulls()
+    [Theory]
+    [InlineData("")]
+    [InlineData("invalid")]
+    public void RejectsInvalidTraceAndSpanIds(string input)
     {
-        Assert.Null(PrimitiveConversions.ToOpenTelemetryTraceId("invalid"));
-        Assert.Null(PrimitiveConversions.ToOpenTelemetryTraceId(""));
-        Assert.Null(PrimitiveConversions.ToOpenTelemetrySpanId("invalid"));
-        Assert.Null(PrimitiveConversions.ToOpenTelemetrySpanId(""));
+        Assert.Null(PrimitiveConversions.ToOpenTelemetryTraceId(input));
+        Assert.Null(PrimitiveConversions.ToOpenTelemetrySpanId(input));
     }
 
     [Fact]
-    public void TestNewAttribute()
+    public void ConstructsNewAttribute()
     {
-        var key = "ok";
+        const string key = "ok";
         var value = new AnyValue
         {
-            IntValue = (long)123
+            IntValue = 123
         };
         var attribute = PrimitiveConversions.NewAttribute(key, value);
 
@@ -138,10 +129,10 @@ public class PrimitiveConversionsTests
     }
 
     [Fact]
-    public void TestNewStringAttribute()
+    public void ConstructsNewStringAttribute()
     {
-        var key = "ok";
-        var value = "also-ok";
+        const string key = "ok";
+        const string value = "also-ok";
         var attribute = PrimitiveConversions.NewStringAttribute(key, value);
 
         Assert.Equal(key, attribute.Key);
@@ -153,140 +144,155 @@ public class PrimitiveConversionsTests
     {
         var scalar = new ScalarValue((short)100);
         var result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((long)100, result?.IntValue);
+        Assert.Equal(100, result.IntValue);
 
-        scalar = new ScalarValue((int)100);
+        scalar = new ScalarValue(100);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((long)100, result?.IntValue);
+        Assert.Equal(100, result.IntValue);
 
         scalar = new ScalarValue((long)100);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((long)100, result?.IntValue);
+        Assert.Equal(100, result.IntValue);
 
         scalar = new ScalarValue((ushort)100);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((long)100, result?.IntValue);
+        Assert.Equal(100, result.IntValue);
 
         scalar = new ScalarValue((uint)100);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((long)100, result?.IntValue);
+        Assert.Equal(100, result.IntValue);
 
         scalar = new ScalarValue((ulong)100);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((long)100, result?.IntValue);
+        Assert.Equal(100, result.IntValue);
 
         scalar = new ScalarValue((float)3.14);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)(float)3.14, result?.DoubleValue);
+        Assert.Equal((float)3.14, result.DoubleValue);
 
-        scalar = new ScalarValue((double)3.14);
+        scalar = new ScalarValue(3.14);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)3.14, result?.DoubleValue);
+        Assert.Equal(3.14, result.DoubleValue);
 
         scalar = new ScalarValue((decimal)3.14);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal((double)(decimal)3.14, result?.DoubleValue);
+        Assert.Equal((double)(decimal)3.14, result.DoubleValue);
 
         scalar = new ScalarValue("ok");
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal("ok", result?.StringValue);
+        Assert.Equal("ok", result.StringValue);
 
         scalar = new ScalarValue(true);
         result = PrimitiveConversions.ToOpenTelemetryScalar(scalar);
-        Assert.Equal(true, result?.BoolValue);
+        Assert.True(result.BoolValue);
 
         // indirect conversion
         scalar = new ScalarValue(true);
-        result = PrimitiveConversions.ToOpenTelemetryAnyValue(scalar);
-        Assert.Equal(true, result?.BoolValue);
+        result = PrimitiveConversions.ToOpenTelemetryAnyValue(scalar, IncludedData.None);
+        Assert.True(result.BoolValue);
     }
 
     [Fact]
     public void TestToOpenTelemetryMap()
     {
-        var properties = new List<LogEventProperty>();
-        properties.Add(new LogEventProperty("a", new ScalarValue(1)));
-        properties.Add(new LogEventProperty("b", new ScalarValue("2")));
-        properties.Add(new LogEventProperty("c", new ScalarValue(true)));
-
-        var input = new StructureValue(properties);
+        var input = new StructureValue(
+        [
+            new("a", new ScalarValue(1)),
+            new("b", new ScalarValue("2")),
+            new("c", new ScalarValue(true))
+        ], "Test");
 
         // direct conversion
-        var result = PrimitiveConversions.ToOpenTelemetryMap(input);
-        Assert.NotNull(result);
-        var kvlistValue = result?.KvlistValue;
-        Assert.Equal(3, kvlistValue?.Values.Count);
-        var secondPair = kvlistValue?.Values.ElementAt<KeyValue>(1);
-        Assert.Equal("b", secondPair?.Key);
-        Assert.Equal("2", secondPair?.Value.StringValue);
+        AssertEquivalentToInput(PrimitiveConversions.ToOpenTelemetryMap(input, IncludedData.StructureValueTypeTags));
 
         // indirect conversion
-        result = PrimitiveConversions.ToOpenTelemetryAnyValue(input);
-        Assert.NotNull(result);
-        kvlistValue = result?.KvlistValue;
-        Assert.Equal(3, kvlistValue?.Values.Count);
-        secondPair = kvlistValue?.Values.ElementAt<KeyValue>(1);
-        Assert.Equal("b", secondPair?.Key);
-        Assert.Equal("2", secondPair?.Value.StringValue);
+        AssertEquivalentToInput(PrimitiveConversions.ToOpenTelemetryAnyValue(input, IncludedData.StructureValueTypeTags));
+
+        // no type tag
+        AssertEquivalentToInput(PrimitiveConversions.ToOpenTelemetryMap(input, IncludedData.None), noTypeTag: true);
+        
+        return;
+        
+        static void AssertEquivalentToInput(AnyValue result, bool noTypeTag = false)
+        {
+            Assert.NotNull(result);
+            var values = new Queue<KeyValue>(result.KvlistValue.Values);
+            Assert.Equal(noTypeTag ? 3 : 4, values.Count);
+
+            if (!noTypeTag)
+            {
+                var type = values.Dequeue();
+                Assert.Equal("$type", type.Key);
+                Assert.Equal("Test", type.Value.StringValue);
+            }
+
+            var a = values.Dequeue();
+            Assert.Equal("a", a.Key);
+            Assert.Equal(1, a.Value.IntValue);
+
+            var b = values.Dequeue();
+            Assert.Equal("b", b.Key);
+            Assert.Equal("2", b.Value.StringValue);
+
+            var c = values.Dequeue();
+            Assert.Equal("c", c.Key);
+            Assert.True(c.Value.BoolValue);
+        }
     }
 
     [Fact]
     public void TestToOpenTelemetryArray()
     {
-        var elements = new List<LogEventPropertyValue>();
-        elements.Add(new ScalarValue(1));
-        elements.Add(new ScalarValue("2"));
-        elements.Add(new ScalarValue(false));
+        List<LogEventPropertyValue> elements =
+        [
+            new ScalarValue(1),
+            new ScalarValue("2"),
+            new ScalarValue(false)
+        ];
 
         var input = new SequenceValue(elements);
 
         // direct conversion
-        var result = PrimitiveConversions.ToOpenTelemetryArray(input);
+        var result = PrimitiveConversions.ToOpenTelemetryArray(input, IncludedData.None);
         Assert.NotNull(result);
-        var arrayValue = result?.ArrayValue;
+        var arrayValue = result.ArrayValue;
         Assert.Equal(3, arrayValue?.Values.Count);
         var secondElement = arrayValue?.Values.ElementAt<AnyValue>(1);
         Assert.Equal("2", secondElement?.StringValue);
 
         // indirect conversion
-        result = PrimitiveConversions.ToOpenTelemetryAnyValue(input);
+        result = PrimitiveConversions.ToOpenTelemetryAnyValue(input, IncludedData.None);
         Assert.NotNull(result);
-        arrayValue = result?.ArrayValue;
+        arrayValue = result.ArrayValue;
         Assert.Equal(3, arrayValue?.Values.Count);
         secondElement = arrayValue?.Values.ElementAt<AnyValue>(1);
         Assert.Equal("2", secondElement?.StringValue);
     }
 
-    [Fact]
-    public void TestOnlyHexDigits()
+    [Theory]
+    [InlineData("0123456789abcdefABCDEF", "0123456789abcdefABCDEF")]
+    [InlineData("\f\t 123 \t\f", "123")]
+    [InlineData("wrong", "")]
+    [InlineData("\"123\"", "123")]
+    public void TestOnlyHexDigits(string input, string expected)
     {
-        var tests = new Dictionary<string, string>
-        {
-            ["0123456789abcdefABCDEF"] = "0123456789abcdefABCDEF",
-            ["\f\t 123 \t\f"] = "123",
-            ["wrong"] = "",
-            ["\"123\""] = "123",
-        };
-
-        foreach (var kvp in tests)
-        {
-            var input = kvp.Key;
-            var expected = kvp.Value;
-            Assert.Equal(expected, PrimitiveConversions.OnlyHexDigits(input));
-        }
+        Assert.Equal(expected, PrimitiveConversions.OnlyHexDigits(input));
     }
 
-    [Fact]
-    public void TestMd5Hash()
+    [Theory]
+    [InlineData("")]
+    [InlineData("first string")]
+    [InlineData("second string")]
+    public void MD5RegexMatchesMD5Chars(string input)
     {
         var md5Regex = new Regex(@"^[a-f\d]{32}$");
+        Assert.Matches(md5Regex, PrimitiveConversions.Md5Hash(input));
+    }
 
-        var inputs = new[] { "", "first string", "second string" };
-        foreach (var input in inputs)
-        {
-            Assert.Matches(md5Regex, PrimitiveConversions.Md5Hash(input));
-        }
 
+    [Fact]
+    public void MD5HashIsComparable()
+    {
         Assert.Equal(PrimitiveConversions.Md5Hash("alpha"), PrimitiveConversions.Md5Hash("alpha"));
         Assert.NotEqual(PrimitiveConversions.Md5Hash("alpha"), PrimitiveConversions.Md5Hash("beta"));
     }
@@ -294,12 +300,11 @@ public class PrimitiveConversionsTests
     [Fact]
     public void DictionariesMapToMaps()
     {
-        var dict = new DictionaryValue(new[]
-        {
+        var dict = new DictionaryValue([
             new KeyValuePair<ScalarValue, LogEventPropertyValue>(new ScalarValue(0), new ScalarValue("test"))
-        });
+        ]);
 
-        var any = PrimitiveConversions.ToOpenTelemetryAnyValue(dict);
+        var any = PrimitiveConversions.ToOpenTelemetryAnyValue(dict, IncludedData.None);
 
         Assert.NotNull(any.KvlistValue);
         var value = Assert.Single(any.KvlistValue.Values);
@@ -310,16 +315,15 @@ public class PrimitiveConversionsTests
     [Fact]
     public void StructureKeysAreDeduplicated()
     {
-        var structure = new StructureValue(new[]
-        {
+        var structure = new StructureValue([
             new LogEventProperty("a", new ScalarValue("test")),
             new LogEventProperty("a", new ScalarValue("test")),
             new LogEventProperty("b", new ScalarValue("test"))
-        });
+        ]);
 
         Assert.Equal(3, structure.Properties.Count);
         
-        var any = PrimitiveConversions.ToOpenTelemetryAnyValue(structure);
+        var any = PrimitiveConversions.ToOpenTelemetryAnyValue(structure, IncludedData.None);
 
         Assert.Equal(2, any.KvlistValue.Values.Count);
     }
