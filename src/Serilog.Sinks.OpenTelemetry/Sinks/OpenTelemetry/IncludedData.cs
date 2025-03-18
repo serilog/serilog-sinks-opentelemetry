@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System.Diagnostics;
+using OpenTelemetry.Proto.Common.V1;
+using Serilog.Events;
 
 namespace Serilog.Sinks.OpenTelemetry;
 
@@ -82,5 +84,11 @@ public enum IncludedData
     /// Preserve the value of the <c>SourceContext</c> property, in addition to using it as the OTLP <c>InstrumentationScope</c> name. If
     /// not specified, the <c>SourceContext</c> property will be omitted from the individual log record attributes.
     /// </summary>
-    SourceContextAttribute = 128
+    SourceContextAttribute = 128,
+    
+    /// <summary>
+    /// Include <see cref="StructureValue.TypeTag"/> as <c>$type</c> when converting event properties to
+    /// OTLP <see cref="AnyValue.KvlistValue"/> values.
+    /// </summary>
+    StructureValueTypeTags = 256,
 }

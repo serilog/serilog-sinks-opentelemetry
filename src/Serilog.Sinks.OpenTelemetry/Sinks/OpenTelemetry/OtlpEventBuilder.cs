@@ -120,7 +120,7 @@ static class OtlpEventBuilder
                 continue;
             }
 
-            var v = PrimitiveConversions.ToOpenTelemetryAnyValue(property.Value);
+            var v = PrimitiveConversions.ToOpenTelemetryAnyValue(property.Value, includedData);
             addAttribute(PrimitiveConversions.NewAttribute(property.Key, v));
         }
     }
