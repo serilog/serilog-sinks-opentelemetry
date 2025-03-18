@@ -2,24 +2,19 @@
     <PropertyGroup>
         <Description>This Serilog sink transforms Serilog events into OpenTelemetry
             logs and sends them to an OTLP (gRPC or HTTP) endpoint.</Description>
-        <VersionPrefix>4.1.2</VersionPrefix>
         <Authors>Serilog Contributors</Authors>
         <!-- .NET Framework version targeting is frozen at these two TFMs. -->
         <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT'">net471;net462</TargetFrameworks>
         <!-- Policy is to trim TFM-specific builds to `netstandard2.0`, `net6.0`,
             all active LTS versions, and optionally the latest RTM version, when releasing new
             major Serilog versions. -->
-        <TargetFrameworks>$(TargetFrameworks);net8.0;net6.0;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>$(TargetFrameworks);net9.0;net8.0;net6.0;netstandard2.0</TargetFrameworks>
         <PackageTags>serilog;sink;opentelemetry</PackageTags>
         <PackageIcon>serilog-sink-nuget.png</PackageIcon>
         <PackageProjectUrl>https://github.com/serilog/serilog-sinks-opentelemetry</PackageProjectUrl>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <RepositoryUrl>https://github.com/serilog/serilog-sinks-opentelemetry</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <RootNamespace>Serilog</RootNamespace>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <LangVersion>12</LangVersion>
         <NoWarn>CS8981</NoWarn>
     </PropertyGroup>
 
@@ -31,6 +26,10 @@
         <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup Condition=" '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net462' ">
         <Using Include="System.Net.Http" />
     </ItemGroup>
@@ -38,8 +37,8 @@
     <ItemGroup>
         <None Include="../../assets/serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="/" />
         <None Include="../../README.md" Pack="true" Visible="false" PackagePath="/" />
-        <PackageReference Include="Google.Protobuf" Version="3.26.1" />
-        <PackageReference Include="Grpc.Net.Client" Version="2.62.0" />
-        <PackageReference Include="Serilog" Version="4.0.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.30.1" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.70.0" />
+        <PackageReference Include="Serilog" Version="4.2.0" />
     </ItemGroup>
 </Project>
