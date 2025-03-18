@@ -9,12 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{E9D1B5
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
 		Build.ps1 = Build.ps1
 		LICENSE = LICENSE
 		README.md = README.md
 		assets\Serilog.snk = assets\Serilog.snk
 		global.json = global.json
+		Directory.Build.props = Directory.Build.props
+		Directory.Version.props = Directory.Version.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7D0692CD-F95D-4BF9-8C63-B4A1C078DF23}"
@@ -26,6 +27,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{CC7B094D-FD20-4053-9749-F9098927CA5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "example\Example\Example.csproj", "{C45B5103-C0CE-40CB-ACB8-4ED17B81AB7B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{84C182D9-BA28-4E90-B505-1DB18EA1E6C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{5809900F-4557-4B45-B01A-E3B5C0EB74B1}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +61,7 @@ Global
 		{866A028E-27DB-49A0-AC78-E5FEF247C099} = {037440DE-440B-4129-9F7A-09B42D00397E}
 		{1D56534C-4009-42C2-A573-789CAE6B8AA9} = {7D0692CD-F95D-4BF9-8C63-B4A1C078DF23}
 		{C45B5103-C0CE-40CB-ACB8-4ED17B81AB7B} = {CC7B094D-FD20-4053-9749-F9098927CA5E}
+		{5809900F-4557-4B45-B01A-E3B5C0EB74B1} = {84C182D9-BA28-4E90-B505-1DB18EA1E6C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43C32ED4-D39A-4E27-AE99-7BB8C883833C}

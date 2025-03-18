@@ -5,8 +5,9 @@
     <!-- Policy is to trim TFM-specific builds to `netstandard2.0`, `net6.0`,
         all active LTS versions, and optionally the latest RTM version, when releasing new
         major Serilog versions. -->
-    <TargetFrameworks>$(TargetFrameworks);net8.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks);net9.0;net8.0;net6.0</TargetFrameworks>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IsPackable>False</IsPackable>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
     <LangVersion>12</LangVersion>
@@ -22,11 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.0" PrivateAssets="all" />
-    <PackageReference Include="xunit" Version="2.8.0" />
-    <PackageReference Include="PublicApiGenerator" Version="11.1.0" />
-    <PackageReference Include="Shouldly" Version="4.2.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2" PrivateAssets="all" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="PublicApiGenerator" Version="11.4.5" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
     <PackageReference Include="OpenTelemetry.SemanticConventions" Version="1.0.0-rc9.9" />
   </ItemGroup>
 

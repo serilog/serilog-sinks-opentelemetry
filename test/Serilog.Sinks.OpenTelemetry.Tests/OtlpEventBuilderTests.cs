@@ -251,7 +251,7 @@ public class OtlpEventBuilderTests
         var (logRecord, scopeName) = OtlpEventBuilder.ToLogRecord(logEvent, null, OpenTelemetrySinkOptions.DefaultIncludedData | IncludedData.SourceContextAttribute);
         
         Assert.Equal(contextType.FullName, scopeName);
-        var ctx = Assert.Single(logRecord.Attributes.Where(a => a.Key == Core.Constants.SourceContextPropertyName));
+        var ctx = Assert.Single(logRecord.Attributes, a => a.Key == Core.Constants.SourceContextPropertyName);
         Assert.Equal(contextType.FullName, ctx.Value.StringValue);
     }
 }
