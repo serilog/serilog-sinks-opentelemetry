@@ -22,7 +22,7 @@ namespace Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 
 static class RequestTemplateFactory
 {
-    const string OpenTelemetrySchemaUrl = "https://opentelemetry.io/schemas/v1.13.0";
+    const string OpenTelemetrySchemaUrl = "https://opentelemetry.io/schemas/1.13.0";
 
     public static ScopeLogs CreateScopeLogs(string? scopeName)
     {

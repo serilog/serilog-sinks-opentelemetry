@@ -1,4 +1,4 @@
-# Serilog.Sinks.OpenTelemetry [![Build status](https://ci.appveyor.com/api/projects/status/sqmrvw34pcuatwl5/branch/dev?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-opentelemetry/branch/dev) [![NuGet Version](https://img.shields.io/nuget/vpre/Serilog.Sinks.OpenTelemetry.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.OpenTelemetry/)
+# Serilog.Sinks.OpenTelemetry&nbsp;[![Build status](https://github.com/serilog/serilog-sinks-opentelemetry/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/serilog/serilog-sinks-opentelemetry/actions)&nbsp;[![NuGet Version](https://img.shields.io/nuget/vpre/Serilog.Sinks.OpenTelemetry.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.OpenTelemetry/)
 
 This Serilog sink transforms Serilog events into OpenTelemetry
 `LogRecord`s and sends them to an OTLP (gRPC or HTTP) endpoint.
@@ -142,9 +142,9 @@ Serilog `LogEvent`               | OpenTelemetry `LogRecord`                  | 
 `MessageTemplate`                | `Attributes[ "message_template.text"]`     | Requires `IncludedData. MessageTemplateText` (enabled by default)                             |
 `MessageTemplate` (MD5)          | `Attributes[ "message_template.hash.md5"]` | Requires `IncludedData. MessageTemplateMD5 HashAttribute`                                     |
 `Properties`                     | `Attributes`                               | Each property is mapped to an attribute keeping the name; the value's structure is maintained |
-`SpanId` (`Activity.Current`)    | `SpanId`                                   | Requires `IncludedData.SpanId` (enabled by default)                                           |
+`SpanId` (`Activity.Current`)    | `SpanId`                                   | Requires `IncludedData.SpanIdField` (enabled by default)                                           |
 `Timestamp`                      | `TimeUnixNano`                             | .NET provides 100-nanosecond precision                                                        |
-`TraceId` (`Activity.Current`)   | `TraceId`                                  | Requires `IncludedData.TraceId` (enabled by default)                                          |
+`TraceId` (`Activity.Current`)   | `TraceId`                                  | Requires `IncludedData.TraceIdField` (enabled by default)                                          |
 
 ### Configuring included data
 
@@ -156,8 +156,8 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
         options.Endpoint = "http://127.0.0.1:4317";
-        options.IncludedData: IncludedData.MessageTemplate |
-                              IncludedData.TraceId | IncludedData.SpanId;
+        options.IncludedData: IncludedData.MessageTemplateTextAttribute |
+                              IncludedData.SpecRequiredResourceAttributes;
     })
     .CreateLogger();
 ```
