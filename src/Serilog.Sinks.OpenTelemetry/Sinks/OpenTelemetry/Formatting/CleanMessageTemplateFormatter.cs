@@ -93,14 +93,6 @@ static class CleanMessageTemplateFormatter
             return;
         }
 
-        var value = scalar.Value;
-
-        if (value == null)
-        {
-            output.Write("null");
-            return;
-        }
-
-        output.Write(string.Format(formatProvider, "{0}", value));
+        scalar.Render(output, format, formatProvider);
     }
 }
