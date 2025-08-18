@@ -95,6 +95,12 @@ static class CleanMessageTemplateFormatter
 
         var value = scalar.Value;
 
+        if (formatProvider?.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter customFormatter)
+        {
+            output.Write(customFormatter.Format(format, value, formatProvider));
+            return;
+        }
+
         if (value == null)
         {
             output.Write("null");
