@@ -16,49 +16,81 @@ namespace Serilog.Sinks.OpenTelemetry.Configuration;
 
 static class OpenTelemetryEnvironment
 {
-    const string ProtocolVarName = "OTEL_EXPORTER_OTLP_PROTOCOL";
-    const string EndpointVarName = "OTEL_EXPORTER_OTLP_ENDPOINT";
-    const string HeaderVarName = "OTEL_EXPORTER_OTLP_HEADERS";
-    const string ResourceAttributesVarName = "OTEL_RESOURCE_ATTRIBUTES";
-    const string ServiceNameVarName = "OTEL_SERVICE_NAME";
-
     public static void Configure(BatchedOpenTelemetrySinkOptions options, Func<string, string?> getConfigurationVariable)
     {
-        options.Protocol = getConfigurationVariable(ProtocolVarName) switch
-        {
-            "http/protobuf" => OtlpProtocol.HttpProtobuf,
-            "grpc" => OtlpProtocol.Grpc,
-            _ => options.Protocol
-        };
+        if (ParseProtocol(getConfigurationVariable(OpenTelemetryEnvironmentVariables.DefaultProtocol)) is { } protocol)
+            options.Protocol = protocol;
 
-        if (getConfigurationVariable(EndpointVarName) is { Length: > 1 } endpoint)
+        if (getConfigurationVariable(OpenTelemetryEnvironmentVariables.DefaultEndpoint) is { Length: > 1 } endpoint)
             options.Endpoint = endpoint;
 
-        FillHeadersIfPresent(getConfigurationVariable(HeaderVarName), options.Headers);
+        FillLogsConfigUsingSpecificationEnvVars(options, getConfigurationVariable);
 
-        FillHeadersResourceAttributesIfPresent(getConfigurationVariable(ResourceAttributesVarName), options.ResourceAttributes);
+        FillTracesConfigUsingSpecificationEnvVars(options, getConfigurationVariable);
 
-        if (getConfigurationVariable(ServiceNameVarName) is { Length: > 1 } serviceName)
+        FillDictionary(
+            options.Headers,
+            getConfigurationVariable,
+            OpenTelemetryEnvironmentVariables.DefaultHeaders);
+
+        FillDictionary(
+            options.ResourceAttributes,
+            getConfigurationVariable,
+            OpenTelemetryEnvironmentVariables.ResourceAttributes);
+
+        if (getConfigurationVariable(OpenTelemetryEnvironmentVariables.ServiceName) is { Length: > 1 } serviceName)
         {
             options.ResourceAttributes[SemanticConventions.AttributeServiceName] = serviceName;
         }
     }
 
-    static void FillHeadersIfPresent(string? config, IDictionary<string, string> headers)
+    static OtlpProtocol? ParseProtocol(string? protocol)
     {
-        if (config == null) return;
-        foreach (var (key, value) in BaggageFormat.DecodeBaggageString(config, HeaderVarName))
+        return protocol switch
         {
-            headers[key] = value;
+            "http/protobuf" => OtlpProtocol.HttpProtobuf,
+            "grpc" => OtlpProtocol.Grpc,
+            _ => null
+        };
+    }
+
+    static void FillLogsConfigUsingSpecificationEnvVars(
+        BatchedOpenTelemetrySinkOptions options,
+        Func<string, string?> getConfigurationVariable)
+    {
+        options.LogsEndpoint = getConfigurationVariable(OpenTelemetryEnvironmentVariables.LogsEndpoint);
+    }
+
+    static void FillTracesConfigUsingSpecificationEnvVars(
+        BatchedOpenTelemetrySinkOptions options,
+        Func<string, string?> getConfigurationVariable)
+    {
+        options.TracesEndpoint = getConfigurationVariable(OpenTelemetryEnvironmentVariables.TracesEndpoint);
+    }
+
+    static void FillDictionary(
+        IDictionary<string, string> dictionary,
+        Func<string, string?> getConfigurationVariable,
+        string environmentVariableName)
+    {
+        var config = getConfigurationVariable(environmentVariableName);
+        if (config == null) return;
+        foreach (var (key, value) in BaggageFormat.DecodeBaggageString(config, environmentVariableName))
+        {
+            dictionary[key] = value;
         }
     }
 
-    static void FillHeadersResourceAttributesIfPresent(string? config, IDictionary<string, object> resourceAttributes)
+    static void FillDictionary(
+        IDictionary<string, object> dictionary,
+        Func<string, string?> getConfigurationVariable,
+        string environmentVariableName)
     {
+        var config = getConfigurationVariable(environmentVariableName);
         if (config == null) return;
-        foreach (var (key, value) in BaggageFormat.DecodeBaggageString(config, ResourceAttributesVarName))
+        foreach (var (key, value) in BaggageFormat.DecodeBaggageString(config, environmentVariableName))
         {
-            resourceAttributes[key] = value;
+            dictionary[key] = value;
         }
     }
 }

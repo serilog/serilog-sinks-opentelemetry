@@ -6,6 +6,31 @@ namespace Serilog.Sinks.OpenTelemetry.Tests;
 public class OpenTelemetryEnvironmentTests
 {
     [Fact]
+    public void ConfigureRespectsSpecificEndpointEnvironmentVariableValues()
+    {
+        BatchedOpenTelemetrySinkOptions options = new();
+        
+        var generalEndpoint = "http://general";
+        var logSpecificEndpoint = "http://log-specific";
+        var tracesSpecificEndpoint = "http://traces-specific";
+        
+        OpenTelemetryEnvironment.Configure(options, GetEnvVar);
+        
+        Assert.Equal(generalEndpoint, options.Endpoint);
+        Assert.Equal(logSpecificEndpoint, options.LogsEndpoint);
+        Assert.Equal(tracesSpecificEndpoint, options.TracesEndpoint);
+        return;
+
+        string? GetEnvVar(string name) => name switch
+        {
+            OpenTelemetryEnvironmentVariables.DefaultEndpoint => generalEndpoint,
+            OpenTelemetryEnvironmentVariables.LogsEndpoint => logSpecificEndpoint,
+            OpenTelemetryEnvironmentVariables.TracesEndpoint => tracesSpecificEndpoint,
+            _ => null
+        };
+    }
+    
+    [Fact]
     public void ConfigureFillsOptionsWithEnvironmentVariableValues()
     {
         BatchedOpenTelemetrySinkOptions options = new();
@@ -30,11 +55,11 @@ public class OpenTelemetryEnvironmentTests
 
         string? GetEnvVar(string name) => name switch
         {
-            "OTEL_EXPORTER_OTLP_ENDPOINT" => endpoint,
-            "OTEL_EXPORTER_OTLP_HEADERS" => headers,
-            "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
-            "OTEL_EXPORTER_OTLP_PROTOCOL" => "grpc",
-            "OTEL_SERVICE_NAME" => serviceName,
+            OpenTelemetryEnvironmentVariables.DefaultEndpoint => endpoint,
+            OpenTelemetryEnvironmentVariables.DefaultHeaders => headers,
+            OpenTelemetryEnvironmentVariables.ResourceAttributes => resourceAttributes,
+            OpenTelemetryEnvironmentVariables.DefaultProtocol => "grpc",
+            OpenTelemetryEnvironmentVariables.ServiceName => serviceName,
             _ => null
         };
     }
@@ -54,8 +79,8 @@ public class OpenTelemetryEnvironmentTests
 
         string? GetEnvVar(string name) => name switch
         {
-            "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
-            "OTEL_SERVICE_NAME" => serviceName,
+            OpenTelemetryEnvironmentVariables.ResourceAttributes => resourceAttributes,
+            OpenTelemetryEnvironmentVariables.ServiceName => serviceName,
             _ => null
         };
     }
@@ -76,8 +101,8 @@ public class OpenTelemetryEnvironmentTests
         string? GetEnvVar(string name)
              => name switch
              {
-                 "OTEL_EXPORTER_OTLP_ENDPOINT" => endpoint,
-                 "OTEL_EXPORTER_OTLP_PROTOCOL" => "http/protobuf",
+                 OpenTelemetryEnvironmentVariables.DefaultEndpoint => endpoint,
+                 OpenTelemetryEnvironmentVariables.DefaultProtocol => "http/protobuf",
                  _ => null
              };
     }
@@ -95,7 +120,7 @@ public class OpenTelemetryEnvironmentTests
         string? GetEnvVar(string name)
              => name switch
              {
-                 "OTEL_EXPORTER_OTLP_HEADERS" => headers,
+                 OpenTelemetryEnvironmentVariables.DefaultHeaders => headers,
                  _ => null
              };
     }
@@ -113,7 +138,7 @@ public class OpenTelemetryEnvironmentTests
         string? GetEnvVar(string name)
              => name switch
              {
-                 "OTEL_RESOURCE_ATTRIBUTES" => resourceAttributes,
+                 OpenTelemetryEnvironmentVariables.ResourceAttributes => resourceAttributes,
                  _ => null
              };
     }
