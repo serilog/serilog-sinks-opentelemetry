@@ -93,9 +93,26 @@ static class CleanMessageTemplateFormatter
             return;
         }
 
-        if (scalar.Value is string && format is null or "")
-            format = "l"; // NOTE: Uses the literal format to yield unquoted strings
+        var value = scalar.Value;
 
-        scalar.Render(output, format, formatProvider);
+        if (value == null)
+        {
+            output.Write("null");
+            return;
+        }
+
+        if (value is string str)
+        {
+            output.Write(str);
+            return;
+        }
+
+        if (formatProvider?.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter customFormatter)
+        {
+            output.Write(customFormatter.Format(format, value, formatProvider));
+            return;
+        }
+
+        output.Write(value);
     }
 }
