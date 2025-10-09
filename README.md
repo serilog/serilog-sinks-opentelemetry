@@ -135,12 +135,12 @@ Serilog `LogEvent`               | OpenTelemetry `LogRecord`                  | 
 ---------------------------------|--------------------------------------------|-----------------------------------------------------------------------------------------------| 
 `Exception.GetType().ToString()` | `Attributes["exception.type"]`             |                                                                                               |
 `Exception.Message`              | `Attributes["exception.message"]`          | Ignored if empty                                                                              |
-`Exception.StackTrace`           | `Attributes[ "exception.stacktrace"]`      | Value of `ex.ToString()`                                                                      |
+`Exception.StackTrace`           | `Attributes["exception.stacktrace"]`       | Value of `ex.ToString()`                                                                      |
 `Level`                          | `SeverityNumber`                           | Serilog levels are mapped to corresponding OpenTelemetry severities                           | 
 `Level.ToString()`               | `SeverityText`                             |                                                                                               |
 `Message`                        | `Body`                                     | Culture-specific formatting can be provided via sink configuration                            |
-`MessageTemplate`                | `Attributes[ "message_template.text"]`     | Requires `IncludedData. MessageTemplateText` (enabled by default)                             |
-`MessageTemplate` (MD5)          | `Attributes[ "message_template.hash.md5"]` | Requires `IncludedData. MessageTemplateMD5 HashAttribute`                                     |
+`MessageTemplate`                | `Attributes["message_template.text"]`      | Requires `IncludedData. MessageTemplateText` (enabled by default)                             |
+`MessageTemplate` (MD5)          | `Attributes["message_template.hash.md5"]`  | Requires `IncludedData. MessageTemplateMD5 HashAttribute`                                     |
 `Properties`                     | `Attributes`                               | Each property is mapped to an attribute keeping the name; the value's structure is maintained |
 `SpanId` (`Activity.Current`)    | `SpanId`                                   | Requires `IncludedData.SpanIdField` (enabled by default)                                           |
 `Timestamp`                      | `TimeUnixNano`                             | .NET provides 100-nanosecond precision                                                        |
@@ -156,7 +156,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.OpenTelemetry(options =>
     {
         options.Endpoint = "http://127.0.0.1:4317";
-        options.IncludedData: IncludedData.MessageTemplateTextAttribute |
+        options.IncludedData = IncludedData.MessageTemplateTextAttribute |
                               IncludedData.SpecRequiredResourceAttributes;
     })
     .CreateLogger();
