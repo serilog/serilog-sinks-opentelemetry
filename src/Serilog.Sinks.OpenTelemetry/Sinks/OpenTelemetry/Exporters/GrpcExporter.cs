@@ -25,12 +25,17 @@ namespace Serilog.Sinks.OpenTelemetry.Exporters;
 /// </summary>
 sealed class GrpcExporter : IExporter, IDisposable
 {
+    // Bounds each export call so that an unresponsive collector cannot block
+    // the sink's worker or disposal indefinitely.
+    static readonly TimeSpan DefaultExportDeadline = TimeSpan.FromSeconds(30);
+
     readonly GrpcChannel? _logsChannel, _tracesChannel;
 
     readonly LogsService.LogsServiceClient? _logsClient;
     readonly TraceService.TraceServiceClient? _tracesClient;
 
     readonly Metadata _headers;
+    readonly TimeSpan _exportDeadline;
 
     /// <summary>
     /// Creates a new instance of a GrpcExporter that writes an
@@ -48,9 +53,14 @@ sealed class GrpcExporter : IExporter, IDisposable
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
+    /// <param name="exportDeadline">
+    /// The deadline applied to each export call; defaults to 30 seconds.
+    /// </param>
     public GrpcExporter(string? logsEndpoint, string? tracesEndpoint, IReadOnlyDictionary<string, string> headers,
-        HttpMessageHandler? httpMessageHandler = null)
+        HttpMessageHandler? httpMessageHandler = null, TimeSpan? exportDeadline = null)
     {
+        _exportDeadline = exportDeadline ?? DefaultExportDeadline;
+
         var grpcChannelOptions = new GrpcChannelOptions();
         if (httpMessageHandler != null)
         {
@@ -85,21 +95,21 @@ sealed class GrpcExporter : IExporter, IDisposable
 
     public void Export(ExportLogsServiceRequest request)
     {
-        _logsClient?.Export(request, _headers);
+        _logsClient?.Export(request, _headers, deadline: DateTime.UtcNow.Add(_exportDeadline));
     }
 
     public Task ExportAsync(ExportLogsServiceRequest request)
     {
-        return _logsClient?.ExportAsync(request, _headers).ResponseAsync ?? Task.CompletedTask;
+        return _logsClient?.ExportAsync(request, _headers, deadline: DateTime.UtcNow.Add(_exportDeadline)).ResponseAsync ?? Task.CompletedTask;
     }
 
     public void Export(ExportTraceServiceRequest request)
     {
-        _tracesClient?.Export(request, _headers);
+        _tracesClient?.Export(request, _headers, deadline: DateTime.UtcNow.Add(_exportDeadline));
     }
 
     public Task ExportAsync(ExportTraceServiceRequest request)
     {
-        return _tracesClient?.ExportAsync(request, _headers).ResponseAsync ?? Task.CompletedTask;
+        return _tracesClient?.ExportAsync(request, _headers, deadline: DateTime.UtcNow.Add(_exportDeadline)).ResponseAsync ?? Task.CompletedTask;
     }
 }
