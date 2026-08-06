@@ -1,3 +1,5 @@
+using System.Net.Http;
+
 namespace Serilog.Sinks.OpenTelemetry.Tests.Support;
 
 /// <summary>
