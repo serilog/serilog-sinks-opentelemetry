@@ -16,7 +16,7 @@ public class OpenTelemetryLogsSinkTests
         var scopeLogs = Assert.Single(resourceLogs.ScopeLogs);
         Assert.Null(scopeLogs.Scope);
     }
-    
+
     [Fact]
     public async Task SourceContextNameIsInstrumentationScope()
     {
@@ -27,7 +27,7 @@ public class OpenTelemetryLogsSinkTests
         var scopeLogs = Assert.Single(resourceLogs.ScopeLogs);
         Assert.Equal(contextType.FullName, scopeLogs.Scope.Name);
     }
-    
+
     [Fact]
     public async Task ScopeLogsAreGrouped()
     {
@@ -47,10 +47,26 @@ public class OpenTelemetryLogsSinkTests
         Assert.Single(resourceLogs.ScopeLogs.Single(r => r.Scope == null).LogRecords);
     }
 
-    static async Task<ExportLogsServiceRequest> ExportAsync(IReadOnlyCollection<LogEvent> events)
+    [Fact]
+    public async Task CustomFormatterSupportedEndToEnd()
+    {
+        var timestamp = new DateTime(2024, 6, 15, 10, 30, 0);
+
+        var events = CollectingSink.Collect(log =>
+            log.Information("Event occurred at: {Timestamp}", timestamp));
+
+        var request = await ExportAsync(events, new CustomDateTimeFormatProvider());
+        var resourceLogs = Assert.Single(request.ResourceLogs);
+        var scopeLogs = Assert.Single(resourceLogs.ScopeLogs);
+        var logRecord = Assert.Single(scopeLogs.LogRecords);
+
+        Assert.Equal($"Event occurred at: CUSTOM(2024-06-15 10:30:00)", logRecord.Body.StringValue);
+    }
+
+    static async Task<ExportLogsServiceRequest> ExportAsync(IReadOnlyCollection<LogEvent> events, IFormatProvider? formatProvider = null)
     {
         var exporter = new CollectingExporter();
-        var sink = new OpenTelemetryLogsSink(exporter, null, new Dictionary<string, object>(), OpenTelemetrySinkOptions.DefaultIncludedData);
+        var sink = new OpenTelemetryLogsSink(exporter, formatProvider, new Dictionary<string, object>(), OpenTelemetrySinkOptions.DefaultIncludedData);
         await sink.EmitBatchAsync(events);
         return Assert.Single(exporter.ExportLogsServiceRequests);
     }
