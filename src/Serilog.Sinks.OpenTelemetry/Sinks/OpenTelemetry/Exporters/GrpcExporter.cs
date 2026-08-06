@@ -77,7 +77,7 @@ sealed class GrpcExporter : IExporter, IDisposable
         if (tracesEndpoint != null)
         {
             _tracesChannel = GrpcChannel.ForAddress(tracesEndpoint, grpcChannelOptions);
-            _tracesClient = new TraceService.TraceServiceClient(_logsChannel);
+            _tracesClient = new TraceService.TraceServiceClient(_tracesChannel);
         }
 
         _headers = new Metadata();
