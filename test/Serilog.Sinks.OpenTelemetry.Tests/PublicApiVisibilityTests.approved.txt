@@ -16,6 +16,11 @@ namespace Serilog.Sinks.OpenTelemetry
         public BatchedOpenTelemetrySinkOptions() { }
         public Serilog.Configuration.BatchingOptions BatchingOptions { get; }
     }
+    public enum Compression
+    {
+        None = 0,
+        Gzip = 1,
+    }
     [System.Flags]
     public enum IncludedData
     {
@@ -33,6 +38,7 @@ namespace Serilog.Sinks.OpenTelemetry
     public class OpenTelemetrySinkOptions
     {
         public OpenTelemetrySinkOptions() { }
+        public Serilog.Sinks.OpenTelemetry.Compression Compression { get; set; }
         public string? Endpoint { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }

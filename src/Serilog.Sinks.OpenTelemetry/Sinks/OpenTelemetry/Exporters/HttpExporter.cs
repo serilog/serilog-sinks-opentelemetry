@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.IO.Compression;
 using Google.Protobuf;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
@@ -27,6 +28,7 @@ sealed class HttpExporter : IExporter, IDisposable
     readonly string? _logsEndpoint;
     readonly string? _tracesEndpoint;
     readonly HttpClient _client;
+    private Compression m_compression;
 
     /// <summary>
     /// Creates a new instance of an HttpExporter that writes an
@@ -39,16 +41,20 @@ sealed class HttpExporter : IExporter, IDisposable
     /// <param name="tracesEndpoint">
     /// The full OTLP traces endpoint to which logs are sent.
     /// </param>
+    /// <param name="compression">
+    /// Optional compression method.
+    /// </param>
     /// <param name="headers">
     /// A dictionary containing the request headers.
     /// </param>
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
-    public HttpExporter(string? logsEndpoint, string? tracesEndpoint, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
+    public HttpExporter(string? logsEndpoint, string? tracesEndpoint, Compression compression, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
     {
         _logsEndpoint = logsEndpoint;
         _tracesEndpoint = tracesEndpoint;
+        m_compression = compression;
         _client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
         foreach (var header in headers)
         {
@@ -131,18 +137,33 @@ sealed class HttpExporter : IExporter, IDisposable
         response.EnsureSuccessStatusCode();
     }
 
-    static HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
+    HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
     {
-        var dataSize = request.CalculateSize();
-        var buffer = new byte[dataSize];
-
-        request.WriteTo(buffer.AsSpan());
-
-        var content = new ByteArrayContent(buffer, 0, dataSize);
+        using var outStream = new MemoryStream();
+        using (Stream compressor = CompressingStream(outStream, m_compression))
+        {
+            request.WriteTo(compressor);
+        }
+        var content = new ByteArrayContent(outStream.ToArray());
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
+        if (m_compression != Compression.None)
+        {
+            content.Headers.ContentEncoding.Add(m_compression.ToString().ToLower());
+        }
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
         httpRequest.Content = content;
         return httpRequest;
+    }
+
+    static Stream CompressingStream(MemoryStream output, Compression compression)
+    {
+        switch (compression)
+        {
+            case Compression.Gzip:
+                return new GZipStream(output, CompressionMode.Compress);
+            default:
+                return output; // works for a MemoryStream
+        }
     }
 }
