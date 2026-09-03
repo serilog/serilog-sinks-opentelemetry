@@ -296,7 +296,8 @@ public class OtlpEventBuilderTests
     static LogEvent EventWithSpanLinks(params ActivityContext[] links)
     {
         var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
-            new SequenceValue(links.Select(l => (LogEventPropertyValue)new ScalarValue(l))));
+            new SequenceValue(links.Select(l => new ScalarValue(l))));
+        
         return Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
     }
 }
