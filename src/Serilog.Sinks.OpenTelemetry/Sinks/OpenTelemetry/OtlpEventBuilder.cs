@@ -57,6 +57,7 @@ static class OtlpEventBuilder
         ProcessIncludedFields(span, logEvent, includedData);
         ProcessParentSpanId(span, logEvent);
         ProcessKind(span, logEvent);
+        ProcessLinks(span, logEvent);
 
         return (span, scopeName);
     }
@@ -115,7 +116,8 @@ static class OtlpEventBuilder
             if (property is { Key:
                     SpanStartTimestampPropertyName or
                     ParentSpanIdPropertyName or
-                    SpanKindPropertyName })
+                    SpanKindPropertyName or
+                    SpanLinksPropertyName })
             {
                 continue;
             }
@@ -154,6 +156,24 @@ static class OtlpEventBuilder
             kind = explicitKind;
         }
         span.Kind = PrimitiveConversions.ToOpenTelemetrySpanKind(kind);
+    }
+
+    static void ProcessLinks(Span span, LogEvent logEvent)
+    {
+        if (!logEvent.Properties.TryGetValue(SpanLinksPropertyName, out var sst) ||
+            sst is not SequenceValue { Elements: { } links }) return;
+        
+        foreach (var value in links)
+        {
+            if (value is ScalarValue { Value: ActivityContext link })
+            {
+                span.Links.Add(new Span.Types.Link
+                {
+                    TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(link.TraceId.ToHexString()),
+                    SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(link.SpanId.ToHexString())
+                });
+            }
+        }
     }
 
     public static void ProcessException(RepeatedField<KeyValue> attrs, LogEvent logEvent)

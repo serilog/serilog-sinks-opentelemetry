@@ -254,4 +254,49 @@ public class OtlpEventBuilderTests
         var ctx = Assert.Single(logRecord.Attributes, a => a.Key == Core.Constants.SourceContextPropertyName);
         Assert.Equal(contextType.FullName, ctx.Value.StringValue);
     }
+
+    [Fact]
+    public void SpanLinksIncludedWhenPresent()
+    {
+        var link1 = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+        var link2 = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+        var logEvent = EventWithSpanLinks(link1, link2);
+
+        var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
+
+        Assert.Equal(2, span.Links.Count);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link1.TraceId.ToHexString()), span.Links[0].TraceId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link1.SpanId.ToHexString()), span.Links[0].SpanId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link2.TraceId.ToHexString()), span.Links[1].TraceId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link2.SpanId.ToHexString()), span.Links[1].SpanId);
+    }
+
+    [Fact]
+    public void SpanLinksNotIncludedWhenMissing()
+    {
+        var logEvent = Some.SerilogEvent("Hello, world!");
+
+        var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
+
+        Assert.Empty(span.Links);
+    }
+
+    [Fact]
+    public void SpanLinksPropertyIsNotEmittedAsSpanAttribute()
+    {
+        var link = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+        var logEvent = EventWithSpanLinks(link);
+
+        var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
+
+        Assert.Single(span.Links);
+        Assert.DoesNotContain(Constants.SpanLinksPropertyName, span.Attributes.Select(a => a.Key));
+    }
+
+    static LogEvent EventWithSpanLinks(params ActivityContext[] links)
+    {
+        var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
+            new SequenceValue(links.Select(l => (LogEventPropertyValue)new ScalarValue(l))));
+        return Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
+    }
 }
