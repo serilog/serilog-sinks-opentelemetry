@@ -258,17 +258,17 @@ public class OtlpEventBuilderTests
     [Fact]
     public void SpanLinksIncludedWhenPresent()
     {
-        var link1 = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
-        var link2 = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+        var link1 = new ActivityLink(new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None));
+        var link2 = new ActivityLink(new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None));
         var logEvent = EventWithSpanLinks(link1, link2);
 
         var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
 
         Assert.Equal(2, span.Links.Count);
-        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link1.TraceId.ToHexString()), span.Links[0].TraceId);
-        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link1.SpanId.ToHexString()), span.Links[0].SpanId);
-        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link2.TraceId.ToHexString()), span.Links[1].TraceId);
-        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link2.SpanId.ToHexString()), span.Links[1].SpanId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link1.Context.TraceId.ToHexString()), span.Links[0].TraceId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link1.Context.SpanId.ToHexString()), span.Links[0].SpanId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link2.Context.TraceId.ToHexString()), span.Links[1].TraceId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link2.Context.SpanId.ToHexString()), span.Links[1].SpanId);
     }
 
     [Fact]
@@ -284,7 +284,7 @@ public class OtlpEventBuilderTests
     [Fact]
     public void SpanLinksPropertyIsNotEmittedAsSpanAttribute()
     {
-        var link = new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None);
+        var link = new ActivityLink(new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None));
         var logEvent = EventWithSpanLinks(link);
 
         var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
@@ -293,10 +293,23 @@ public class OtlpEventBuilderTests
         Assert.DoesNotContain(Constants.SpanLinksPropertyName, span.Attributes.Select(a => a.Key));
     }
 
-    static LogEvent EventWithSpanLinks(params ActivityContext[] links)
+    [Fact]
+    public void SpanLinksIgnoredWhenTraceparentIsInvalid()
     {
         var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
-            new SequenceValue(links.Select(l => new ScalarValue(l))));
+            new SequenceValue(new LogEventPropertyValue[] { new ScalarValue("not-a-traceparent") }));
+
+        var logEvent = Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
+
+        var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
+
+        Assert.Empty(span.Links);
+    }
+
+    static LogEvent EventWithSpanLinks(params ActivityLink[] links)
+    {
+        var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
+            new SequenceValue(links.Select(l => new ScalarValue($"00-{l.Context.TraceId.ToHexString()}-{l.Context.SpanId.ToHexString()}-{(byte)l.Context.TraceFlags:x2}"))));
         
         return Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
     }

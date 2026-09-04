@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Common.V1;
@@ -165,15 +166,30 @@ static class OtlpEventBuilder
         
         foreach (var value in links)
         {
-            if (value is ScalarValue { Value: ActivityContext link })
-            {
-                span.Links.Add(new Span.Types.Link
-                {
-                    TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(link.TraceId.ToHexString()),
-                    SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(link.SpanId.ToHexString())
-                });
-            }
+            if (value is not ScalarValue { Value: string link }) continue;
+            if (!TryParseTraceparent(link, out var spanLink)) continue;
+            
+            span.Links.Add(spanLink);
         }
+    }
+
+    static bool TryParseTraceparent(string? traceparent, [NotNullWhen(true)] out Span.Types.Link? link)
+    {
+        // NOTE: Returns `false` for empty trace/span ids
+        if (!ActivityContext.TryParse(traceparent, null, out var context))
+        {
+            link = null;
+            return false;
+        }
+        
+        link = new Span.Types.Link
+        {
+            TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(context.TraceId.ToHexString()),
+            SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(context.SpanId.ToHexString()),
+            Flags = (uint)context.TraceFlags
+        };
+
+        return true;
     }
 
     public static void ProcessException(RepeatedField<KeyValue> attrs, LogEvent logEvent)
