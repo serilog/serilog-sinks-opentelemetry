@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Common.V1;
@@ -57,6 +58,7 @@ static class OtlpEventBuilder
         ProcessIncludedFields(span, logEvent, includedData);
         ProcessParentSpanId(span, logEvent);
         ProcessKind(span, logEvent);
+        ProcessLinks(span, logEvent);
 
         return (span, scopeName);
     }
@@ -115,7 +117,8 @@ static class OtlpEventBuilder
             if (property is { Key:
                     SpanStartTimestampPropertyName or
                     ParentSpanIdPropertyName or
-                    SpanKindPropertyName })
+                    SpanKindPropertyName or
+                    SpanLinksPropertyName })
             {
                 continue;
             }
@@ -154,6 +157,41 @@ static class OtlpEventBuilder
             kind = explicitKind;
         }
         span.Kind = PrimitiveConversions.ToOpenTelemetrySpanKind(kind);
+    }
+
+    static void ProcessLinks(Span span, LogEvent logEvent)
+    {
+        if (!logEvent.Properties.TryGetValue(SpanLinksPropertyName, out var sst) ||
+            sst is not SequenceValue { Elements: { } links }) return;
+        
+        foreach (var value in links)
+        {
+            // Be tolerant of traceparent strings. The `ToString()` on them will produce a quoted string
+            var traceparent = value is ScalarValue { Value: string stringValue } ? stringValue : value.ToString();
+            
+            if (!TryParseTraceparent(traceparent, out var spanLink)) continue;
+            
+            span.Links.Add(spanLink);
+        }
+    }
+
+    static bool TryParseTraceparent(string? traceparent, [NotNullWhen(true)] out Span.Types.Link? link)
+    {
+        // NOTE: Returns `false` for empty trace/span ids
+        if (!ActivityContext.TryParse(traceparent, null, out var context))
+        {
+            link = null;
+            return false;
+        }
+        
+        link = new Span.Types.Link
+        {
+            TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(context.TraceId.ToHexString()),
+            SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(context.SpanId.ToHexString()),
+            Flags = (uint)context.TraceFlags
+        };
+
+        return true;
     }
 
     public static void ProcessException(RepeatedField<KeyValue> attrs, LogEvent logEvent)

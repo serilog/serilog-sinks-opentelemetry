@@ -40,4 +40,11 @@ static class Constants
     /// kind should be assumed to be internal.
     /// </summary>
     public const string SpanKindPropertyName = "SpanKind";
+
+    /// <summary>
+    /// The name of the entry in <see cref="LogEvent.Properties"/> that carries a
+    /// span's links. The value will be a <see cref="SequenceValue"/> of values whose <see cref="Object.ToString()"/>
+    /// produces a W3C traceparent.
+    /// </summary>
+    public const string SpanLinksPropertyName = "SpanLinks";
 }

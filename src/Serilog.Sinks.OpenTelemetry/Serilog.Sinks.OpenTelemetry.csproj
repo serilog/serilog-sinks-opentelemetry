@@ -19,15 +19,15 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
+        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_ACTIVITY_CREATE_FROM_STRING;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
+        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_ACTIVITY_CREATE_FROM_STRING;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
+        <DefineConstants>$(DefineConstants);FEATURE_CWT_ADDORUPDATE;FEATURE_ACTIVITY;FEATURE_ACTIVITY_CREATE_FROM_STRING;FEATURE_HALF;FEATURE_DATE_AND_TIME_ONLY;FEATURE_SYNC_HTTP_SEND;FEATURE_SOCKETS_HTTP_HANDLER</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net462' ">
@@ -40,5 +40,9 @@
         <PackageReference Include="Google.Protobuf" Version="3.30.1" />
         <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
         <PackageReference Include="Serilog" Version="4.2.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net462' ">
+        <PackageReference Include="Nullable" Version="1.3.1" PrivateAssets="all" />
     </ItemGroup>
 </Project>
