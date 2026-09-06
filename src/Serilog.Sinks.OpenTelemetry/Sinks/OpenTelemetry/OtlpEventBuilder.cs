@@ -166,8 +166,10 @@ static class OtlpEventBuilder
         
         foreach (var value in links)
         {
-            // NOTE: If the link is a `ScalarValue` of `string`, the `ToString()` will quote it and fail to parse
-            if (!TryParseTraceparent(value.ToString(), out var spanLink)) continue;
+            // Be tolerant of traceparent strings. The `ToString()` on them will produce a quoted string
+            var traceparent = value is ScalarValue { Value: string stringValue } ? stringValue : value.ToString();
+            
+            if (!TryParseTraceparent(traceparent, out var spanLink)) continue;
             
             span.Links.Add(spanLink);
         }

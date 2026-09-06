@@ -306,6 +306,24 @@ public class OtlpEventBuilderTests
         Assert.Empty(span.Links);
     }
 
+    [Fact]
+    public void SpanLinksIncludedWhenPresentAsRawStrings()
+    {
+        var link1 = new ActivityLink(new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None));
+
+        var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName, new SequenceValue([
+            new ScalarValue(new Traceparent(link1).ToString())
+        ]));
+
+        var logEvent = Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
+        
+        var (span, _) = OtlpEventBuilder.ToSpan(logEvent, OpenTelemetrySinkOptions.DefaultIncludedData);
+
+        var spanLink = Assert.Single(span.Links);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetryTraceId(link1.Context.TraceId.ToHexString()), spanLink.TraceId);
+        Assert.Equal(PrimitiveConversions.ToOpenTelemetrySpanId(link1.Context.SpanId.ToHexString()), spanLink.SpanId);
+    }
+
     static LogEvent EventWithSpanLinks(params ActivityLink[] links)
     {
         var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
