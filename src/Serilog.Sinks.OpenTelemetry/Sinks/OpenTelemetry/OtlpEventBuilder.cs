@@ -166,8 +166,7 @@ static class OtlpEventBuilder
         
         foreach (var value in links)
         {
-            if (value is not ScalarValue { Value: string link }) continue;
-            if (!TryParseTraceparent(link, out var spanLink)) continue;
+            if (!TryParseTraceparent(value.ToString(), out var spanLink)) continue;
             
             span.Links.Add(spanLink);
         }

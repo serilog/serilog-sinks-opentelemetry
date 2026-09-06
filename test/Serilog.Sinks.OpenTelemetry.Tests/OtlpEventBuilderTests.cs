@@ -297,7 +297,7 @@ public class OtlpEventBuilderTests
     public void SpanLinksIgnoredWhenTraceparentIsInvalid()
     {
         var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
-            new SequenceValue(new LogEventPropertyValue[] { new ScalarValue("not-a-traceparent") }));
+            new SequenceValue([new ScalarValue("not-a-traceparent")]));
 
         var logEvent = Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
 
@@ -309,7 +309,7 @@ public class OtlpEventBuilderTests
     static LogEvent EventWithSpanLinks(params ActivityLink[] links)
     {
         var linksProperty = new LogEventProperty(Constants.SpanLinksPropertyName,
-            new SequenceValue(links.Select(l => new ScalarValue($"00-{l.Context.TraceId.ToHexString()}-{l.Context.SpanId.ToHexString()}-{(byte)l.Context.TraceFlags:x2}"))));
+            new SequenceValue(links.Select(l => new ScalarValue(new Traceparent(l)))));
         
         return Some.SerilogEvent("Hello, world!", new List<LogEventProperty> { linksProperty });
     }

@@ -111,7 +111,7 @@ public class OpenTelemetryTracesSinkTests
         {
             logEvent.AddOrUpdateProperty(new LogEventProperty(
                 "SpanLinks",
-                new SequenceValue(links.Select(l => new ScalarValue($"00-{l.Context.TraceId.ToHexString()}-{l.Context.SpanId.ToHexString()}-{(byte)l.Context.TraceFlags:x2}")))));
+                new SequenceValue(links.Select(l => new ScalarValue(new Traceparent(l))))));
         }
     }
 }
