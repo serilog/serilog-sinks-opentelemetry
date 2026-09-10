@@ -139,12 +139,14 @@ sealed class HttpExporter : IExporter, IDisposable
 
     HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
     {
-        using var outStream = new MemoryStream(request.CalculateSize());
+        var outStream = new MemoryStream(request.CalculateSize());
         using (var compressor = CompressingStream(outStream, _compression))
         {
-            request.WriteTo(compressor);
+            request.WriteTo(compressor ?? outStream);
         }
-        var content = new ByteArrayContent(outStream.ToArray());
+        outStream.Position = 0;
+
+        var content = new StreamContent(outStream);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
         if (_compression != Compression.None)
         {
@@ -156,14 +158,14 @@ sealed class HttpExporter : IExporter, IDisposable
         return httpRequest;
     }
 
-    static Stream CompressingStream(MemoryStream output, Compression compression)
+    static Stream? CompressingStream(Stream output, Compression compression)
     {
         switch (compression)
         {
             case Compression.GZip:
-                return new GZipStream(output, CompressionLevel.Fastest);
+                return new GZipStream(output, CompressionLevel.Fastest, leaveOpen: true);
             default:
-                return output; // works for a MemoryStream
+                return null;
         }
     }
 }
