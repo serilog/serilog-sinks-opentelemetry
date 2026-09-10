@@ -28,7 +28,7 @@ sealed class HttpExporter : IExporter, IDisposable
     readonly string? _logsEndpoint;
     readonly string? _tracesEndpoint;
     readonly HttpClient _client;
-    private Compression m_compression;
+    readonly Compression _compression;
 
     /// <summary>
     /// Creates a new instance of an HttpExporter that writes an
@@ -54,7 +54,7 @@ sealed class HttpExporter : IExporter, IDisposable
     {
         _logsEndpoint = logsEndpoint;
         _tracesEndpoint = tracesEndpoint;
-        m_compression = compression;
+        _compression = compression;
         _client = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
         foreach (var header in headers)
         {
@@ -140,15 +140,15 @@ sealed class HttpExporter : IExporter, IDisposable
     HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
     {
         using var outStream = new MemoryStream();
-        using (Stream compressor = CompressingStream(outStream, m_compression))
+        using (var compressor = CompressingStream(outStream, _compression))
         {
             request.WriteTo(compressor);
         }
         var content = new ByteArrayContent(outStream.ToArray());
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
-        if (m_compression != Compression.None)
+        if (_compression != Compression.None)
         {
-            content.Headers.ContentEncoding.Add(m_compression.ToString().ToLower());
+            content.Headers.ContentEncoding.Add(_compression.ToString().ToLowerInvariant());
         }
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
@@ -160,7 +160,7 @@ sealed class HttpExporter : IExporter, IDisposable
     {
         switch (compression)
         {
-            case Compression.Gzip:
+            case Compression.GZip:
                 return new GZipStream(output, CompressionMode.Compress);
             default:
                 return output; // works for a MemoryStream

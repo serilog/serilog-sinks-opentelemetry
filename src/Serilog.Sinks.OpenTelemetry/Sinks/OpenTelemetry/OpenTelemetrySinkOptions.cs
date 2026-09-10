@@ -126,7 +126,7 @@ public class OpenTelemetrySinkOptions
     public OtlpProtocol Protocol { get; set; } = DefaultProtocol;
 
     /// <summary>
-    /// Compression method to use (e.g. gzip)
+    /// Compression method to use (e.g. gzip).
     /// </summary>
     public Compression Compression { get; set; } = Compression.None;
 

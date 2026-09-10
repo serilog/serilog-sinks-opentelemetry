@@ -15,17 +15,17 @@
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// Defines compression method to use when sending data over HTTP
+/// Defines compression method to use when sending data over HTTP.
 /// </summary>
 public enum Compression
 {
     /// <summary>
-    /// No compression applied
+    /// No compression applied.
     /// </summary>
     None,
 
     /// <summary>
-    /// Gzip compression (https://en.wikipedia.org/wiki/Gzip)
+    /// Gzip compression (https://en.wikipedia.org/wiki/Gzip).
     /// </summary>
-    Gzip
+    GZip
 }
