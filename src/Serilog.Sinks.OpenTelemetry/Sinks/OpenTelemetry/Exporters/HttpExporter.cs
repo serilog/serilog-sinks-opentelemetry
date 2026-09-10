@@ -161,7 +161,7 @@ sealed class HttpExporter : IExporter, IDisposable
         switch (compression)
         {
             case Compression.GZip:
-                return new GZipStream(output, CompressionMode.Compress);
+                return new GZipStream(output, CompressionLevel.Fastest);
             default:
                 return output; // works for a MemoryStream
         }
