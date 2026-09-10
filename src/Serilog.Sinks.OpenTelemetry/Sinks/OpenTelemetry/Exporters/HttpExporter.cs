@@ -139,7 +139,7 @@ sealed class HttpExporter : IExporter, IDisposable
 
     HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
     {
-        using var outStream = new MemoryStream();
+        using var outStream = new MemoryStream(request.CalculateSize());
         using (var compressor = CompressingStream(outStream, _compression))
         {
             request.WriteTo(compressor);
