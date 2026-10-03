@@ -17,6 +17,7 @@ namespace Serilog.Sinks.OpenTelemetry.Configuration;
 static class OpenTelemetryEnvironment
 {
     const string ProtocolVarName = "OTEL_EXPORTER_OTLP_PROTOCOL";
+    const string CompressionVarName = "OTEL_EXPORTER_OTLP_COMPRESSION";
     const string EndpointVarName = "OTEL_EXPORTER_OTLP_ENDPOINT";
     const string HeaderVarName = "OTEL_EXPORTER_OTLP_HEADERS";
     const string ResourceAttributesVarName = "OTEL_RESOURCE_ATTRIBUTES";
@@ -29,6 +30,12 @@ static class OpenTelemetryEnvironment
             "http/protobuf" => OtlpProtocol.HttpProtobuf,
             "grpc" => OtlpProtocol.Grpc,
             _ => options.Protocol
+        };
+
+        options.Compression = getConfigurationVariable(CompressionVarName) switch
+        {
+            "gzip" => OtlpCompression.GZip,
+            _ => OtlpCompression.None
         };
 
         if (getConfigurationVariable(EndpointVarName) is { Length: > 1 } endpoint)
