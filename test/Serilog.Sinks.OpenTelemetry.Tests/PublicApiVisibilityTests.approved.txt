@@ -19,7 +19,7 @@ namespace Serilog.Sinks.OpenTelemetry
     public enum Compression
     {
         None = 0,
-        Gzip = 1,
+        GZip = 1,
     }
     [System.Flags]
     public enum IncludedData
