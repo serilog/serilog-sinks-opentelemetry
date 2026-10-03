@@ -28,7 +28,7 @@ sealed class HttpExporter : IExporter, IDisposable
     readonly string? _logsEndpoint;
     readonly string? _tracesEndpoint;
     readonly HttpClient _client;
-    readonly Compression _compression;
+    readonly OtlpCompression _compression;
 
     /// <summary>
     /// Creates a new instance of an HttpExporter that writes an
@@ -50,7 +50,7 @@ sealed class HttpExporter : IExporter, IDisposable
     /// <param name="httpMessageHandler">
     /// Custom HTTP message handler.
     /// </param>
-    public HttpExporter(string? logsEndpoint, string? tracesEndpoint, Compression compression, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
+    public HttpExporter(string? logsEndpoint, string? tracesEndpoint, OtlpCompression compression, IReadOnlyDictionary<string, string> headers, HttpMessageHandler? httpMessageHandler = null)
     {
         _logsEndpoint = logsEndpoint;
         _tracesEndpoint = tracesEndpoint;
@@ -148,7 +148,7 @@ sealed class HttpExporter : IExporter, IDisposable
 
         var content = new StreamContent(outStream);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-protobuf");
-        if (_compression != Compression.None)
+        if (_compression != OtlpCompression.None)
         {
             content.Headers.ContentEncoding.Add(_compression.ToString().ToLowerInvariant());
         }
@@ -158,11 +158,11 @@ sealed class HttpExporter : IExporter, IDisposable
         return httpRequest;
     }
 
-    static Stream? CompressingStream(Stream output, Compression compression)
+    static Stream? CompressingStream(Stream output, OtlpCompression compression)
     {
         switch (compression)
         {
-            case Compression.GZip:
+            case OtlpCompression.GZip:
                 return new GZipStream(output, CompressionLevel.Fastest, leaveOpen: true);
             default:
                 return null;

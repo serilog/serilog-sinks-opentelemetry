@@ -16,11 +16,6 @@ namespace Serilog.Sinks.OpenTelemetry
         public BatchedOpenTelemetrySinkOptions() { }
         public Serilog.Configuration.BatchingOptions BatchingOptions { get; }
     }
-    public enum Compression
-    {
-        None = 0,
-        GZip = 1,
-    }
     [System.Flags]
     public enum IncludedData
     {
@@ -38,7 +33,7 @@ namespace Serilog.Sinks.OpenTelemetry
     public class OpenTelemetrySinkOptions
     {
         public OpenTelemetrySinkOptions() { }
-        public Serilog.Sinks.OpenTelemetry.Compression Compression { get; set; }
+        public Serilog.Sinks.OpenTelemetry.OtlpCompression Compression { get; set; }
         public string? Endpoint { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }
@@ -51,6 +46,11 @@ namespace Serilog.Sinks.OpenTelemetry
         public System.Collections.Generic.IDictionary<string, object> ResourceAttributes { get; set; }
         public Serilog.Events.LogEventLevel RestrictedToMinimumLevel { get; set; }
         public string? TracesEndpoint { get; set; }
+    }
+    public enum OtlpCompression
+    {
+        None = 0,
+        GZip = 1,
     }
     public enum OtlpProtocol
     {

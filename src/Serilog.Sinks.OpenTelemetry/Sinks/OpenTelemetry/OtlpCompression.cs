@@ -15,9 +15,9 @@
 namespace Serilog.Sinks.OpenTelemetry;
 
 /// <summary>
-/// Defines compression method to use when sending data over HTTP.
+/// Defines compression method in log export.
 /// </summary>
-public enum Compression
+public enum OtlpCompression
 {
     /// <summary>
     /// No compression applied.

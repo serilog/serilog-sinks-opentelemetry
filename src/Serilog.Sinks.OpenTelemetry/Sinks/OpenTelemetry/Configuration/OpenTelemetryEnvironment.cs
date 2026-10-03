@@ -34,8 +34,8 @@ static class OpenTelemetryEnvironment
 
         options.Compression = getConfigurationVariable(CompressionVarName) switch
         {
-            "gzip" => Compression.GZip,
-            _ => Compression.None
+            "gzip" => OtlpCompression.GZip,
+            _ => OtlpCompression.None
         };
 
         if (getConfigurationVariable(EndpointVarName) is { Length: > 1 } endpoint)
