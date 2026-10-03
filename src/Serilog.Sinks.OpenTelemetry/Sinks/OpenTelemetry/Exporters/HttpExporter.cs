@@ -137,7 +137,7 @@ sealed class HttpExporter : IExporter, IDisposable
         response.EnsureSuccessStatusCode();
     }
 
-    HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
+    internal HttpRequestMessage CreateHttpRequestMessage(IMessage request, string endpoint)
     {
         var outStream = new MemoryStream(request.CalculateSize());
         using (var compressor = CompressingStream(outStream, _compression))
