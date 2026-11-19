@@ -29,7 +29,7 @@ public class OpenTelemetrySinkOptions
 
     internal const IncludedData DefaultIncludedData = IncludedData.MessageTemplateTextAttribute |
                                              IncludedData.TraceIdField | IncludedData.SpanIdField |
-                                             IncludedData.SpecRequiredResourceAttributes;
+                                             IncludedData.SpecRequiredResourceAttributes | IncludedData.SpanLinks;
 
     string? _endpoint = DefaultEndpoint;
     string? _logsEndpoint, _tracesEndpoint;

@@ -29,6 +29,7 @@ namespace Serilog.Sinks.OpenTelemetry
         MessageTemplateRenderingsAttribute = 64,
         SourceContextAttribute = 128,
         StructureValueTypeTags = 256,
+        SpanLinks = 512,
     }
     public class OpenTelemetrySinkOptions
     {
