@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using OpenTelemetry.Proto.Collector.Trace.V1;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.OpenTelemetry.ProtocolHelpers;
 using Serilog.Sinks.OpenTelemetry.Tests.Support;
@@ -15,8 +16,10 @@ public class OpenTelemetryTracesSinkTests
         var start = Some.UtcDateTime();
         var parent = ActivitySpanId.CreateRandom();
         var kind = ActivityKind.Consumer;
+        var link1 = new ActivityLink(new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None));
+        var link2 = new ActivityLink(new ActivityContext(ActivityTraceId.CreateRandom(), ActivitySpanId.CreateRandom(), ActivityTraceFlags.None));
         using var activity = Some.Activity();
-        var events = CollectingSink.Collect(log => ForSpan(log, start, kind, parent).Information("Hello, {Name}!", "World"));
+        var events = CollectingSink.Collect(log => ForSpan(log, start, kind, parent, [link1, link2]).Information("Hello, {Name}!", "World"));
         var request = await ExportAsync(events);
         var resourceSpans = Assert.Single(request.ResourceSpans);
         var scopeSpans = Assert.Single(resourceSpans.ScopeSpans);
@@ -82,7 +85,7 @@ public class OpenTelemetryTracesSinkTests
 
     // Produces a completely imaginary span, which will be inconsistent with Activity.Current except to carry the
     // same span id.
-    static ILogger ForSpan(ILogger logger, DateTime? start = null, ActivityKind kind = ActivityKind.Internal, ActivitySpanId? parentId = null)
+    static ILogger ForSpan(ILogger logger, DateTime? start = null, ActivityKind kind = ActivityKind.Internal, ActivitySpanId? parentId = null, IEnumerable<ActivityLink>? links = null)
     {
         var result = logger.ForContext("SpanStartTimestamp", start ?? Some.UtcDateTime())
             .ForContext("SpanKind", kind);
@@ -90,6 +93,19 @@ public class OpenTelemetryTracesSinkTests
         if (parentId != null)
             result = result.ForContext("ParentSpanId", parentId.Value);
 
+        if (links is not null)
+            result = result.ForContext(new SpanLinksEnricher(links));
+
         return result;
+    }
+
+    class SpanLinksEnricher(IEnumerable<ActivityLink> links) : ILogEventEnricher
+    {
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            logEvent.AddOrUpdateProperty(new LogEventProperty(
+                "SpanLinks",
+                new SequenceValue(links.Select(l => new ScalarValue(l)))));
+        }
     }
 }

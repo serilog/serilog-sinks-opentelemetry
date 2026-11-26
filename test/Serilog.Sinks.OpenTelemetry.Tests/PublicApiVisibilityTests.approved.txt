@@ -29,10 +29,12 @@ namespace Serilog.Sinks.OpenTelemetry
         MessageTemplateRenderingsAttribute = 64,
         SourceContextAttribute = 128,
         StructureValueTypeTags = 256,
+        SpanLinks = 512,
     }
     public class OpenTelemetrySinkOptions
     {
         public OpenTelemetrySinkOptions() { }
+        public Serilog.Sinks.OpenTelemetry.OtlpCompression Compression { get; set; }
         public string? Endpoint { get; set; }
         public System.IFormatProvider? FormatProvider { get; set; }
         public System.Collections.Generic.IDictionary<string, string> Headers { get; set; }
@@ -45,6 +47,11 @@ namespace Serilog.Sinks.OpenTelemetry
         public System.Collections.Generic.IDictionary<string, object> ResourceAttributes { get; set; }
         public Serilog.Events.LogEventLevel RestrictedToMinimumLevel { get; set; }
         public string? TracesEndpoint { get; set; }
+    }
+    public enum OtlpCompression
+    {
+        None = 0,
+        GZip = 1,
     }
     public enum OtlpProtocol
     {

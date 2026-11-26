@@ -106,7 +106,7 @@ static class OtlpEventBuilder
             if (property is { Key: Core.Constants.SourceContextPropertyName, Value: ScalarValue { Value: string sourceContext } })
             {
                 scopeName = sourceContext;
-                if ((includedData & IncludedData.SourceContextAttribute) != IncludedData.SourceContextAttribute)
+                if (!includedData.HasFlag(IncludedData.SourceContextAttribute))
                 {
                     continue;
                 }
@@ -115,7 +115,8 @@ static class OtlpEventBuilder
             if (property is { Key:
                     SpanStartTimestampPropertyName or
                     ParentSpanIdPropertyName or
-                    SpanKindPropertyName })
+                    SpanKindPropertyName or
+                    SpanLinksPropertyName })
             {
                 continue;
             }
@@ -230,17 +231,17 @@ static class OtlpEventBuilder
 
     static void ProcessIncludedFields(Span span, LogEvent logEvent, IncludedData includedFields)
     {
-        if ((includedFields & IncludedData.TraceIdField) != IncludedData.None && logEvent.TraceId is { } traceId)
+        if (includedFields.HasFlag(IncludedData.TraceIdField) && logEvent.TraceId is { } traceId)
         {
             span.TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(traceId.ToHexString());
         }
 
-        if ((includedFields & IncludedData.SpanIdField) != IncludedData.None && logEvent.SpanId is { } spanId)
+        if (includedFields.HasFlag(IncludedData.SpanIdField) && logEvent.SpanId is { } spanId)
         {
             span.SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(spanId.ToHexString());
         }
 
-        if ((includedFields & IncludedData.MessageTemplateTextAttribute) != IncludedData.None)
+        if (includedFields.HasFlag(IncludedData.MessageTemplateTextAttribute))
         {
             span.Attributes.Add(PrimitiveConversions.NewAttribute(SemanticConventions.AttributeMessageTemplateText, new()
             {
@@ -248,7 +249,7 @@ static class OtlpEventBuilder
             }));
         }
 
-        if ((includedFields & IncludedData.MessageTemplateMD5HashAttribute) != IncludedData.None)
+        if (includedFields.HasFlag(IncludedData.MessageTemplateMD5HashAttribute))
         {
             span.Attributes.Add(PrimitiveConversions.NewAttribute(SemanticConventions.AttributeMessageTemplateMD5Hash, new()
             {
@@ -256,28 +257,70 @@ static class OtlpEventBuilder
             }));
         }
 
-        if ((includedFields & IncludedData.MessageTemplateRenderingsAttribute) != IncludedData.None)
+        if (includedFields.HasFlag(IncludedData.MessageTemplateRenderingsAttribute))
         {
-            var tokensWithFormat = logEvent.MessageTemplate.Tokens
-                .OfType<PropertyToken>()
-                .Where(pt => pt.Format != null);
+            ProcessRenderings(span, logEvent);
+        }
 
-            // Better not to allocate an array in the 99.9% of cases where this is false
-            if (tokensWithFormat.Any())
+        if (includedFields.HasFlag(IncludedData.SpanLinks))
+        {
+            ProcessLinks(span, logEvent);
+        }
+    }
+
+    static void ProcessRenderings(Span span, LogEvent logEvent)
+    {
+        var tokensWithFormat = logEvent.MessageTemplate.Tokens
+            .OfType<PropertyToken>()
+            .Where(pt => pt.Format != null);
+
+        // Better not to allocate an array in the 99.9% of cases where this is false
+        if (!tokensWithFormat.Any()) return;
+        
+        var renderings = new ArrayValue();
+
+        foreach (var propertyToken in tokensWithFormat)
+        {
+            var space = new StringWriter();
+            propertyToken.Render(logEvent.Properties, space, CultureInfo.InvariantCulture);
+            renderings.Values.Add(new AnyValue { StringValue = space.ToString() });
+        }
+
+        span.Attributes.Add(PrimitiveConversions.NewAttribute(
+            SemanticConventions.AttributeMessageTemplateRenderings,
+            new AnyValue { ArrayValue = renderings }));
+    }
+    
+    static void ProcessLinks(Span span, LogEvent logEvent)
+    {
+        if (!logEvent.Properties.TryGetValue("SpanLinks", out var sl) ||
+            sl is not SequenceValue spanLinks) return;
+        
+        foreach (var logEventLink in spanLinks.Elements)
+        {
+            if (logEventLink is not ScalarValue { Value: ActivityLink activityLink })
+                continue;
+
+            var spanLink = new Span.Types.Link
             {
-                var renderings = new ArrayValue();
+                TraceId = PrimitiveConversions.ToOpenTelemetryTraceId(activityLink.Context.TraceId.ToHexString()),
+                SpanId = PrimitiveConversions.ToOpenTelemetrySpanId(activityLink.Context.SpanId.ToHexString()),
+                Flags = (uint)activityLink.Context.TraceFlags
+            };
 
-                foreach (var propertyToken in tokensWithFormat)
+            if (activityLink.Tags != null)
+            {
+                foreach (var tag in activityLink.Tags)
                 {
-                    var space = new StringWriter();
-                    propertyToken.Render(logEvent.Properties, space, CultureInfo.InvariantCulture);
-                    renderings.Values.Add(new AnyValue { StringValue = space.ToString() });
+                    spanLink.Attributes.Add(new KeyValue
+                    {
+                        Key = tag.Key,
+                        Value = PrimitiveConversions.ToOpenTelemetryPrimitive(tag.Value)
+                    });
                 }
-
-                span.Attributes.Add(PrimitiveConversions.NewAttribute(
-                    SemanticConventions.AttributeMessageTemplateRenderings,
-                    new AnyValue { ArrayValue = renderings }));
             }
+
+            span.Links.Add(spanLink);
         }
     }
 

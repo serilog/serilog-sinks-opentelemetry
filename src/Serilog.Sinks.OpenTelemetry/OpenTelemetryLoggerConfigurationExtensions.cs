@@ -89,6 +89,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             logsEndpoint: options.LogsEndpoint,
             tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
+            compression: options.Compression,
             headers: new Dictionary<string, string>(options.Headers),
             httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler(),
             onBeginSuppressInstrumentation: options.OnBeginSuppressInstrumentation != null ?
@@ -196,6 +197,7 @@ public static class OpenTelemetryLoggerConfigurationExtensions
             logsEndpoint: options.LogsEndpoint,
             tracesEndpoint: options.TracesEndpoint,
             protocol: options.Protocol,
+            compression: options.Compression,
             headers: new Dictionary<string, string>(options.Headers),
             httpMessageHandler: options.HttpMessageHandler ?? CreateDefaultHttpMessageHandler(),
             onBeginSuppressInstrumentation: options.OnBeginSuppressInstrumentation != null ?
