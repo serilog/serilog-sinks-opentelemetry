@@ -107,36 +107,9 @@ static class CleanMessageTemplateFormatter
             return;
         }
 
-        if (value is ValueType)
+        if (formatProvider?.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter customFormatter)
         {
-            if (value is int or uint or long or ulong or decimal or byte or sbyte or short or ushort)
-            {
-                output.Write(((IFormattable)value).ToString(format, formatProvider));
-                return;
-            }
-
-            if (value is double d)
-            {
-                output.Write(d.ToString(format, formatProvider));
-                return;
-            }
-
-            if (value is float f)
-            {
-                output.Write(f.ToString(format, formatProvider));
-                return;
-            }
-
-            if (value is bool b)
-            {
-                output.Write(b);
-                return;
-            }
-        }
-
-        if (value is IFormattable formattable)
-        {
-            output.Write(formattable.ToString(format, formatProvider));
+            output.Write(customFormatter.Format(format, value, formatProvider));
             return;
         }
 
